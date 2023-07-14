@@ -155,7 +155,9 @@ router.post('/addNum',  function(req,res){
               res.render('admin/numX', {
                  message:req.session.message ,
               })
-            }else
+            }else{
+
+          
     
       var num = new Num();
     
@@ -177,7 +179,7 @@ router.post('/addNum',  function(req,res){
     
       })
     
-        .catch(err => console.log(err))
+     }
       
       
       })
