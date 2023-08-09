@@ -12,6 +12,7 @@ var Message = require('../models/message');
 var Recepient = require('../models/recepients');
 var Note = require('../models/note');
 const Num =require('../models/num');
+const Demo =require('../models/demo');
 const Poll2 =require('../models/poll2');
 const Grade =require('../models/grade');
 const { Paynow } = require("paynow");
@@ -189,6 +190,120 @@ router.post('/addNum',  function(req,res){
     
     
 })
+
+
+router.get('/book',function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+
+  res.render('landing/book',{successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+
+})
+
+
+router.post('/book', function(req,res){
+  var name = req.body.name
+  var email = req.body.email
+  var school = req.body.school
+  var a = moment();
+  var year = a.format('YYYY')
+
+
+  req.check('name','Enter Name').notEmpty();
+  req.check('email','Enter Email').notEmpty();
+  req.check('school','Enter School').notEmpty();
+  
+ 
+  
+
+  
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('product/dispatch',{ errors:req.session.errors,pro:pro})
+
+   req.flash('danger', req.session.errors[0].msg);
+       
+        
+   res.redirect('/book');
+    
+  
+  }
+  else{
+  
+  
+  
+ 
+ 
+
+  
+  
+    Demo.findOne({'school':school})
+    .then(user =>{
+        if(user){ 
+      // req.session.errors = errors
+        //req.success.user = false;
+        
+        req.flash('danger', 'Booking already made!');
+  
+        res.redirect('/book')  
+        
+  }
+  
+                else  {   
+             
+  
+                   
+                     
+                          
+                     
+                           
+
+                              
+                  var set = new Demo();
+                  set.name = name;
+                  set.email = email;
+                  set.school = school;
+               
+
+                
+  
+                  
+                   
+              
+                   
+          
+                  set.save()
+                    .then(user =>{
+                             
+                      req.flash('success', 'Booking Made Successfully!');
+  
+                      res.redirect('/book')  
+                              })
+                          }
+                      })
+
+                    }
+                     // res.redirect('/multi')
+                 
+                         
+                  
+                  
+                    
+                   
+  })
+
+
+
+
+
+
+
+
 
 
 
