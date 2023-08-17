@@ -3612,7 +3612,7 @@ router.post('/dashChartA1',isLoggedIn,adminX,function(req,res){
       
       }
     let result = arr.map(function(element){
-      element.mark = element.mark / element.size
+      element.percentage = element.percentage / element.size
       console.log(element.mark,'mark')
       let num = Math.round(element.percentage)
             num.toFixed(2)
@@ -3677,8 +3677,8 @@ router.post('/dashChartA1',isLoggedIn,adminX,function(req,res){
           
           }
           let result = arr.map(function(element){
-            element.mark = element.mark / element.size
-            console.log(element.mark,'mark')
+            element.percentage = element.percentage / element.size
+            console.log(element.percentage,'mark')
             let num = Math.round(element.percentage)
             num.toFixed(2)
             element.percentage =num
@@ -3741,7 +3741,7 @@ router.post('/dashChartA1',isLoggedIn,adminX,function(req,res){
       
       }
       let result = arr.map(function(element){
-        element.mark = element.mark / element.size
+        element.percentage = element.percentage / element.size
         console.log(element.mark,'mark')
         let num = Math.round(element.percentage)
             num.toFixed(2)
@@ -3815,7 +3815,7 @@ router.post('/dashChartA1',isLoggedIn,adminX,function(req,res){
         
         }
       let result = arr.map(function(element){
-        element.mark = element.mark / element.size
+        element.percentage = element.percentage / element.size
         console.log(element.mark,'mark')
         let num = Math.round(element.percentage)
             num.toFixed(2)
