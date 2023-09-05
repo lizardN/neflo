@@ -1238,13 +1238,49 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
               var year = m.format('YYYY')
               var term = req.user.term
               var uid = req.user.studentId
+              var arr = []
               var companyId = req.user.companyId
-                    SubRateX.find({companyId:companyId,year:year,studentId:uid, term:term},function(err,docs){
-                      if(docs == undefined){
+                    TestX.find({companyId:companyId,year:year,studentId:uid, term:term},function(err,docs){
+                      /*if(docs == undefined){
                         res.redirect('/dash')
-                      }else
+                      }else*/
+
+
+                      for(var i = 0;i<docs.length;i++){
+                        //size = docs.length
+                     
+                          
+                         if(arr.length > 0 && arr.find(value => value.subject == docs[i].subject)){
+                               // console.log('true')
+                               arr.find(value => value.subject == docs[i].subject).percentage += docs[i].percentage;
+                               arr.find(value => value.subject == docs[i].subject).size++;
+                              }else{
+                                arr.push(docs[i])
+                                let subject = docs[i].subject
+                                
+                                  //element.size = 0
+                                  if(arr.find(value => value.subject == subject)){
+                             
+                                   
+                                         arr.find(value => value.subject == subject).size++;
+                           
+                                  }
+                                  //element.size = element.size + 1
+                                    
+                               
+                                    }
                   
-                         res.send(docs)
+                      
+                      }
+                      let result = arr.map(function(element){
+                        element.percentage  = element.percentage / element.size
+                        let num = Math.round(element.percentage)
+                        num.toFixed(2)
+                        element.percentage =num
+                        
+                      })
+                  
+                         res.send(arr)
                      
                       
                        })
@@ -1428,7 +1464,7 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
 
                       router.post('/dashChart4',isLoggedIn,parent,function(req,res){
                      
-                        var term = req.user.term
+                        var term = 1
                         var uid = req.user.studentId
                        
                        

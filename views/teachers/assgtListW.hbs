@@ -1287,7 +1287,7 @@
 								<!--begin::Page title-->
 								<div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
 									<!--begin::Title-->
-									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Online Assignments</h1>
+									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Pending Assignments</h1>
 									<!--end::Title-->
 									<!--begin::Separator-->
 									<span class="h-20px border-gray-300 border-start mx-4"></span>
@@ -1338,7 +1338,7 @@
 								<!--begin::Products-->
 								<div class="card card-flush">
 									<!--begin::Card header-->
-									<form action="/teacher/viewAssignments" method="POST">
+									<form action="#" method="POST">
 									<div class="card-header align-items-center py-5 gap-2 gap-md-5">
 										<!--begin::Card title-->
 										<div class="card-title">
@@ -1418,18 +1418,13 @@
 											<thead>
 												<!--begin::Table row-->
 												<tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
-													<th class="min-w-50px">Subject</th>
-													<th class="text-end min-w-50px">Class</th>
-														<th class="text-end min-w-50px">Topic</th>
-													<th class="text-end min-w-50px">Type</th>
-													<th class="text-end min-w-50px">Highest Mark</th>
-													<th class="text-end min-w-50px">Lowest Mark</th>
-													<th class="text-end min-w-50px">Avg Mark</th>
+													<th class="min-w-45px">Student</th>
+													<th class="text-end min-w-45px">Class</th>
 														
-													<th class="text-end min-w-50px">Term</th>
-													<th class="text-end min-w-50px">Year</th>
-												<th class="text-end min-w-45px">Actions</th>
-											
+													<th class="text-end min-w-45px">Type</th>
+													<th class="text-end min-w-45px">Topic</th>
+													<th class="text-end min-w-45px">Subject</th>
+													
 												</tr>
 												<!--end::Table row-->
 											</thead>
@@ -1447,14 +1442,14 @@
 															<div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
 																<a >
 																	<div class="symbol-label">
-																		<img src="{{this.icon}}" alt="{{this.subjectCode}}" class="w-100" />
+																		<img src="uploads/{{this.photo}}" alt="{{this.fullname}}" class="w-100" />
 																	</div>
 																</a>
 															</div>
 															<!--end::Avatar-->
 															<div class="ms-5">
 																<!--begin::Title-->
-																<a  class="text-gray-800 text-hover-primary fs-5 fw-bolder">{{this.subject}}</a>
+																<a  class="text-gray-800 text-hover-primary fs-5 fw-bolder">{{this.fullname}}</a>
 																<!--end::Title-->
 															</div>
 														</div>
@@ -1464,54 +1459,14 @@
 													<td class="text-end pe-0">{{this.class1}}</td>
 													<!--end::No Orders=-->
 													<!--begin::Products sold=-->
-											<td class="text-end pe-0">	<div class="badge badge-light-danger">{{this.topic}}</div>
+											<td class="text-end pe-0">	<div class="badge badge-light-danger">{{this.type}}</div>
 														</td>
 													<!--end::Products sold=-->
-														<td class="text-end pe-0">{{this.type}}</td>
+														<td class="text-end pe-0">{{this.topic}}</td>
 													<!--begin::Tax=-->
-													<td class="text-end pe-0">{{this.highScore}}</td>
+													<td class="text-end pe-0">{{this.subject}}</td>
 													<!--end::Tax=-->
-													<td class="text-end pe-0">{{this.lowestScore}}</td>
-													<!--begin::Total=-->
-													<td class="text-end pe-0">{{this.avgMark}}</td>
-
-													
-
-													<td class="text-end pe-0">{{this.term}}</td>
-														<td class="text-end pe-0">{{this.year}}</td>
-
-
-															<td class="text-end">
-														<a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
-														<!--begin::Svg Icon | path: icons/duotune/arrows/arr072.svg-->
-														<span class="svg-icon svg-icon-5 m-0">
-															<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-																<path d="M11.4343 12.7344L7.25 8.55005C6.83579 8.13583 6.16421 8.13584 5.75 8.55005C5.33579 8.96426 5.33579 9.63583 5.75 10.05L11.2929 15.5929C11.6834 15.9835 12.3166 15.9835 12.7071 15.5929L18.25 10.05C18.6642 9.63584 18.6642 8.96426 18.25 8.55005C17.8358 8.13584 17.1642 8.13584 16.75 8.55005L12.5657 12.7344C12.2533 13.0468 11.7467 13.0468 11.4343 12.7344Z" fill="black" />
-															</svg>
-														</span>
-														<!--end::Svg Icon--></a>
-														<!--begin::Menu-->
-														<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4" data-kt-menu="true">
-															<!--begin::Menu item-->
-															<div class="menu-item px-3">
-																<a href="/teacher/viewAssignments/{{this._id}}" class="menu-link px-3">Check Submissions</a>
-															</div>
-															<!--end::Menu item-->
-																<div class="menu-item px-3">
-																<a href="/teacher/viewAssignment/{{this._id}}" class="menu-link px-3">View Assignment</a>
-															</div>
-
-																<div class="menu-item px-3">
-																<a href="/teacher/viewPending/{{this._id}}" class="menu-link px-3">View Pending Submissions</a>
-															</div>
-															<!--begin::Menu item--
-															<div class="menu-item px-3">
-																<a href="#" class="menu-link px-3" data-kt-users-table-filter="delete_row">Delete</a>
-															</div>
-															<!--end::Menu item-->
-														</div>
-														<!--end::Menu-->
-													</td>
+												
 													<!--end::Total=-->
 												</tr>
 												<!--end::Table row-->
@@ -1533,6 +1488,143 @@
 					</div>
 					<!--end::Content-->
 					<!--begin::Footer-->
+					    
+<script>
+ 
+
+    var table = document.getElementById('kt_ecommerce_report_sales_table')
+    var cells = table.getElementsByClassName("text-end pe-1")
+    for(var i = 0; i< cells.length; i++){
+    cells[i].onclick = function(){
+   console.log(i,'this')
+    if(this.hasAttribute('data-clicked')){
+		
+        return;
+    }
+
+    this.setAttribute('data-clicked', 'yes')
+    this.setAttribute('data-text', this.innerHTML)
+   
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text')
+    input.value = this.innerHTML
+    input.style.width = this.offsetWidth - (this.clientLeft * 2) + 'px';
+    input.style.height = this.offsetHeight - (this.clientTop * 2) + "px";
+    input.style.border = '0px';
+    input.style.fontFamily ="inherit";
+    input.style.fontSize ="inherit";
+    input.style.textAlign = "inherit";
+    input.style.backgroundColor = 'LightGoldenRodYellow';
+
+    input.onblur = function(){
+	
+        var td = input.parentElement;
+			console.log(td.id,'td')
+        var orig_text = input.parentElement.getAttribute('data-text');
+        var current_text = this.value;
+
+		 let reg = /\d+\.*\d*/g;
+
+  let result = current_text.match(reg)
+  let currentMark = Number(result)
+
+
+  
+
+  let resultX = orig_text.match(reg)
+  let originalMark = Number(resultX)
+
+  console.log(currentMark,originalMark,'mark')
+
+  /*if(originalMark < currentMark){*/
+
+
+
+        if(orig_text != current_text ){
+            //there are changes
+            //save into db using ajax
+			console.log(current_text,'current_text')
+	$.ajax({
+      dataType: 'json',
+                data: {
+                    code: current_text,
+                    
+                },
+                type: 'POST',
+                url: "./teacher/grade/update/"+td.id,
+	
+
+      success: function(data) {
+     
+/* if(data.stockUpdate == 'yes'){
+	 alert('Stock cant be updated')
+
+	 console.log(td.id,'id2')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+ }
+else{*/
+	console.log(td.id,'id2')
+	console.log(td,'coalition')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = current_text
+            //cells[5].textContent =  data.percentage
+            td.style.cssText = 'padding: 5px';
+/*}*/
+        
+      
+    	}
+
+
+  });
+			console.log(td.id,'id2')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = current_text
+
+            td.style.cssText = 'padding: 5px';
+			
+            console.log(orig_text + 'is change to ' + current_text)
+		
+        } else{
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+            console.log('No changes made')
+		
+        }
+
+ /* }else{
+
+  
+  alert('error')
+
+	   td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+            console.log('No changes made')
+
+  }*/
+    }
+	
+    this.innerHTML = ''
+    this.style.cssText = 'padding: 0px';
+    this.append(input);
+    this.firstElementChild.select();
+
+}
+    }
+
+
+	
+
+
+</script>
 					
 		<!--end::Modal - Invite Friend-->
 		<!--end::Modals-->

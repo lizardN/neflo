@@ -1420,7 +1420,7 @@
 												<tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
 													
 													<th class="text-end min-w-50px">Subject</th>
-													<th class="min-w-50px">Subject Code</th>
+													<th class="min-w-50px"> Code</th>
 														<th class="text-end min-w-50px">1st Term Pass rate</th>
 													<th class="text-end min-w-50px">Avg Mark</th>
 													<th class="text-end min-w-50px">2nd Term Pass Rate</th>
@@ -1466,7 +1466,23 @@
 													<td class="text-end pe-0">{{this.subjectCode}}</td>
 													<!--end::No Orders=-->
 													<!--begin::Products sold=-->
-										
+			<td class="text-end pe-0">	<div class="badge badge-light-danger">{{this.firstTerm}}</div>
+														</td>
+													<!--end::Products sold=-->
+														<td class="text-end pe-0">{{this.firstAvgMark}}</td>
+													<!--begin::Tax=-->
+													<td class="text-end pe-0">{{this.secondTerm}}</td>
+													<!--end::Tax=-->
+													<td class="text-end pe-0">{{this.secondAvgMark}}</td>
+													<!--begin::Total=-->
+													<td class="text-end pe-0">{{this.thirdTerm}}</td>
+
+													<td class="text-end pe-0">{{this.thirdAvgMark}}</td>
+
+													<td class="text-end pe-0">{{this.term}}</td>
+														<td class="text-end pe-0">{{this.year}}</td>
+
+								
 													<!--end::Total=-->
 												</tr>
 												<!--end::Table row-->

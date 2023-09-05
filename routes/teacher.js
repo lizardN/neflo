@@ -154,6 +154,8 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
     var teacherId = req.user.uid
      var m = moment()
      var year = m.format('YYYY')
+     let arrW=[]
+     let numX
      var marks, marks2
      var arr1=[]
      var companyId = req.user.companyId
@@ -178,6 +180,39 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
            TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, result:'pass', type:'Final Exam', subject:sub, subjectCode:subCode},function(err,lods){
           /* if(hods.length >=1){*/
             console.log(lods,'lods')
+            for(var i = 0;i<hods.length;i++){
+              size = hods.length
+           
+                
+               if(arrW.length > 0 && arrW.find(value => value.subject == hods[i].subject)){
+                      console.log('true')
+                     arrW.find(value => value.subject == hods[i].subject).percentage += hods[i].percentage;
+                     arrW.find(value => value.subject == hods[i].subject).size++;
+                    }else{
+                      arrW.push(hods[i])
+                      let subject = hods[i].subject
+                      
+                        //element.size = 0
+                        if(arrW.find(value => value.subject == subject)){
+                   
+                         
+                               arrW.find(value => value.subject == subject).size++;
+                 
+                        }
+                        //element.size = element.size + 1
+                          
+                     
+                          }
+                
+                }
+                let result = arrW.map(function(element){
+                  element.percentage  = element.percentage / element.size
+                  console.log(element.mark,'mark')
+                   numX = Math.round(element.percentage)
+numX.toFixed(2)
+element.percentage =numX
+                })
+  
    
             totalexams = hods.length;
             examsPassed = lods.length
@@ -227,18 +262,18 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
          if(term == 1){
    
      
-           TeacherExamRate.findByIdAndUpdate(id3,{$set:{firstTerm:passRate, firstAvgMark:avgMark}},function(err,kocs){
+           TeacherExamRate.findByIdAndUpdate(id3,{$set:{firstTerm:passRate, firstAvgMark:numX}},function(err,kocs){
         
            
            })
          }else if(term == 2){
          
-           TeacherExamRate.findByIdAndUpdate(id3,{$set:{secondTerm:passRate,secondAvgMark:avgMark}},function(err,kocs){
+           TeacherExamRate.findByIdAndUpdate(id3,{$set:{secondTerm:passRate,secondAvgMark:numX}},function(err,kocs){
          
                
                })
              }else{
-               TeacherExamRate.findByIdAndUpdate(id3,{$set:{thirdTerm:passRate,thirdAvgMark}},function(err,kocs){
+               TeacherExamRate.findByIdAndUpdate(id3,{$set:{thirdTerm:passRate,thirdAvgMark:numX}},function(err,kocs){
                
                    
                    })
@@ -254,12 +289,44 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
              else
    
            var  idX  = docs[0]._id
+    
    
            TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,hods){
    
             TestX.find({companyId:companyId,term:term,year:year, result:'pass',teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,lods){
             if(hods.length >=1){
-    
+              for(var i = 0;i<hods.length;i++){
+                size = hods.length
+             
+                  
+                 if(arrW.length > 0 && arrW.find(value => value.subject == hods[i].subject)){
+                        console.log('true')
+                       arrW.find(value => value.subject == hods[i].subject).percentage += hods[i].percentage;
+                       arrW.find(value => value.subject == hods[i].subject).size++;
+                      }else{
+                        arrW.push(hods[i])
+                        let subject = hods[i].subject
+                        
+                          //element.size = 0
+                          if(arrW.find(value => value.subject == subject)){
+                     
+                           
+                                 arrW.find(value => value.subject == subject).size++;
+                   
+                          }
+                          //element.size = element.size + 1
+                            
+                       
+                            }
+                  
+                  }
+                  let result = arrW.map(function(element){
+                    element.percentage  = element.percentage / element.size
+                    console.log(element.mark,'mark')
+                     numX = Math.round(element.percentage)
+numX.toFixed(2)
+element.percentage =numX
+                  })
     
              totalexams = hods.length;
              examsPassed = lods.length
@@ -285,18 +352,18 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
                 if(term == 1){
    
      
-                 TeacherExamRate.findByIdAndUpdate(idX,{$set:{firstTerm:passRate,firstAvgMark:avgMark}},function(err,kocs){
+                 TeacherExamRate.findByIdAndUpdate(idX,{$set:{firstTerm:passRate,firstAvgMark:numX}},function(err,kocs){
               
                  
                  })
                }else if(term == 2){
                
-                 TeacherExamRate.findByIdAndUpdate(idX,{$set:{secondTerm:passRate, secondAvgMark:avgMark}},function(err,kocs){
+                 TeacherExamRate.findByIdAndUpdate(idX,{$set:{secondTerm:passRate, secondAvgMark:numX}},function(err,kocs){
                
                      
                      })
                    }else{
-                     TeacherExamRate.findByIdAndUpdate(idX,{$set:{thirdTerm:passRate, thirdAvgMark:avgMark}},function(err,kocs){
+                     TeacherExamRate.findByIdAndUpdate(idX,{$set:{thirdTerm:passRate, thirdAvgMark:numX}},function(err,kocs){
                      
                          
                          })
@@ -372,6 +439,7 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
        var year = m.format('YYYY')
        var marks, marks2
        var arr1=[]
+       var arrX =[]
        var number1
        var term = req.user.term
        var companyId = req.user.companyId
@@ -469,12 +537,47 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
                else
      
              var  idX  = docs[0]._id
+             let arrW=[]
+             let numX
      
              TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,hods){
      
               TestX.find({companyId:companyId,term:term,year:year, result:'pass',teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,lods){
               if(hods.length >=1){
            
+               
+                  for(var i = 0;i<hods.length;i++){
+                    size = hods.length
+                 
+                      
+                     if(arrW.length > 0 && arrW.find(value => value.subject == hods[i].subject)){
+                            console.log('true')
+                           arrW.find(value => value.subject == hods[i].subject).percentage += hods[i].percentage;
+                           arrW.find(value => value.subject == hods[i].subject).size++;
+                          }else{
+                            arrW.push(hods[i])
+                            let subject = hods[i].subject
+                            
+                              //element.size = 0
+                              if(arrW.find(value => value.subject == subject)){
+                         
+                               
+                                     arrW.find(value => value.subject == subject).size++;
+                       
+                              }
+                              //element.size = element.size + 1
+                                
+                           
+                                }
+                      
+                      }
+                      let result = arrW.map(function(element){
+                        element.percentage  = element.percentage / element.size
+                        console.log(element.mark,'mark')
+                         numX = Math.round(element.percentage)
+    numX.toFixed(2)
+    element.percentage =numX
+                      })
      console.log(hods.length,lods.length,'well, well')
       
                totalexams = hods.length;
@@ -486,13 +589,13 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
      
                for(var q = 0;q<hods.length; q++){
        
-                 arr1.push(hods[q].percentage)
+                 arrX.push(hods[q].percentage)
                    }
                    //adding all incomes from all lots of the same batch number & growerNumber & storing them in variable called total
                     totalMarks=0;
-                   for(var z in arr1) { totalMarks += arr1[z]; }
+                   for(var z in arrX) { totalMarks += arrX[z]; }
       
-                   let  avgMarkX = totalMarks / numberOfMarks
+                   let  avgMarkX = totalMarks / totalexams
                    
                    avgMark = Math.round(avgMarkX)
                    avgMark.toFixed(2)
@@ -501,18 +604,18 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
                   if(term == 1){
      
        
-                    TeacherClassRate.findByIdAndUpdate(idX,{$set:{firstTerm:passRate,firstAvgMark:avgMark}},function(err,kocs){
+                    TeacherClassRate.findByIdAndUpdate(idX,{$set:{firstTerm:passRate,firstAvgMark:numX}},function(err,kocs){
                 
                    
                    })
                  }else if(term == 2){
                  
-                  TeacherClassRate.findByIdAndUpdate(idX,{$set:{secondTerm:passRate, secondAvgMark:avgMark}},function(err,kocs){
+                  TeacherClassRate.findByIdAndUpdate(idX,{$set:{secondTerm:passRate, secondAvgMark:numX}},function(err,kocs){
                  
                        
                        })
                      }else{
-                      TeacherClassRate.findByIdAndUpdate(idX,{$set:{thirdTerm:passRate, thirdAvgMark:avgMark}},function(err,kocs){
+                      TeacherClassRate.findByIdAndUpdate(idX,{$set:{thirdTerm:passRate, thirdAvgMark:numX}},function(err,kocs){
                        
                            
                            })
@@ -3689,6 +3792,16 @@ res.render('teachers/assgt',{doc:doc,pro:pro})
 })
 
 
+
+router.get('/viewPending/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+  var uid = req.user.uid
+ TestX.find({type2:'online assignment',submissionStatus:'pending',teacherId:uid,quizId:id},function(err,docs){
+res.render('teachers/assgtListW',{listX:docs,pro:pro,id:id})
+  })
+
+})
 //student registered subjects
 router.get('/subjects',isLoggedIn,teacher,function(req,res){
      var pro = req.user
