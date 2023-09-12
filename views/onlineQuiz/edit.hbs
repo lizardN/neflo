@@ -1318,7 +1318,7 @@
 						<!--end::Container-->
 					</div>
 					<!--end::Header-->
-					<!--begin::Content-->
+				<!--begin::Content-->
 					<div class="content d-flex flex-column flex-column-fluid" id="kt_content">
 						<!--begin::Toolbar-->
 						<div class="toolbar" id="kt_toolbar">
@@ -1327,118 +1327,254 @@
 								<!--begin::Page title-->
 								<div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
 									<!--begin::Title-->
-									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1"></h1>
-									<!--end::Title-->
+									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Student Results
 									<!--begin::Separator-->
-									<span class="h-20px border-gray-300 border-start mx-4"></span>
+									<span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
 									<!--end::Separator-->
-									<!--begin::Breadcrumb-->
-									<ul class="breadcrumb breadcrumb-separatorless fw-bold fs-7 my-1">
-										<!--begin::Item-->
-										<li class="breadcrumb-item text-muted">
-											<a href="/student/dash" class="text-muted text-hover-primary">Home</a>
-										</li>
-										<!--end::Item-->
-										<!--begin::Item-->
-										
-										<!--end::Item-->
-									</ul>
-									<!--end::Breadcrumb-->
+									<!--begin::Description-->
+									<small class="text-muted fs-7 fw-bold my-1 ms-1"></small>
+									<!--end::Description--></h1>
+									<!--end::Title-->
 								</div>
 								<!--end::Page title-->
-								<!--begin::Actions-->
-							
+								
+										
+											<!--end::Form-->
+										
+									<!--end::Filter menu-->
+									<!--begin::Secondary button-->
+									<!--end::Secondary button-->
+									<!--begin::Primary button-->
+									
+									<!--end::Primary button-->
+								</div>
 								<!--end::Actions-->
 							</div>
 							<!--end::Container-->
 						</div>
 						<!--end::Toolbar-->
-						<!--begin::Post-->
-						<div class="post d-flex flex-column-fluid" id="kt_post">
+
+
+
+
+
+	<div class="post d-flex flex-column-fluid" id="kt_post">
 							<!--begin::Container-->
 							<div id="kt_content_container" class="container-xxl">
-								<!--begin::Navbar-->
-								<div class="card mb-5 mb-xl-10">
-									<div class="card-body pt-9 pb-0">
-										<!--begin::Details-->
-											
-								<!--end::Navbar-->
-								<!--begin::Row-->
-						
-								<!--end::Row-->
-								<!--begin::Login sessions-->
-								<div class="card mb-5 mb-xl-10">
-									<!--begin::Card header-->
-									<div class="card-header">
-										<!--begin::Heading-->
-										<div class="card-title">
-											<h3>Subjects</h3>
-										</div>
-										<!--end::Heading-->
-										<!--begin::Toolbar-->
-										<div class="card-toolbar">
-											<div class="my-1 me-4">
-												<!--begin::Select--
-												<select class="form-select form-select-sm form-select-solid w-125px" data-control="select2" data-placeholder="Select Hours" data-hide-search="true">
-													<option value="1" selected="selected">1 Hours</option>
-													<option value="2">6 Hours</option>
-													<option value="3">12 Hours</option>
-													<option value="4">24 Hours</option>
-												</select>
-												<!--end::Select-->
+
+
+
+<!--begin::Content-->
+									<div class="col-xl-12">
+										<!--begin::Contacts-->
+										<div class="card card-flush h-lg-100" id="kt_contacts_main">
+											<!--begin::Card header-->
+											<div class="card-header pt-7" id="kt_chat_contacts_header">
+												<!--begin::Card title-->
+												<div class="card-title">
+													<!--begin::Svg Icon | path: icons/duotune/communication/com005.svg-->
+													
+													<!--end::Svg Icon-->
+													<h2>Add Students Class Tests Results</h2>
+												</div>
+												<!--end::Card title-->
 											</div>
-											<a href="#" class="btn btn-sm btn-primary my-1">View All</a>
-										</div>
-										<!--end::Toolbar-->
-									</div>
-									<!--end::Card header-->
-									<!--begin::Card body-->
-									<div class="card-body p-0">
-										<!--begin::Table wrapper-->
-										<div class="table-responsive">
-											<!--begin::Table-->
-											<table class="table table-flush align-middle table-row-bordered table-row-solid gy-4 gs-9">
+											<!--end::Card header-->
+											<!--begin::Card body-->
+											<div class="card-body pt-5">
+												<!--begin::Form-->
+												               	{{# if success }}
+    <section class="success">
+        <h2>Successful Validation!</h2>
+    </section>
+{{ else }}
+    {{# if errors }}
+        <section class="errors">
+            <ul>
+                {{# each errors }}
+                    <li>{{ this.msg }}</li>
+                {{/each}}
+            </ul>
+        </section>
+
+        {{/if}}
+        {{#if message}}
+        <div  class="{{message.type}}">
+            <strong>{{message.intro}}</strong>{{message.message}}
+        </div>
+        {{/if}}
+												<form id="kt_ecommerce_settings_general_form" class="form" method="post" action="/teacher/editQuiz/{{exam.quizId}}" >
+													<!--begin::Input group-->
 													
-												<!--begin::Thead-->
-												<thead class="border-gray-200 fs-5 fw-bold bg-lighten">
-													<tr>
-														<th class="min-w-250px">Subject Code</th>
-														<th class="min-w-100px">Grade</th>
-														<th class="min-w-150px">Subject</th>
+																<!--begin::Row-->
+													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span class="required">Question  {{x}}</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
+																</label>
+																<!--end::Label-->
+							<input type="text" class="form-control form-control-solid" name="question" id="question" value="{{exam.question}}" />
+																<!--begin::Input-->
+															
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span>Choice 1</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
+																</label>
+																<!--end::Label-->
+																<!--begin::Input-->
+																<input type="text" class="form-control form-control-solid" name="choice1" id="choice1" value="{{exam.choice1}}" />
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
+													</div>
+													<!--end::Row-->
+													<!--begin::Row-->
+													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span class="required">Choice 2</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
+																</label>
+																<!--end::Label-->
+																<!--begin::Input-->
+																<input type="text" class="form-control form-control-solid" name="choice2" id="choice2" value="{{exam.choice2}}" />
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span>Choice 3</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
+																</label>
+																<!--end::Label-->
+																<!--begin::Input-->
+																<input type="text" class="form-control form-control-solid" name="choice3" id="choice3" value="{{exam.choice3}}" />
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
+													</div>
+													<!--end::Row-->
+													<!--begin::Row-->
+													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span>Choice 4</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
+																</label>
+																<!--end::Label-->
+																<!--begin::Input-->
+															<input type="text" class="form-control form-control-solid" name="choice4" id="choice4" value="{{exam.choice4}}" />
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
 														
-													</tr>
-												</thead>
-												<!--end::Thead-->
-												<!--begin::Tbody-->
-												<tbody class="fw-6 fw-bold text-gray-600">
-														 {{#each listX}}
-													<tr>
-														<td>
-															<a href="#" class="text-hover-primary text-gray-600">{{this.subjectCode}}</a>
-														</td>
-														<td>
-															<span class="badge badge-light-success fs-7 fw-bolder">{{this.grade}}</span>
-														</td>
-														<td>{{this.subjectName}}</td>
+														<!--begin::Col-->
+														<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span class="required">Answer</span>
+																</label>
+																<!--end::Label-->
+															<input type="number" class="form-control form-control-solid" name="answer" id="answer" value="{{exam.answer}}" />
+															</div>
+															<!--end::Input group-->
+														</div>
+														<!--end::Col-->
+													</div>
+													<!--end::Row-->
+                                         <div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
+														<!--begin::Col-->
 													
-													</tr>
-													{{/each}}
-												</tbody>
+														<!--end::Col-->
+														<!--begin::Col-->
+		
+														<!--end::Col-->
+													</div>
+
+   								<!--begin::Row-->
+													
+													<!--end::Row-->
+
+
+  						<!--begin::Input group-->
 												
-												<!--end::Tbody-->
-											</table>
-											<!--end::Table-->
+													<!--end::Input group-->
+													<!--begin::Separator-->
+													<div class="separator mb-6"></div>
+													<!--end::Separator-->
+													<!--begin::Action buttons-->
+													<div class="d-flex justify-content-end">
+														<!--begin::Button-->
+														<button type="reset" data-kt-contacts-type="cancel" class="btn btn-light me-3">Cancel</button>
+														<!--end::Button-->
+														<!--begin::Button-->
+														<button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to Save this Question ?');">
+															<span class="indicator-label">Save</span>
+															<span class="indicator-progress">Please wait...
+															<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+														</button>
+														<!--end::Button-->
+													</div>
+													<!--end::Action buttons-->
+												</form>
+												<!--end::Form-->
+												   {{/if}}
+											</div>
+											<!--end::Card body-->
 										</div>
-										<!--end::Table wrapper-->
+										<!--end::Contacts-->
 									</div>
-									<!--end::Card body-->
+									<!--end::Content-->
 								</div>
-								<!--end::Login sessions-->
-								<!--begin::License usage-->
-								
-		<!--end::Modal - Invite Friend-->
-		<!--end::Modals-->
-		<!--begin::Javascript-->
+
+
+
+
+
+
+
+
+
+
+
+                                	<!--begin::Javascript-->
 		<script>var hostUrl = "assets/";</script>
 		<!--begin::Global Javascript Bundle(used by all pages)-->
 		<script src="assets/plugins/global/plugins.bundle.js"></script>
@@ -1448,21 +1584,103 @@
 		<script src="assets/plugins/custom/datatables/datatables.bundle.js"></script>
 		<!--end::Page Vendors Javascript-->
 		<!--begin::Page Custom Javascript(used by this page)-->
-		<script src="assets/js/custom/account/security/security-summary.js"></script>
-		<script src="assets/js/custom/account/security/license-usage.js"></script>
+		<script src="assets/js/custom/apps/contacts/edit-contact.js"></script>
 		<script src="assets/js/widgets.bundle.js"></script>
 		<script src="assets/js/custom/widgets.js"></script>
 		<script src="assets/js/custom/apps/chat/chat.js"></script>
 		<script src="assets/js/custom/utilities/modals/upgrade-plan.js"></script>
 		<script src="assets/js/custom/utilities/modals/create-app.js"></script>
-		<script src="assets/js/custom/utilities/modals/offer-a-deal/type.js"></script>
-		<script src="assets/js/custom/utilities/modals/offer-a-deal/details.js"></script>
-		<script src="assets/js/custom/utilities/modals/offer-a-deal/finance.js"></script>
-		<script src="assets/js/custom/utilities/modals/offer-a-deal/complete.js"></script>
-		<script src="assets/js/custom/utilities/modals/offer-a-deal/main.js"></script>
 		<script src="assets/js/custom/utilities/modals/users-search.js"></script>
-		<!--end::Page Custom Javascript-->
-		<!--end::Javascript-->
-	</body>
-	<!--end::Body-->
-</html>
+
+
+
+
+
+
+
+
+	
+
+    <script>
+      $(function(){
+    $('#subjectCode').autocomplete({
+    source: function(req,res){
+
+      $.ajax({
+        url:"/teacher/autocomplete/",
+        dataType:"jsonp",
+        type:"GET",
+        data:req,
+        success: function(data){
+          res(data)
+        
+
+        },
+        error: function(err){
+          console.log(err.status);
+        }
+      });
+    },
+
+    minLength:1,
+    select: function(event,ui){
+
+  $.ajax({
+                dataType: 'json',
+                data: {
+                    code: ui.item.label,
+                    
+                },
+                type: 'POST',
+                url: "/teacher/auto",
+                success: function(data) {
+               
+                
+                
+                
+                $("#subjectCode").val(data.subjectCode)
+                 $("#subject").val(data.subjectName)
+                 $('#grade').val(data.grade)
+       
+                 
+                 
+                 
+          
+                }
+               
+            });
+ 
+
+
+
+  
+    }
+
+
+
+    });
+
+      });
+      </script> 
+
+
+
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.3.min.js"   integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ="   crossorigin="anonymous"></script>
+ <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>  
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+
+
+
+
+
+
+

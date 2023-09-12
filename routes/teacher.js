@@ -27,6 +27,7 @@ const Income =require('../models/incomeX');
 const Expenses = require('../models/expenses')
 const FeesUpdate =require('../models/feesUpdate');
 const Question = require('../models/question');
+const QuestionT = require('../models/questionT');
 var mongoose = require('mongoose')
 var passport = require('passport')
 var xlsx = require('xlsx')
@@ -5555,7 +5556,7 @@ router.get('/tests',isLoggedIn,teacher, (req, res) => {
   var pro = req.user
 var uid= req.user.uid
 var companyId = req.user.companyId
-Test.find({companyId:companyId,teacherId:uid, type:'Class Test'},(err, docs) => {
+Test.find({companyId:companyId,teacherId:uid, type2:'online quiz'},(err, docs) => {
 if (!err) {
    res.render("teacherExam/resultXX", {
       list:docs, pro:pro
@@ -5565,6 +5566,22 @@ if (!err) {
 });
 });
 
+
+
+
+router.get('/testsList',isLoggedIn,teacher, (req, res) => {
+  var pro = req.user
+var uid= req.user._id
+var companyId = req.user.companyId
+Test.find({teacherId:uid, type2:'online quiz'},(err, docs) => {
+if (!err) {
+   res.render("teacherExam/listTest", {
+      listX:docs, pro:pro
+     
+   });
+}
+});
+});
 
 //student results
 router.get('/results',isLoggedIn,teacher, (req, res) => {
@@ -5870,6 +5887,88 @@ router.get('/setX9',isLoggedIn,function(req,res){
 //enter exam qustions
 
 
+router.get('/editQuiz/:id',isLoggedIn,function(req,res){
+  var id = req.params.id;
+  var pro = req.user
+  var batchNo = req.user.quizBatch
+  var quizBatch
+  var x  = req.user.questNo
+  Test.findById(id,function(err,doc){
+     quizBatch = doc.quizBatch
+
+console.log(quizBatch,'Batch')
+
+     
+     if(x > quizBatch){
+      User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+  
+  
+      })
+     res.redirect('/teacher/testsList')
+     }else{
+
+     
+     
+    // x++
+     //res.render('onlineQuiz/batch',{x:x})
+   
+   
+
+
+
+       Question.find({quizId:id,questionNo:x},function(err,docs){
+console.log(id,'xx',x)
+ console.log(docs,'DOCS')
+        res.render("onlineQuiz/edit", {
+               
+          exam: docs[0],pro:pro
+        
+          
+      })
+    
+
+    
+})
+     }
+     
+})
+})
+
+router.post('/editQuiz/:id',isLoggedIn,teacher, function(req,res){
+  var id = req.params.id;
+  var batchNo = req.user.quizBatch
+  var quizBatch
+  var questNo=req.user.questNo
+  var userId = req.user._id
+  Test.findById(id,function(err,doc){
+     quizBatch = doc.quizBatch
+console.log(quizBatch)
+    // for(var i = 1; i<=quizBatch; i++){
+       Question.find({quizId:id,questionNo:questNo},function(err,docs){
+for(var x = 0; x<docs.length;x++){
+ 
+  Question.findOneAndUpdate({_id:docs[x]._id},req.body,
+    { new: true }, (err, doc) => {
+     
+     
+   })
+}
+       })
+     //}
+  })
+
+  x =req.user.questNo
+
+  
+  x++
+  User.findByIdAndUpdate(userId,{$set:{questNo:x}}, function(err,docs){
+  
+  
+  })
+  res.redirect('/teacher/editQuiz/'+id)
+  
+  })
+
 
 router.get('/set',isLoggedIn,teacher, function(req,res){
   var id = req.user._id;
@@ -5877,13 +5976,29 @@ router.get('/set',isLoggedIn,teacher, function(req,res){
   
   
 
-  x =req.user.quizNo
-  if(x == batchNo){
-  res.redirect('/teacher/quizBatch')
-  }else
+  x =req.user.questNo
+  if(x > batchNo){
+
+     console.log('true ehe')
+  User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+  if(!err)
+    res.redirect('/teacher/quizBatch')
+  })
+
+  }else{
+
   
-  x++
-  res.render('onlineQuiz/batch',{x:x})
+  
+  //x++
+   //x++
+  console.log('false',x)
+  User.findByIdAndUpdate(id,{$set:{questNo:x}}, function(err,docs){
+    if(!err)
+    res.render('onlineQuiz/batch',{x:x})
+  
+  })
+}
+  //res.render('onlineQuiz/batch',{x:x})
   
   })
 
@@ -5892,7 +6007,7 @@ router.get('/set',isLoggedIn,teacher, function(req,res){
   
 router.post('/set',isLoggedIn,teacher, function(req,res){
   var batchNo = req.user.quizBatch
-  var x =req.user.quizNo
+  var x =req.user.questNo
 var question = req.body.question;
 var subject = req.body.subject;
 var choice1 = req.body.choice1;
@@ -5906,6 +6021,9 @@ var quizId = req.user.quizId
 var id = req.user._id
 var pro = req.user
 console.log(duration, quizId, 'quizId')
+console.log(x,'xxx')
+
+
 
 /*
 Class1.find({class1:classX},function(err,docs){
@@ -5957,6 +6075,7 @@ for(var i = 0;i<docs.length;i++){
   test.studentId = docs[i]._id
   test.quizId= quizId
  test.quizDuration = duration
+ test.questionNo= x
   
   test.save()
   .then(tes =>{
@@ -5968,21 +6087,53 @@ for(var i = 0;i<docs.length;i++){
 }
 
 
-if(batchNo == x){
+
+
+/*if(batchNo == x){
   
-  User.findByIdAndUpdate(id,{$set:{quizNo:0,quizBatch:0, quizId:"null"}}, function(err,docs){
+  User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
   
   
   })
   
-  res.redirect('/teacher/quizBatch')
+  //res.redirect('/teacher/quizBatch')
   
   
-  }else
+  }else*/
+
+
+  var tes = QuestionT();
+  tes.question = question;
+  tes.subject = subject;
+  tes.choice1 = choice1;
+  tes.choice2 = choice2;
+  tes.year = year;
+  tes.finalAns = 'null';
+  tes.stdAns = -1;
+  tes.activeNum = 0
+  tes.choice3  = choice3;
+  tes.choice4 = choice4;
+  tes.answer = answer;
+  tes.status = 'valid'
+  tes.status2 = 'null'
+  tes.teacherId = req.user._id
+  tes.quizId= quizId
+ tes.quizDuration = duration
+ tes.questionNo= x
+  
+  tes.save()
+  .then(tes =>{
+
+
+
+  })
+
+
+
   
   x++
   console.log('x',x)
-  User.findByIdAndUpdate(id,{$set:{quizNo:x}}, function(err,docs){
+  User.findByIdAndUpdate(id,{$set:{questNo:x}}, function(err,docs){
   
   
   })
@@ -5994,6 +6145,21 @@ res.redirect('/teacher/set')
 
 
 
+router.get('/onlineQuiz/delete/:id',isLoggedIn, (req, res) => {
+  Question.find({quizId:req.params.id},function(err,docs){
+
+    for(var i = 0; i<docs.length;i++){
+      Question.findByIdAndRemove(docs[i]._id, (err, doc) => {
+
+      })
+    }
+    Test.findByIdAndRemove(req.params.id, (err, doc) => {
+      if (!err) {
+        res.redirect('/teacher/testsList');
+      }
+    })
+  })
+  })
 
 
 
@@ -6285,6 +6451,147 @@ router.get('/topics',isLoggedIn,teacher, function(req,res){
                 
   })
   
+
+
+
+
+
+
+
+
+
+
+
+  
+
+//
+router.post('/dataXX/:id',function(req,res){
+  console.log('clone')
+  var id = req.params.id
+  Test.findById(id,function(err,doc){
+res.send(doc)
+  })
+})
+//Online Quiz
+
+router.get('/quiz/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  res.render('onlineQuizTeacher/index',{id:id})
+})
+
+router.post('/quest',isLoggedIn,function(req,res){
+var id = req.user._id
+var code = req.body.code
+QuestionT.find({teacher:id,quizId:code,status2:'activated'},(err,docs)=>{
+console.log(docs,'docs')
+  res.send(docs)
+})
+})
+
+
+router.post('/quest/:id',isLoggedIn,function(req,res){
+var id = req.params.id
+var code = req.body.code
+QuestionT.findByIdAndUpdate(id,{$set:{stdAns:code}},function(err,doc){
+ console.log(doc,'doc')
+let stdAns = doc.stdAns
+let answer = doc.answer
+let activeNum = doc.stdAns
+activeNum++
+
+if(answer == code){
+  QuestionT.findByIdAndUpdate(id,{$set:{finalAns:'correct',activeNum:activeNum}},function(err,poc){
+console.log('yes')
+
+})
+}
+else
+  {
+
+QuestionT.findByIdAndUpdate(id,{$set:{finalAns:'wrong',activeNum:activeNum}},function(err,not){
+  console.log('yes')
+      })
+
+    }
+
+
+
+
+
+res.send(doc)
+})
+})
+
+
+
+router.post('/back/:id',function(req,res){
+var id = req.params.id
+var arr
+
+QuestionT.findById(id,function(err,doc){
+
+res.send(doc)
+})
+})
+
+
+router.post('/fquest/',isLoggedIn,function(req,res){
+var code = req.body.code
+var arr
+var companyId = req.user.companyId
+console.log(code,'code')
+var teacherId = req.user._id
+var m = moment()
+var year = m.format('YYYY')
+var month = m.format('MMMM')
+var mformat = m.format("L")
+var numDate = m.valueOf()
+  
+  QuestionT.find({quizId:code,finalAns:'correct',teacherId:teacherId},function(err,docs){
+    let mark = docs.length
+QuestionT.find({quizId:code,teacherId:teacherId},function(err,tocs){
+let possibleMark = tocs.length
+for(var i = 0;i<tocs.length;i++){
+
+  QuestionT.findByIdAndUpdate(tocs[i]._id,{$set:{status:'completed'}},function(err,nocs){
+
+  })
+}
+
+
+
+
+
+
+
+})
+
+
+     res.send(docs)
+  })
+ 
+
+
+   })
+   
+
+
+
+router.get('/test',function(req,res){
+  QuestionT.find({},(err,docs)=>{
+      console.log(docs)
+      // res.send(docs)
+     })
+})
+
+
+
+
+
+
+
+
+
 
 
 

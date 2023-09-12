@@ -8,7 +8,7 @@ let idX = document.getElementById('idX').value
     dataType: 'json',
  
     type: 'POST',
-    url: "/student/quest",
+    url: "/teacher/quest",
 	data:{
         code:idX,
     },
@@ -169,7 +169,7 @@ choice_que.forEach((choices, choiceNo) => {
             code:choiceNo
           },
           type: 'POST',
-          url: "/student/quest/"+MCQS[index]._id,
+          url: "/teacher/quest/"+MCQS[index]._id,
           success: function(data) {
               console.log(data,'albert')
 console.log(choiceNo,'success')
@@ -216,7 +216,7 @@ back_question.addEventListener("click", (choices) => {
         dataType: 'json',
     
         type: 'POST',
-        url: "/student/back/"+MCQS[index]._id,
+        url: "/teacher/back/"+MCQS[index]._id,
         success: function(data) {
 
       choice_que.forEach(removeActive => {
@@ -250,7 +250,7 @@ next_question.addEventListener("click", () => {
             dataType: 'json',
         
             type: 'POST',
-            url: "/student/back/"+MCQS[index]._id,
+            url: "/teacher/back/"+MCQS[index]._id,
             success: function(data) {
         choice_que.forEach(removeActive => {
             removeActive.classList.remove("active");
@@ -275,7 +275,7 @@ next_question.addEventListener("click", () => {
               code:quizId
           },
           type: 'POST',
-          url: "/student/fquest/",
+          url: "/teacher/fquest/",
           success: function(data) {
 console.log('success')
 let num = data.length
@@ -309,7 +309,7 @@ function finish(){
               code:quizId
           },
           type: 'POST',
-          url: "/student/fquest/",
+          url: "/teacher/fquest/",
           success: function(data) {
 console.log('success')
 let num = data.length
@@ -339,7 +339,7 @@ console.log(percentage,'perc')
 quit.addEventListener("click", () => {
     start.style.display = "none";
     result.style.display = "none";
-    window.location.href="/student/dash"
+    window.location.href="/teacher/dash"
 });
 
 //Start Again When 'Start Again' Button Will Clicked

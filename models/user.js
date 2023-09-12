@@ -6,6 +6,7 @@ var userSchema = new mongoose.Schema({
     surname:{type:String, required:true},
     role:{type:String,required:true},
     role1:{type:String},
+    questNo:{type:Number},
     gender:{type:String,required:true},
     fullname:{type:String,required:true},
     dob:{type:String,required:true},
