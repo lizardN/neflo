@@ -6482,7 +6482,7 @@ router.get('/quiz/:id',isLoggedIn,function(req,res){
 router.post('/quest',isLoggedIn,function(req,res){
 var id = req.user._id
 var code = req.body.code
-QuestionT.find({teacher:id,quizId:code,status2:'activated'},(err,docs)=>{
+QuestionT.find({teacher:id,quizId:code},(err,docs)=>{
 console.log(docs,'docs')
   res.send(docs)
 })
