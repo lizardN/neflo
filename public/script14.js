@@ -35,7 +35,7 @@ var options = {
     }],
     
     title: {
-        text: 'Ajax Example',
+        text: 'School Stats',
     },
     xaxis: {
         categories:labels2,

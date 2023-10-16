@@ -29,7 +29,7 @@ var options = {
     type: 'radar',
   },
   title: {
-    text: 'Basic Radar Chart'
+    text: 'Fin Stats'
   },
   xaxis: {
     categories: ['January', 'February', 'March', 'April', 'May', 'June']
