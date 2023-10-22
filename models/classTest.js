@@ -8,7 +8,7 @@ var testSchema = new mongoose.Schema({
     subjectCode:{type:String, required:true},
     subject:{type:String, required:true},
     question:{type:String, required:true},
-    possibleMark:{type:String,required:true},
+    possibleMark:{type:Number,required:true},
     displayFormat:{type:String,required:true},
     icon:{type:String,required:true},
     grade:{type:Number, required:true},
@@ -19,6 +19,7 @@ var testSchema = new mongoose.Schema({
     topic:{type:String, required:true},
     date:{type:String, required:true},
     month:{type:String, required:true},
+    filename:{type:String,required:true},
     mformat:{type:String, required:true},
     numDate:{type:Number, required:true},
     dateValue:{type:Number, required:true},
@@ -41,6 +42,7 @@ var testSchema = new mongoose.Schema({
     timeLeft:{type:String, required:true},
     status:{type:String, required:true},
     status2:{type:String, required:true},
+    status3:{type:String, required:true},
 companyId:{type:String, required:true},
 
 

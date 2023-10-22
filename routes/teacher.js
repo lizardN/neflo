@@ -13,6 +13,7 @@ const Lesson =require('../models/lesson');
 var Message = require('../models/message');
 var Recepient = require('../models/recepients');
 var Note = require('../models/note');
+var Learn = require('../models/learn');
 const Exam =require('../models/exam');
 const Grade =require('../models/grade');
 const Pass = require('../models/passRate')
@@ -23,6 +24,7 @@ const TeacherDash = require('../models/teacherDash')
 const StudentSub =require('../models/studentSubject');
 const TeacherSub =require('../models/teacherSubject');
 const Topic =require('../models/topic');
+const Topic2 =require('../models/topic2');
 const Income =require('../models/incomeX');
 const Expenses = require('../models/expenses')
 const FeesUpdate =require('../models/feesUpdate');
@@ -39,22 +41,20 @@ var passport = require('passport')
 var moment = require('moment')
 var bcrypt = require('bcrypt-nodejs');
 const classTestX = require('../models/classTestX');
+var imageData= uploadModel.find({})
 
 
-var storage = multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,'./public/uploads/')
-    },
-    filename:(req,file,cb)=>{
-        cb(null,file.originalname)
-    }
+var Storage = multer.diskStorage({
+  destination:'./public/uploads/',
+  filename:(req,file,cb)=>{
+    cb(null,file.originalname)
+  }
 })
-
-
 
 var upload = multer({
-    storage:storage
-})
+  storage:Storage
+}).single('file');
+//student Dashboard
 
 
 
@@ -3486,8 +3486,9 @@ TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
           test.quizId = 'null'
           test.duration =0
           test.status2= 'null'
+          test.status3= 'null'
           test.dateValue2= 0
-          
+          test.filename = 'null'
           test.displayFormat = displayFormat
           
           
@@ -3616,6 +3617,657 @@ res.render('lesson/add-lesson',{message:req.session.message,fullname:fullname, t
 
 
 })
+
+
+
+
+//change subject
+
+router.get('/assignmentAttachBatch',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var successMsg = req.flash('success')[0];
+   res.render('teachers/batch3',{pro:pro,successMsg: successMsg, noMessages: !successMsg})
+})
+
+
+
+router.post('/assignmentAttachBatch',isLoggedIn,teacher,  function(req,res){
+  var subjectCode = req.body.subjectCode;
+  var subject = req.body.subject
+  var grade = req.body.grade
+  var id = req.user._id
+ var icon = req.body.icon
+  
+  
+  req.check('subject','Enter Subject').notEmpty();
+  req.check('subjectCode','Enter Subject Code').notEmpty();
+  
+
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('exam/batch2',{ errors:req.session.errors,pro:pro})
+
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+        res.redirect('/teacher/assignmentAttachBatch');
+  
+  }
+  
+  else {
+  
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
+  .then(sub =>{
+  
+    if(sub){
+
+   
+     
+            User.findByIdAndUpdate(id,{$set:{subjects:subject,subjectCode:subjectCode,grade:grade,icon:icon}}, function(err,coc){
+          
+        
+    })
+    res.redirect('/teacher/assignAttach')
+  }else{
+    console.log('ma1')
+    req.flash('success', 'Subject Does Not Exist!');
+   
+    
+    res.redirect('/teacher/assignmentAttachBatch');
+   //res.render('product/update',{}) 
+  }
+
+  
+  
+  })
+
+}
+  
+
+  })
+
+
+router.get('/assignAttach',isLoggedIn,teacher,function(req,res){
+  /* var companyId = req.user.companyId
+   Class1.find({companyId:companyId},function(err,focs){
+   
+     arr = focs
+   res.render('teacherExam/assgt',{arr:arr})
+   })*/
+ 
+   
+   var arr = []
+   var arr1 = []
+   var user = req.user.term
+   var teacherId = req.user.uid
+   var pro = req.user
+   var errorMsg = req.flash('danger')[0];
+   var successMsg = req.flash('success')[0];
+   var companyId = req.user.companyId
+   var subject = req.user.subjects
+   var subjectCode = req.user.subjectCode
+   var grade = req.user.grade
+   var icon = req.user.icon
+   Class1.find({companyId:companyId}, function(err,docs){
+     Topic.find({subjectCode:subjectCode},function(err,zoc){
+   
+    var arr2 = zoc
+   var arr1 = docs;  
+   
+   res.render('teacherExam/assgt2',{ arr1:arr1,arr2:arr2, user:user,icon:icon, pro:pro, subject:subject,subjectCode:subjectCode, grade:grade,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+   
+   })
+   })
+ })
+ 
+
+
+  
+router.post('/assignAttach',upload,isLoggedIn,teacher, function(req,res){
+  var pro = req.user
+  var day = req.body.day
+  var m2 = moment()
+  var mformat = m2.format('L')
+
+  var m = moment(day)
+  var displayFormat = m.format('MMMM Do YYYY')
+  var dateValueOf = m2.valueOf()
+  var year = m.format('YYYY')
+  var month = m.format('MMMM')
+ 
+  var mformatD = m.format("L")
+  var dateValueOfD = m.valueOf()
+  var teacherName = req.user.fullname;
+  var teacherId = req.user.uid;
+var question = req.body.question;
+var marks = req.body.marks;
+var subjectName = req.body.subject
+var subjectCode = req.body.subjectCode
+var class1 = req.body.class1;
+var type = req.body.type
+var grade = req.body.grade
+var icon = req.body.icon
+console.log(icon,'icon')
+var term = req.user.term
+var arr1 = []
+var companyId = req.user.companyId
+var topic = req.body.topic
+var numDate = m.valueOf()
+
+
+
+//clas.start =    m.format("YYYY-MM-DD")+"T"+start;
+//clas.end =    m.format("YYYY-MM-DD")+"T"+end;
+
+req.check('subject','Enter Subject').notEmpty();
+req.check('subjectCode','Enter Subject Code').notEmpty();
+req.check('class1','Enter Class').notEmpty();
+req.check('day','Enter Deadline Day').notEmpty();
+
+req.check('marks','Enter Marks').notEmpty();
+
+
+
+var errors = req.validationErrors();
+     
+if (errors) {
+
+  /*  Class1.find({companyId:companyId},function(err,focs){*/
+  
+    /*arr = focs*/
+  req.session.errors = errors;
+  req.session.success = false
+ /* res.render('teacherExam/assgt',{errors:req.session.errors,  arr:arr,pro:pro})
+  })*/
+
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+        res.redirect('/teacher/assgtAttach');
+}
+
+
+if(!req.file){
+ 
+
+      req.flash('danger', 'Upload Failed');
+  
+    res.redirect('/teacher/assgtAttach') 
+
+}
+
+
+else 
+{
+TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
+.then(teach=>{
+  if(teach){
+  
+     
+    
+    var filename = req.file.filename;
+      
+console.log(filename,'filename')
+         // console.log(nformat3,'3333')
+         // let nmoment = moment(nformat)
+          //console.log(nmoment,'ccc')
+
+
+
+          var test = Test();
+          test.date = day;
+          test.subject = subjectName;
+          test.subjectCode = subjectCode;
+          test.class1 = class1;
+          test.year = year;
+          test.name = day +" "+class1;
+          test.month  = month;
+          test.numDate = numDate
+          test.teacher = req.user.uid;
+          test.numberOfStudents = 0;
+          test.passRate = 0;
+          test.term = term;
+          test.displayFormat = displayFormat
+          test.topic = topic;
+          test.question = 'null';
+          test.possibleMark = marks
+          test.icon = icon
+          test.highScore = 0
+          test.lowestScore=0;
+          test.dateValue = dateValueOf
+          test.numPasses=0
+          test.avgMark=0
+          test.mformat = mformat
+          test.possibleMark = marks
+          test.type = type
+          test.filename = filename
+          test.type2 = 'online assignment attached'
+          test.type3 = 'class'
+          test.grade = req.body.grade;
+          test.level = 'highschool';
+          test.companyId = companyId
+          test.status = 'null'
+          test.timeLeft= 'null'
+          test.examStatus = 'null'
+          test.examLink = 'null'
+          test.time = 'null'
+          test.teacherId = teacherId
+          test.teacherName = teacherName
+          test.quizNo = 0
+          test.quizBatch = 0
+          test.quizId = 'null'
+          test.duration =0
+          test.status2= 'null'
+          test.status3= 'null'
+          test.dateValue2= 0
+          
+          test.displayFormat = displayFormat
+          
+          
+          test.save()
+          .then(tesn =>{
+
+
+
+
+
+
+
+
+
+      
+/*StudentSub.find({subjectCode:subjectCode},function(err,docs){
+for(var i = 0;i<docs.length;i++){
+let studentId = docs[i].studentId
+let studentName = docs[i].studentName
+let photo = docs[i].photo*/
+
+
+
+
+/*
+        var lesson = new TestX();
+    
+   
+        lesson.question = question;
+        lesson.uid = studentId
+        lesson.fullname = studentName
+        lesson.mark = 0;
+        lesson.possibleMark = marks
+        lesson.class1 = class1;
+        lesson.icon = icon
+        lesson.dateValue = dateValueOf
+        lesson.dateValueD = dateValueOfD
+        lesson.status = 'active'
+        lesson.date = mformat
+        lesson.displayFormat = displayFormat
+        lesson.subject = subjectName;
+        lesson.subjectCode = subjectCode;
+        lesson.mformat = mformat
+        lesson.mformatD = mformatD
+        lesson.deadline= day;
+        lesson.teacherId=teacherId
+        lesson.teacher = teacherName
+        lesson.topic = topic
+        lesson.type = type
+        lesson.term = term
+        lesson.month = month
+        lesson.year = year
+        lesson.grade = grade
+        lesson.assignmentId = tesn._id
+        lesson.filename = 'null'
+        lesson.mformatS = 'null'
+        lesson.dateValueS = 0
+        lesson.displayFormatS = 'null'
+        lesson.submissionStatus = 'pending'
+        lesson.color = 'null'
+        lesson.style = 'null'
+        lesson.size = 0
+        lesson.photo = photo
+        lesson.possibleMark = marks
+        lesson.symbol = 'null'
+        lesson.result = 'null'
+        lesson.quizId =tesn._id
+        lesson.percentage = 0
+        lesson.type2 = 'online assignment'
+        lesson.type3 = 'class'
+        lesson.status3 = 'null'
+        lesson.companyId = companyId
+     
+        
+    
+      lesson.save()
+      .then(less =>{
+       /* Room.find({companyId:companyId},(err, wocs) => {
+          Class1.find({companyId:companyId},function(err,focs){
+            arr=focs
+          arr1 = wocs
+        req.session.message = {
+          type:'success',
+          message:'Lesson Added Successfully'
+        }     
+       
+res.render('lesson/add-lesson',{message:req.session.message,fullname:fullname, teacherId:teacherID,arr:arr, arr1:arr1,pro:pro})
+      })
+    })*/
+       
+
+     /* })*/
+
+   /* }
+
+
+  })*/
+      
+    })
+    
+    req.flash('success', 'Assignment Posted Successfully!');
+  
+    res.redirect('/teacher/assgignAttach')
+  }
+  else{
+  
+      Class1.find({companyId:companyId},function(err,focs){
+        arr = focs
+ 
+    req.session.message = {
+      type:'errors',
+      message:'Subject Code does not exist'
+    }     
+       res.render('teacherExam/assgt2', {
+          message:req.session.message, fullname:fullname, teacherId:teacherID,arr:arr, pro:pro})
+       })
+    
+      
+  }
+})
+
+
+}
+
+
+
+
+})
+
+///////////////////////////////////////////////////////////////////////////
+
+//change subject
+
+router.get('/materialBatch',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var successMsg = req.flash('success')[0];
+   res.render('teachers/batch4',{pro:pro,successMsg: successMsg, noMessages: !successMsg})
+})
+
+
+
+router.post('/materialBatch',isLoggedIn,teacher,  function(req,res){
+  var subjectCode = req.body.subjectCode;
+  var subject = req.body.subject
+  var grade = req.body.grade
+  var id = req.user._id
+ var icon = req.body.icon
+  
+  
+  req.check('subject','Enter Subject').notEmpty();
+  req.check('subjectCode','Enter Subject Code').notEmpty();
+  
+
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('exam/batch2',{ errors:req.session.errors,pro:pro})
+
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+        res.redirect('/teacher/materialBatch');
+  
+  }
+  
+  else {
+  
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
+  .then(sub =>{
+  
+    if(sub){
+
+   
+     
+            User.findByIdAndUpdate(id,{$set:{subjects:subject,subjectCode:subjectCode,grade:grade,icon:icon}}, function(err,coc){
+          
+        
+    })
+    res.redirect('/teacher/attachMaterial')
+  }else{
+    console.log('ma1')
+    req.flash('success', 'Subject Does Not Exist!');
+   
+    
+    res.redirect('/teacher/materialBatch');
+   //res.render('product/update',{}) 
+  }
+
+  
+  
+  })
+
+}
+  
+
+  })
+
+
+router.get('/attachMaterial',isLoggedIn,teacher,function(req,res){
+  /* var companyId = req.user.companyId
+   Class1.find({companyId:companyId},function(err,focs){
+   
+     arr = focs
+   res.render('teacherExam/assgt',{arr:arr})
+   })*/
+ 
+   
+   var arr = []
+   var arr1 = []
+   var user = req.user.term
+   var teacherId = req.user.uid
+   var pro = req.user
+   var errorMsg = req.flash('danger')[0];
+   var successMsg = req.flash('success')[0];
+   var companyId = req.user.companyId
+   var subject = req.user.subjects
+   var subjectCode = req.user.subjectCode
+   var grade = req.user.grade
+   var icon = req.user.icon
+   Class1.find({companyId:companyId}, function(err,docs){
+     Topic.find({subjectCode:subjectCode},function(err,zoc){
+   
+    var arr2 = zoc
+   var arr1 = docs;  
+   
+   res.render('teacherExam/material',{ arr1:arr1,arr2:arr2, user:user,icon:icon, pro:pro, subject:subject,subjectCode:subjectCode, grade:grade,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+   
+   })
+   })
+ })
+ 
+
+
+  
+router.post('/attachMaterial',upload,isLoggedIn,teacher, function(req,res){
+  var pro = req.user
+  var day = req.body.day
+  var m2 = moment()
+  var mformat = m2.format('L')
+
+  var m = moment(day)
+  var displayFormat = m.format('MMMM Do YYYY')
+  var dateValueOf = m2.valueOf()
+  var year = m.format('YYYY')
+  var month = m.format('MMMM')
+ 
+  var mformatD = m.format("L")
+  var dateValueOfD = m.valueOf()
+  var teacherName = req.user.fullname;
+  var teacherId = req.user.uid;
+
+var subjectName = req.body.subject
+var subjectCode = req.body.subjectCode
+var class1 = req.body.class1;
+var type = req.body.type
+var grade = req.body.grade
+var icon = req.body.icon
+console.log(icon,'icon')
+var term = req.user.term
+var arr1 = []
+var companyId = req.user.companyId
+var topic = req.body.topic
+var numDate = m.valueOf()
+
+
+
+//clas.start =    m.format("YYYY-MM-DD")+"T"+start;
+//clas.end =    m.format("YYYY-MM-DD")+"T"+end;
+
+req.check('subject','Enter Subject').notEmpty();
+req.check('subjectCode','Enter Subject Code').notEmpty();
+req.check('class1','Enter Class').notEmpty();
+
+
+
+var errors = req.validationErrors();
+     
+if (errors) {
+
+  /*  Class1.find({companyId:companyId},function(err,focs){*/
+  
+    /*arr = focs*/
+  req.session.errors = errors;
+  req.session.success = false
+ /* res.render('teacherExam/assgt',{errors:req.session.errors,  arr:arr,pro:pro})
+  })*/
+
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+        res.redirect('/teacher/attachMaterial');
+}
+
+
+if(!req.file){
+ 
+
+      req.flash('danger', 'Upload Failed');
+  
+    res.redirect('/teacher/attachMaterial') 
+
+}
+
+
+else 
+{
+TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
+.then(teach=>{
+  if(teach){
+  
+     
+    
+    var filename = req.file.filename;
+      
+console.log(filename,'filename')
+         // console.log(nformat3,'3333')
+         // let nmoment = moment(nformat)
+          //console.log(nmoment,'ccc')
+
+
+
+          var test = Learn();
+  
+          test.subject = subjectName;
+          test.subjectCode = subjectCode;
+          test.class1 = class1;
+          test.year = year;
+          test.teacher = req.user.uid;
+          test.icon = icon
+          test.term = term
+          test.mformat = mformat
+          test.type = type
+          test.filename = filename
+          test.type2 = 'learning material'
+          test.type3 = 'study'
+          test.grade = req.body.grade;
+         
+          test.companyId = companyId
+         
+          test.teacherId = teacherId
+          test.teacherName = teacherName
+         
+          
+          
+          test.save()
+          .then(tesn =>{
+
+
+
+
+
+
+
+
+
+      
+/*StudentSub.find({subjectCode:subjectCode},function(err,docs){
+for(var i = 0;i<docs.length;i++){
+let studentId = docs[i].studentId
+let studentName = docs[i].studentName
+let photo = docs[i].photo*/
+
+
+
+
+
+      
+    })
+    
+    req.flash('success', 'Material Posted Successfully!');
+  
+    res.redirect('/teacher/attachMaterial')
+  }
+  else{
+  
+     
+    
+    req.flash('danger', 'Upload Failed!');
+  
+    res.redirect('/teacher/attachMaterial')
+  }
+})
+
+
+}
+
+
+
+
+})
+
+
+
+
 
 /*
 router.get('/viewClassAssignments',isLoggedIn,function(req,res){
@@ -4545,7 +5197,8 @@ test.numPasses=0
 test.avgMark=0
 test.possibleMark = possibleMark
 test.type = type
-test.type2 = 'null'
+test.filename = "null"
+test.type2 = 'offline'
 test.type3 = 'class'
 test.grade = req.body.grade;
 test.level = 'highschool';
@@ -4566,6 +5219,7 @@ test.duration =0
 test.status2 = 'null'
 test.dateValue2= 0
 test.icon = icon
+test.status3= 'null'
 test.displayFormat = displayFormat
 test.question = 'null'
 
@@ -4794,6 +5448,7 @@ test.topic = topic;
 test.highScore = 0
 test.lowestScore=0;
 test.numPasses=0
+test.status3= 'null'
 test.avgMark=0
 test.possibleMark = possibleMark
 test.type = 'Final Exam'
@@ -5780,6 +6435,7 @@ test.type3 = 'class'
 test.grade = grade;
 test.quizBatch=quizBatch
 test.quizNo = 0
+test.status3= 'null'
 test.examLink = 'null'
 test.examStatus = 'pending'
 test.quizId = 'null'
@@ -6379,6 +7035,1190 @@ router.get('/topics',isLoggedIn,teacher, function(req,res){
 
   })
   
+router.post('/topics',isLoggedIn, function(req,res){
+  var m = moment()
+  var pro = req.user
+  var year = m.format('YYYY')
+
+  var subject = req.body.subject
+  var subjectCode = req.body.subjectCode
+  var grade = req.body.grade
+  var class1 = req.body.class1
+  var topic = req.body.name
+  var teacherId = req.user.uid
+  var companyId = req.user.companyId
+
+  req.check('subject','Enter Subject').notEmpty();
+  req.check('class1','Enter Class').notEmpty();
+  req.check('topic','Enter Topic').notEmpty();
+ 
+  
+
+  
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('product/stock',{ errors:req.session.errors,pro:pro})
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+   res.redirect('/teacher/addTopic');
+  
+  }
+  else
+
+ {
+
+  Subject.findOne({'subjectCode':subjectCode})
+  .then(hoc=>{
+
+    if(hoc){
+  var book = new Topic2();
+  book.subject = subject
+  book.subjectCode = subjectCode
+  book.grade = grade
+  book.teacherId = teacherId
+  book.class1 = class1
+  book.topic = topic
+  book.status =  'null'
+  book.year = year
+  book.companyId = companyId
+
+
+      
+       
+        book.save()
+          .then(pro =>{
+
+            Topic2.find({subjectCode:subjectCode,teacherId:teacherId,status:'null',companyId:companyId},(err, docs) => {
+              let size = docs.length - 1
+              console.log(docs[size],'fff')
+              res.send(docs[size])
+                      })
+        })
+       
+      
+      }
+    }) 
+
+      }
+})
+
+
+
+
+
+router.post('/loadTopics',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+  var code = req.user.code
+  var companyId = req.user.companyId
+
+  Topic2.find({code:code,status:'null',companyId:companyId, year:year},(err, docs) => {
+ 
+    res.send(docs)
+            })
+
+  }); 
+
+  router.post('/topic/update/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    var pro = req.user
+    var companyId = req.user.companyId
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var topic = req.body.code
+    Topic2.findById(id,function(err,doc){
+    
+    
+    
+     
+   Topic2.findByIdAndUpdate(id,{$set:{topic:topic}},function(err,doc){
+  
+   })     
+        
+    
+    
+    
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+
+
+
+
+router.get('/saveTopics/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+ var receiver = req.user.fullname
+ var code = req.params.id
+ var uid = req.user._id
+  var companyId = req.user.companyId
+var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+var dateValue = m2.valueOf()
+var date = m2.toString()
+var numDate = m2.valueOf()
+var month = m2.format('MMMM')
+
+
+//var mformat = m.format("L")
+
+
+
+Topic2.find({code:code,status:'null'},function(err,locs){
+
+for(var i=0;i<locs.length;i++){
+let code = locs[i].code
+
+let m = moment(date3)
+let year = m.format('YYYY')
+let dateValue = m.valueOf()
+let date = m.toString()
+let numDate = m.valueOf()
+let month = m.format('MMMM')
+let idN = locs[i]._id
+
+
+  Topic2.findByIdAndUpdate(idN,{$set:{status:'saved'}},function(err,pocs){
+
+  })
+  
+
+  
+
+  Subject.findOne({'subjectCode':code})
+  .then(hoc=>{
+
+    if(hoc){
+  var book = new Topic();
+  book.subject = hoc.subject
+  book.subjectCode = hoc.subjectCode
+  book.grade = hoc.grade
+  book.name = hoc.topic
+  book.class1 = class1
+  book.companyId = companyId
+  book.year = year 
+
+      
+       
+        book.save()
+          .then(pro =>{
+
+            
+
+console.log(i,'ccc')
+               /*  req.session.message = {
+              type:'success',
+              message:'Product added'
+            }  
+            res.render('product/stock',{message:req.session.message,pro:pro});*/
+          
+        
+        })
+
+       /* req.flash('success', 'Stock Received Successfully');
+        res.redirect('/rec/addStock')*/
+      }  /* else{
+        req.flash('danger', 'Product Does Not Exist');
+      
+        res.redirect('/rec/addStock');
+      }*/
+    }) 
+
+     
+}
+
+
+
+req.flash('success', 'Topics Successfully Added');
+res.redirect('/teacher/topics')
+}) 
+})
+
+
+
+//////marks assessments
+router.get('/folder',isLoggedIn,function(req,res){
+  var pro = req.user
+  var id = req.user._id
+  var arr = []
+  User.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let uid = doc.uid
+    let teacherName = doc.fullname
+    TeacherSub.find({teacherId:uid},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.subjectName == docs[i].subjectName)){
+                console.log('true')
+               arr.find(value => value.subjectName == docs[i].subjectName).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('teachrFolder/folders2',{listX:arr,pro:pro,id:id,})
+
+    })
+  }
+  })
+
+})
+
+
+//class
+
+router.get('/classFolder/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var arr = []
+  TeacherSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let subjectCode = doc.subjectCode
+    let uid = doc.teacherId
+    let subject = doc.subjectName
+    let teacherName = doc.teacherName
+    User.find({uid:uid},function(err,ocs){
+
+    
+    let id2 = ocs[0]._id
+    StudentSub.find({subjectCode:subjectCode},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.class1 == docs[i].class1)){
+                console.log('true')
+               arr.find(value => value.class1 == docs[i].class1).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('teachrFolder/fileClass2',{listX:arr,pro:pro,id:id,id2:id2,subject:subject})
+
+    })
+  })
+}
+  })
+})
+
+
+
+
+router.get('/typeFolder/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
+    res.render('teachrFolder/fileAssgt2',{id:id,pro:pro,id2:id2,id3:id3,subject:subject,class1:class1})
+  })
+})
+  })
+}
+})
+})
+
+/////classTest type
+
+router.get('/typeFolderTest/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+  StudentSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let class1 = doc.class1
+    let studentSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subjectName = doc.subjectName
+    TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+      let teacherId =poc[0].teacherId
+      let teacherSubId = poc[0]._id
+      let teacherName = poc[0].teacherName
+      User.find({uid:teacherId},function(err,zocs){
+        let userId = zocs[0]._id
+        let class1 = zocs[0].class1
+     
+ 
+  
+ 
+    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Test'},function(err,locs){
+      
+      res.render('teachrFolder/assgtX1',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
+        subjectName:subjectName,class1:class1})
+    })
+  })
+
+  
+})
+}
+})
+  
+  })
+  
+////////
+
+router.get('/viewTestFile/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+Test.findById(id,function(err,loc){
+  if(loc){
+
+
+  let teacherId = loc.teacherId
+  let teacherName = loc.teacherName
+  let subjectCode = loc.subjectCode
+let subject = loc.subject
+
+  console.log(teacherId,'teacherId')
+User.find({uid:teacherId},function(err,cok){
+ let user = cok[0]._id
+  
+ User.findById(user,function(err,doc){
+let uid = doc.uid
+let userId = doc._id
+let class1 = doc.class1
+TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+ let teacherSubId = locs[0]._id
+
+ StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+   let studentSubId = tocs[0]._id
+ TestX.find({quizId:id},function(err,docs){
+
+
+res.render('teachrFolder/assgtList',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+class1:class1})
+  })
+})
+})
+})
+})
+}
+})
+})
+
+
+router.post('/viewTestFile/:id',isLoggedIn,teacher,function(req,res){
+var pro =req.user
+var id = req.params.id
+var date = req.body.date
+var arr = []
+var term = req.user.term
+
+var n = moment()
+var year = n.format('YYYY')
+
+var m = moment(date)
+
+
+
+console.log(date.split('-')[0])
+var startDate = date.split('-')[0]
+var endDate = date.split('-')[1]
+ var startValueA = moment(startDate)
+ var startValueB=startValueA.subtract(1,"days");
+ var startValue = moment(startValueB).valueOf()
+
+ var endValueA = moment(endDate)
+ var endValueB = endValueA.add(1,"days");
+ var endValue= moment(endValueB).valueOf()
+console.log(startValue,endValue,'output')
+
+Test.findById(id,function(err,loc){
+  if(loc){
+
+
+  let teacherId = loc.teacherId
+  let teacherName = loc.teacherName
+  let subjectCode = loc.subjectCode
+let subject = loc.subject
+
+  console.log(teacherId,'teacherId')
+User.find({uid:teacherId},function(err,cok){
+ let user = cok[0]._id
+  
+ User.findById(user,function(err,doc){
+let uid = doc.uid
+let userId = doc._id
+let class1 = doc.class1
+TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+ let teacherSubId = locs[0]._id
+
+ StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+   let studentSubId = tocs[0]._id
+   TestX.find({quizId:id},function(err,docs){
+console.log(docs,'777')
+  if(docs){
+
+
+  for(var i = 0;i<docs.length;i++){
+    let sdate = docs[i].dateValue
+    if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+console.log(arr,'arr333')
+    }
+  }
+}
+    
+  console.log(arr,'arr')
+      res.render("teachrFolder/assgtList", {
+        listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+        class1:class1
+        
+      });
+  
+});
+  
+})
+})
+})
+  })
+}
+})
+})
+///////////
+
+
+
+
+router.get('/typeFolderClass/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+  StudentSub.findById(id,function(err,doc){
+       if(doc){
+
+      
+    let studentSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subject = doc.subjectName
+    TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+      let teacherId =poc[0].teacherId
+      let teacherSubId = poc[0]._id
+      User.find({uid:teacherId},function(err,zocs){
+        let userId = zocs[0]._id
+        let class1 = zocs[0].class1
+        let teacherName = zocs[0].fullname
+    
+    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Assignment'},function(err,locs){
+      
+      res.render('teachrFolder/assgtX2',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+        class1:class1,teacherName:teacherName,subject:subject,id:id
+      })
+    })
+  
+  })
+  
+})
+}
+})
+  
+  })
+
+
+  router.post('/typeFolderClass/:id',isLoggedIn,teacher,function(req,res){
+    var pro =req.user
+  var id = req.params.id
+    var date = req.body.date
+    var arr = []
+    var term = req.user.term
+ 
+  var n = moment()
+  var year = n.format('YYYY')
+    
+    var m = moment(date)
+  
+   
+  
+    console.log(date.split('-')[0])
+    var startDate = date.split('-')[0]
+    var endDate = date.split('-')[1]
+     var startValueA = moment(startDate)
+     var startValueB=startValueA.subtract(1,"days");
+     var startValue = moment(startValueB).valueOf()
+  
+     var endValueA = moment(endDate)
+     var endValueB = endValueA.add(1,"days");
+     var endValue= moment(endValueB).valueOf()
+    console.log(startValue,endValue,'output')
+  
+    StudentSub.findById(id,function(err,doc){
+      if(doc){
+  
+        let studentSubId = doc._id
+        let subjectCode = doc.subjectCode
+        let subject = doc.subjectName
+        TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+          let teacherId =poc[0].teacherId
+          let teacherSubId = poc[0]._id
+          User.find({uid:teacherId},function(err,zocs){
+            let userId = zocs[0]._id
+            let class1 = zocs[0].class1
+            let teacherName = zocs[0].fullname
+        
+        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Assignment'},function(err,docs){
+  console.log(docs,'777')
+      if(docs){
+  
+  
+      for(var i = 0;i<docs.length;i++){
+        let sdate = docs[i].dateValue
+        if(sdate >= startValue && sdate <= endValue){
+  arr.push(docs[i])
+  console.log(arr,'arr333')
+        }
+      }
+    }
+        
+      console.log(arr,'arr')
+          res.render("teachrFolder/assgtX2", {
+            listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+            class1:class1,teacherName:teacherName,subject:subject,id:id
+            
+          });
+      
+  });
+      
+    })
+      })
+    }
+    })
+  })
+  
+
+
+  router.get('/classAssignmentFile/:id',isLoggedIn,teacher,function(req,res){
+    var id = req.params.id
+    var pro = req.user
+  Test.findById(id,function(err,loc){
+    if(loc){
+
+ 
+    let teacherId = loc.teacherId
+    let teacherName = loc.teacherName
+    let subjectCode = loc.subjectCode
+  let subject = loc.subject
+
+    console.log(teacherId,'teacherId')
+ User.find({uid:teacherId},function(err,cok){
+   let user = cok[0]._id
+    
+   User.findById(user,function(err,doc){
+let uid = doc.uid
+ let userId = doc._id
+ let class1 = doc.class1
+ TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+   let teacherSubId = locs[0]._id
+
+   StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+     let studentSubId = tocs[0]._id
+   TestX.find({quizId:id},function(err,docs){
+
+ 
+  res.render('teachrFolder/assgtList2',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+  class1:class1})
+    })
+  })
+})
+})
+})
+}
+  })
+})
+
+
+
+router.post('/classAssignmentFile/:id',isLoggedIn,teacher,function(req,res){
+  var pro =req.user
+var id = req.params.id
+  var date = req.body.date
+  var arr = []
+  var term = req.user.term
+
+var n = moment()
+var year = n.format('YYYY')
+  
+  var m = moment(date)
+
+ 
+
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+  Test.findById(id,function(err,loc){
+    if(loc){
+
+  
+    let teacherId = loc.teacherId
+    let teacherName = loc.teacherName
+    let subjectCode = loc.subjectCode
+  let subject = loc.subject
+
+    console.log(teacherId,'teacherId')
+ User.find({uid:teacherId},function(err,cok){
+   let user = cok[0]._id
+    
+   User.findById(user,function(err,doc){
+let uid = doc.uid
+ let userId = doc._id
+ let class1 = doc.class1
+ TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+   let teacherSubId = locs[0]._id
+
+   StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+     let studentSubId = tocs[0]._id
+     TestX.find({quizId:id},function(err,docs){
+console.log(docs,'777')
+    if(docs){
+
+
+    for(var i = 0;i<docs.length;i++){
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+console.log(arr,'arr333')
+      }
+    }
+  }
+      
+    console.log(arr,'arr')
+        res.render("teachrFolder/assgtList2", {
+          listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+          class1:class1
+          
+        });
+    
+});
+    
+  })
+})
+})
+    })
+  }
+  })
+})
+
+
+
+////finalExam
+
+router.get('/typeFolderExam/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+  StudentSub.findById(id,function(err,doc){
+    if(doc){
+
+  
+    let class1 = doc.class1
+    let studentSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subject = doc.subjectName
+    TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+      let teacherId =poc[0].teacherId
+      let teacherSubId = poc[0]._id
+      let teacherName = poc[0].teacherName
+      User.find({uid:teacherId},function(err,zocs){
+        let userId = zocs[0]._id
+        let class1 = zocs[0].class1
+
+  
+   
+    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,locs){
+      
+      res.render('teachrFolder/assgtX3',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+      teacherName:teacherName,class1:class1,subject:subject,id:id})
+    
+  })
+  })
+  
+})
+  }
+})
+  
+  })
+
+
+  router.post('/typeFolderExam/:id',isLoggedIn,teacher,function(req,res){
+    var pro =req.user
+  var id = req.params.id
+    var date = req.body.date
+    var arr = []
+    var term = req.user.term
+
+  var n = moment()
+  var year = n.format('YYYY')
+    
+    var m = moment(date)
+  
+   
+  
+    console.log(date.split('-')[0])
+    var startDate = date.split('-')[0]
+    var endDate = date.split('-')[1]
+     var startValueA = moment(startDate)
+     var startValueB=startValueA.subtract(1,"days");
+     var startValue = moment(startValueB).valueOf()
+  
+     var endValueA = moment(endDate)
+     var endValueB = endValueA.add(1,"days");
+     var endValue= moment(endValueB).valueOf()
+    console.log(startValue,endValue,'output')
+  
+    StudentSub.findById(id,function(err,doc){
+      if(doc){
+  
+        let studentSubId = doc._id
+        let subjectCode = doc.subjectCode
+        let subject = doc.subjectName
+        TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+          let teacherId =poc[0].teacherId
+          let teacherSubId = poc[0]._id
+          User.find({uid:teacherId},function(err,zocs){
+            let userId = zocs[0]._id
+            let class1 = zocs[0].class1
+            let teacherName = zocs[0].fullname
+        
+        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,docs){
+  console.log(docs,'777')
+      if(docs){
+  
+  
+      for(var i = 0;i<docs.length;i++){
+        let sdate = docs[i].dateValue
+        if(sdate >= startValue && sdate <= endValue){
+  arr.push(docs[i])
+  console.log(arr,'arr333')
+        }
+      }
+    }
+        
+      console.log(arr,'arr')
+          res.render("teachrFolder/assgtX3", {
+            listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+            teacherName:teacherName,class1:class1,subject:subject,id:id
+            
+          });
+      
+  });
+      
+    })
+      })
+    }
+    })
+  })
+
+
+
+
+
+
+
+
+
+
+
+////
+
+router.get('/examFile/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+Test.findById(id,function(err,loc){
+  if(loc){
+
+ 
+  let teacherId = loc.teacherId
+  let teacherName = loc.teacherName
+  let subjectCode = loc.subjectCode
+let subject = loc.subject
+
+  console.log(teacherId,'teacherId')
+User.find({uid:teacherId},function(err,cok){
+ let user = cok[0]._id
+  
+ User.findById(user,function(err,doc){
+let uid = doc.uid
+let userId = doc._id
+let class1 = doc.class1
+TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+ let teacherSubId = locs[0]._id
+
+ StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+   let studentSubId = tocs[0]._id
+ TestX.find({quizId:id},function(err,docs){
+
+
+res.render('teachrFolder/assgtList3',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+class1:class1})
+  })
+})
+})
+})
+})
+}
+})
+})
+
+
+
+router.post('/examFile/:id',isLoggedIn,teacher,function(req,res){
+var pro =req.user
+var id = req.params.id
+var date = req.body.date
+var arr = []
+var term = req.user.term
+
+var n = moment()
+var year = n.format('YYYY')
+
+var m = moment(date)
+
+
+
+console.log(date.split('-')[0])
+var startDate = date.split('-')[0]
+var endDate = date.split('-')[1]
+ var startValueA = moment(startDate)
+ var startValueB=startValueA.subtract(1,"days");
+ var startValue = moment(startValueB).valueOf()
+
+ var endValueA = moment(endDate)
+ var endValueB = endValueA.add(1,"days");
+ var endValue= moment(endValueB).valueOf()
+console.log(startValue,endValue,'output')
+
+Test.findById(id,function(err,loc){
+  if(loc){
+
+
+  let teacherId = loc.teacherId
+  let teacherName = loc.teacherName
+  let subjectCode = loc.subjectCode
+let subject = loc.subject
+
+  console.log(teacherId,'teacherId')
+User.find({uid:teacherId},function(err,cok){
+ let user = cok[0]._id
+  
+ User.findById(user,function(err,doc){
+let uid = doc.uid
+let userId = doc._id
+let class1 = doc.class1
+TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+ let teacherSubId = locs[0]._id
+
+ StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+   let studentSubId = tocs[0]._id
+   TestX.find({quizId:id},function(err,docs){
+console.log(docs,'777')
+  if(docs){
+
+
+  for(var i = 0;i<docs.length;i++){
+    let sdate = docs[i].dateValue
+    if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+console.log(arr,'arr333')
+    }
+  }
+}
+    
+  console.log(arr,'arr')
+      res.render("teachrFolder/assgtList3", {
+        listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+        class1:class1
+        
+      });
+  
+});
+  
+})
+})
+})
+  })
+}
+})
+})
+
+
+
+
+
+//////marks assessments
+router.get('/repository',isLoggedIn,function(req,res){
+  var pro = req.user
+  var id = req.user._id
+  var arr = []
+  User.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let uid = doc.uid
+    let teacherName = doc.fullname
+    TeacherSub.find({teacherId:uid},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.subjectName == docs[i].subjectName)){
+                console.log('true')
+               arr.find(value => value.subjectName == docs[i].subjectName).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('repositoryT/folders2',{listX:arr,pro:pro,id:id,})
+
+    })
+  }
+  })
+
+})
+
+//class
+
+router.get('/classFolderRepo/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var arr = []
+  TeacherSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let subjectCode = doc.subjectCode
+    let uid = doc.teacherId
+    let subject = doc.subjectName
+    let teacherName = doc.teacherName
+    User.find({uid:uid},function(err,ocs){
+
+    
+    let id2 = ocs[0]._id
+    StudentSub.find({subjectCode:subjectCode},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.class1 == docs[i].class1)){
+                console.log('true')
+               arr.find(value => value.class1 == docs[i].class1).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('repositoryT/fileClass2',{listX:arr,pro:pro,id:id,id2:id2,subject:subject})
+
+    })
+  })
+}
+  })
+})
+
+
+
+router.get('/typeFolderT/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
+    res.render('repositoryT/fileAssgt2',{id:id,pro:pro,id2:id2,id3:id3,subject:subject,class1:class1})
+  })
+})
+  })
+}
+})
+})
+
+router.get('/typeFolderClassRepo/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+
+  TeacherSub.findById(id,function(err,doc){
+       if(doc){
+
+      
+    let  teacherSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subject = doc.subjectName
+    
+    StudentSub.find({subjectCode:subjectCode},function(err,vocs){
+      if(vocs){
+      let class1 = vocs[0].class1
+      let id2 = vocs[0]._id    
+
+    Test.find({subjectCode:subjectCode,term:term,year:year,type2:'online assignment attached',class1:class1},function(err,locs){
+      
+      res.render('repositoryT/files',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+        subject:subject,id:id,class1:class1,id2:id2,
+      })
+   
+    
+})
+
+      }
+
+  
+})
+    }
+})
+  
+  })
+
+
+
+
+router.get('/typeFolderMaterial/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+
+  TeacherSub.findById(id,function(err,doc){
+       if(doc){
+
+      
+    let  teacherSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subject = doc.subjectName
+    
+    StudentSub.find({subjectCode:subjectCode},function(err,vocs){
+      if(vocs){
+      let class1 = vocs[0].class1
+      let id2 = vocs[0]._id    
+
+    Learn.find({subjectCode:subjectCode,term:term,year:year,class1:class1},function(err,locs){
+      
+      res.render('repositoryT/files2',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+        subject:subject,id:id,class1:class1,id2:id2,
+      })
+   
+    
+})
+
+      }
+
+  
+})
+    }
+})
+  
+  })
+
+
+
+
+  router.get('/downloadAssgt/:id',isLoggedIn,teacher,function(req,res){
+    Test.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      res.download( './public/uploads/'+name, name)
+    })  
+  
+  })
+
+
+  
+  router.get('/downloadMaterial/:id',isLoggedIn,teacher,function(req,res){
+    Learn.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      res.download( './public/uploads/'+name, name)
+    })  
+  
+  })
+
+  /*
   router.post('/topics',isLoggedIn,teacher, function(req,res){
               var m = moment()
               var pro = req.user
@@ -6452,15 +8292,73 @@ router.get('/topics',isLoggedIn,teacher, function(req,res){
   })
   
 
+*/
 
 
 
 
 
+router.get('/viewTopics/',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var arr = []
+  var id = req.params.id
+  var arr = []
+  Topic.find({},(err, docs) => {
+
+    if(docs){
+
+       
+      for(var i = 0;i<docs.length;i++){
+        size = docs.length
+     
+          
+         if(arr.length > 0 && arr.find(value => value.subjectName == docs[i].subjectName)){
+                console.log('true')
+               arr.find(value => value.subjectName == docs[i].subjectName)
+             
+              }else{
+      arr.push(docs[i])
+
+      let resultX = arr.map(function(element){
+        //element.size = 0
+        element.size = element.size + 1
+          })
+          }
+  
+        }
+      }
+      if (!err) {
+          res.render("teachers/topic", {
+             listX:arr,pro:pro
+            
+          });
+      }
+  });
+  });
 
 
 
+  router.get('/viewTopics/:id',isLoggedIn, (req, res) => {
+    var pro = req.user
+    var id = req.params.id
+    console.log(id,'333')
+    var arr = []
 
+      Topic.find({subjectCode:id},(err, docs) => {
+      
+
+        if (!err) {
+          res.render("teachers/topicList", {
+             listX:docs,pro:pro
+            
+          });
+      }
+
+    
+    })
+       
+  
+    });
 
   
 
