@@ -18,6 +18,7 @@ var schema = new Schema({
     type: {type: String, required: true},
     subject:{type:String,required:true},
     date:{type:String,required:true},
+    companyId:{type:String, required:true},
 
  
 });

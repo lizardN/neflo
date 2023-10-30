@@ -15,6 +15,7 @@ const Test =require('../models/classTest');
 const Calendar =require('../models/calendar');
 const Lesson =require('../models/lesson');
 const Poll = require('../models/poll');
+const Report = require('../models/reports');
 const { Paynow } = require("paynow");
 var Note = require('../models/note');
 const Exam =require('../models/exam');
@@ -4774,6 +4775,35 @@ router.get('/repo',isLoggedIn,student,function(req,res){
 
 })
 
+router.get('/reports',isLoggedIn,student,function(req,res){
+  var pro = req.user
+
+
+    res.render('repositoryS/fileAssgtReports',{pro:pro})
+ 
+
+})
+
+
+
+/////
+router.get('/monthlyReports',isLoggedIn,student,function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var uid = req.user.uid
+
+    Report.find({uid:uid,year:year},function(err,docs){
+
+  
+
+    res.render('repositoryS/filesMonthly',{pro:pro,listX:docs,month:month,year:year})
+ 
+  })
+})
+
 
 
 router.get('/assgtRepo',isLoggedIn,function(req,res){
@@ -4930,6 +4960,16 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
   })
 
 
+  router.get('/downloadMonthlyReport/:id',isLoggedIn,student,function(req,res){
+    var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+    Report.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      res.download( './reports/'+year+'/'+month+'/'+name, name)
+    })  
+  
+  })
 
 
 

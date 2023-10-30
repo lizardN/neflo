@@ -20,6 +20,7 @@ finalAns:{type:String, required:true},
 status:{type:String, required:true},
 status2:{type:String, required:true},
 year:{type:Number, required:true},
+companyId:{type:String, required:true},
 
 
 
