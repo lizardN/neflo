@@ -5465,6 +5465,7 @@ test.photo = req.user.photo
 
 test.save()
 .then(tes =>{
+  
 Grade.find({},function(err,qocs){
 
 for(var i = 0; i<qocs.length; i++){

@@ -7,6 +7,7 @@ const Setup =require('../models/setup')
 const Report =require('../models/reports')
 const Class1 =require('../models/class');
 let pdf = require('html-pdf');
+var Learn = require('../models/learn');
 const puppeteer = require('puppeteer')
 const Subject =require('../models/subject');
 const Student =require('../models/studentStats');
@@ -186,6 +187,59 @@ arr[uid].map(function(element){
  let num = Math.round(element.percentage)
 num.toFixed(2)
 element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+  for(var i = 0; i<qocs.length; i++){
+  let symbol = qocs[i].symbol
+  let from = qocs[i].from
+  let to = qocs[i].to
+  
+  if(element.percentage >= from && element.percentage <= to ){
+  
+  element.symbol = symbol
+  
+  
+  
+  }
+  }
+  
+  
+  })
+  
+  if(element.percentage >= 50){
+  
+  
+  element.result = 'pass'
+  }else
+  
+ element.result = 'fail'
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
 })
 }
 res.redirect('/genPdf3')
@@ -6020,6 +6074,35 @@ let teacherName = hocs[0].teacherName
 
 
 
+    res.render('admin/fileAssgt22',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+})
+  })
+}
+})
+})
+
+
+router.get('/teacherMarks/:id',isLoggedIn,adminX,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var companyId = req.user.companyId
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode,companyId:companyId},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
     res.render('admin/fileAssgt2',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
   })
 })
@@ -7403,6 +7486,105 @@ console.log(arr,'arr333')
   }
   })
 })
+
+
+
+////learning material
+
+
+router.get('/teacherLearningMaterial/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+
+
+  StudentSub.findById(id,function(err,vocs){
+    if(vocs){
+    let class1 = vocs.class1
+    let subjectCode = vocs.subjectCode
+    let id2 = vocs._id    
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,doc){
+       if(doc){
+
+      
+    let  teacherSubId = doc[0]._id
+    let teacherName = doc[0].teacherName
+    let subject = doc[0].subjectName
+    
+    
+   
+
+    Learn.find({subjectCode:subjectCode,term:term,year:year,class1:class1},function(err,locs){
+      
+      res.render('admin/files2',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+        subject:subject,id:id,class1:class1,id2:id2,teacherName:teacherName
+      })
+   
+    
+})
+
+      }
+
+  
+})
+    }
+})
+  
+  })
+
+
+
+  
+
+router.get('/teacherOnlineAssignmentFiles/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+
+
+  StudentSub.findById(id,function(err,vocs){
+    if(vocs){
+    let class1 = vocs.class1
+    let subjectCode = vocs.subjectCode
+    let id2 = vocs._id    
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,doc){
+       if(doc){
+
+      
+    let  teacherSubId = doc[0]._id
+    let teacherName = doc[0].teacherName
+    let subject = doc[0].subjectName
+    
+    
+   
+
+    Test.find({subjectCode:subjectCode,term:term,year:year,type2:'online assignment attached',class1:class1},function(err,locs){
+      
+      
+      res.render('admin/files3',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+        subject:subject,id:id,class1:class1,id2:id2,teacherName:teacherName
+      })
+   
+    
+})
+
+      }
+
+  
+})
+    }
+})
+  
+  })
+
+
+
+
+
 
 
 

@@ -6,6 +6,7 @@ const User =require('../models/user')
 const Class1 =require('../models/class');
 const Subject =require('../models/subject');
 const Fees =require('../models/fees');
+const Report = require('../models/reports');
 const Calendar =require('../models/calendar');
 var Message = require('../models/message');
 var Recepient = require('../models/recepients');
@@ -4125,6 +4126,103 @@ router.get('/deptList',isLoggedIn,records, (req, res) => {
       }
   });
 });
+
+
+//email reports
+
+router.get('/emailReports', function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+            Report.find({month:month,year:year},function(err,docs){
+              for(var i = 0;i<docs.length;i++){
+                let studentId = docs[i].studentId
+                let filename = docs[i].filename
+                User.find({role:'parent',studentId:studentId},function(err,locs){
+                  let email = locs[0].email
+
+                
+                  const output = `
+                  <h2>Please Find the Attached Report </h2>
+                 
+                  `;
+
+            
+                  const transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: "cashreq00@gmail.com",
+                        pass: "itzgkkqtmchvciik",
+                    },
+                    port:465,
+                    host:'smtp.gmail.com'
+                  });
+                  
+            
+                  // send mail with defined transport object
+                  const mailOptions = {
+                      from: '"Admin" <cashreq00@gmail.com>', // sender address
+                      to: email, // list of receivers
+                      subject: "Monthly Assessment Report ✔", // Subject line
+                      html: output, // html body
+                      attachments:[
+                        {
+
+                        
+                             filename:'report.pdf',
+                             path:'./reports/'+filename
+
+                        }
+                      ]
+                  };
+            
+                  transporter.sendMail(mailOptions, (error, info) => {
+                      if (error) {
+                
+                   
+                   req.flash('danger', 'Reports Not Sent');
+ 
+                   res.redirect('/records/emailResponse');
+                      }
+                      else {
+                          console.log('Mail sent : %s', info.response);
+
+                          
+                          req.flash('success', 'Reports Successfully Emailed');
+ 
+                          res.redirect('/records/emailResponse');
+                   
+                 // res.redirect('/multi')
+             
+                            
+              }
+              
+                })
+
+
+
+                })
+              }
+
+
+
+            })
+  
+
+  
+                     
+                   
+  })
+  
+  
+  
+
+router.get('/emailResponse',isLoggedIn,function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+ res.render('records/email',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+})
 
 
  //add subjects
