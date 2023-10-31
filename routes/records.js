@@ -542,10 +542,10 @@ if(currCount == 0){
     let lgt = rocs.length
     var gt = lgt > 0
   
-        console.log(req.user._id)
-        console.log(req.user.email)
+        //console.log(req.user._id)
+        //console.log(req.user.email)
           Note.find({recId:req.user._id},function(err,docs){
-            console.log(docs,'docs')
+           // console.log(docs,'docs')
          for(var i = 0;i<docs.length;i++){
   
          
@@ -553,7 +553,7 @@ if(currCount == 0){
            let id = docs[i]._id
            let timeX = moment(date)
            let timeX2 =timeX.fromNow()
-           console.log(timeX2,'timex2')
+           //console.log(timeX2,'timex2')
   
            Note.findByIdAndUpdate(id,{$set:{status4:timeX2}},function(err,locs){
   
@@ -4136,10 +4136,15 @@ router.get('/emailReports', function(req,res){
     var year = m.format('YYYY')
             Report.find({month:month,year:year},function(err,docs){
               for(var i = 0;i<docs.length;i++){
-                let studentId = docs[i].studentId
+                let studentId = docs[i].uid
                 let filename = docs[i].filename
+                console.log(studentId,'studentId')
                 User.find({role:'parent',studentId:studentId},function(err,locs){
+if(locs.length > 0){
+
+            console.log(locs[0],'locs')
                   let email = locs[0].email
+                  console.log(email,'email')
 
                 
                   const output = `
@@ -4200,7 +4205,7 @@ router.get('/emailReports', function(req,res){
                 })
 
 
-
+              }
                 })
               }
 

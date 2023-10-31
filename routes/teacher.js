@@ -10,6 +10,7 @@ const Fees =require('../models/fees');
 const Test =require('../models/classTest');
 const TestX =require('../models/classTestX');
 const Lesson =require('../models/lesson');
+const Report = require('../models/reports');
 var Message = require('../models/message');
 var Recepient = require('../models/recepients');
 var Note = require('../models/note');
@@ -8177,6 +8178,48 @@ router.get('/typeFolderClassRepo/:id',isLoggedIn,teacher,function(req,res){
   
   })
 
+
+  router.get('/typeFolderReportFiles/:id',isLoggedIn,teacher,function(req,res){
+    var id = req.params.id
+    var term = req.user.term
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var mformat = m.format('L')
+    var pro = req.user
+
+  
+    TeacherSub.findById(id,function(err,doc){
+         if(doc){
+  
+        
+      let  teacherSubId = doc._id
+      let subjectCode = doc.subjectCode
+      let subject = doc.subjectName
+      
+      StudentSub.find({subjectCode:subjectCode},function(err,vocs){
+        if(vocs){
+        let class1 = vocs[0].class1
+        let id2 = vocs[0]._id    
+  
+      /*Test.find({subjectCode:subjectCode,term:term,year:year,type2:'online assignment attached',class1:class1},function(err,locs){
+        
+        res.render('repositoryT/files',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+          subject:subject,id:id,class1:class1,id2:id2,
+        })
+     
+      
+  })*/
+  
+        }
+  
+    
+  })
+      }
+  })
+    
+    })
+  
 
 
 
