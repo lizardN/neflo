@@ -2,6 +2,7 @@ require('dotenv').config();
 
 var express = require('express');
 var router = express.Router();
+const Report = require('../models/reports');
 const User =require('../models/user')
 const Class1 =require('../models/class');
 const Subject =require('../models/subject');
@@ -3263,6 +3264,29 @@ router.get('/files',isLoggedIn,parent,function(req,res){
 
 })
         
+
+
+  
+              
+router.get('/select/:id',isLoggedIn,parent,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+
+ 
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+ 
+
+
+    res.render('repositoryP/fileAssgt22',{id:id,pro:pro,subject:subject,class1:class1})
+  }
+  })
+
+})
               
 router.get('/classAssignment/:id',isLoggedIn,parent,function(req,res){
   var pro = req.user
@@ -3685,8 +3709,49 @@ router.get('/profile',isLoggedIn,parent, function(req,res){
     
    
   })*/
+  //reports
+  router.get('/reports',isLoggedIn,parent,function(req,res){
+    var pro = req.user
   
   
+      res.render('repositoryP/fileAssgtReports',{pro:pro})
+   
+  
+  })
+  
+  
+
+  router.get('/monthlyReports',isLoggedIn,parent,function(req,res){
+    var pro = req.user
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var mformat = m.format('L')
+    var uid = req.user.student
+  
+      Report.find({uid:uid,year:year},function(err,docs){
+  
+    
+  
+      res.render('repositoryP/filesMonthly',{pro:pro,listX:docs,month:month,year:year})
+   
+    })
+  })
+  
+
+  router.get('/downloadMonthlyReport/:id',isLoggedIn,parent,function(req,res){
+    var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+    Report.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      res.download( './reports/'+year+'/'+month+'/'+name, name)
+    })  
+  
+  })
+
+
+
 //student registered subjects
   router.get('/subjects',isLoggedIn,parent, function(req,res){
     var pro = req.user
