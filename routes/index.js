@@ -7,6 +7,7 @@ const Setup =require('../models/setup')
 const Report =require('../models/reports')
 const Class1 =require('../models/class');
 let pdf = require('html-pdf');
+const Report2 = require('../models/reportsT');
 var Learn = require('../models/learn');
 const puppeteer = require('puppeteer')
 const Subject =require('../models/subject');
@@ -63,6 +64,12 @@ var moment = require('moment')
 var bcrypt = require('bcrypt-nodejs');
 const { countReset } = require('console');
 
+const crypto = require('crypto');
+
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
+
 const arr = {}
 //const data = require('../data.json')
 
@@ -89,6 +96,51 @@ User.find(function(err,docs){
  }
 })*/
 
+const mongoURI = 'mongodb://0.0.0.0:27017/smsDB';
+
+// Create mongo connection
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+
+// Create storage engine
+const storageX = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+      });
+    });
+  }
+});
+const uploadX = multer({ storageX })
+
+console.log(uploadX,'vvv')
+
+router.get('/upload',(req,res)=>{
+  res.render('admin/upl')
+})
+router.post('/upload', uploadX.single('file'), (req, res) => {
+  // res.json({ file: req.file });
+  res.redirect('/upload');
+});
 
 User.find({role:'student'},function(err,docs){
   for(var i=0;i<docs.length;i++){
@@ -6081,6 +6133,81 @@ let teacherName = hocs[0].teacherName
 }
 })
 })
+
+router.get('/teacherReports/:id',isLoggedIn,adminX,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var companyId = req.user.companyId
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode,companyId:companyId},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
+
+    res.render('admin/fileAssgtReports',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+ 
+  })
+})
+  })
+}
+})
+})
+
+
+
+router.get('/monthlyReports/:id',isLoggedIn,adminX,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var companyId = req.user.companyId
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode,companyId:companyId},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+  Report2.find({subjectCode:subjectCode,year:year},function(er,hocs){
+    res.render('admin/filesMonthly',{listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+
+})
+})
+  })
+}
+})
+})
+
+
+router.get('/downloadMonthlyReport/:id',isLoggedIn,adminX,function(req,res){
+  var m = moment()
+var month = m.format('MMMM')
+var year = m.format('YYYY')
+  Report.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    res.download( './reports/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
+
 
 
 router.get('/teacherMarks/:id',isLoggedIn,adminX,function(req,res){

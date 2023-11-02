@@ -6730,6 +6730,7 @@ test.quizId = 'null'
 test.duration = duration
 test.time = time
 test.timeLeft = "null"
+test.filename = 'null'
 test.companyId = companyId
 
 
@@ -6779,6 +6780,7 @@ User.find({role:"student",class1:class1},function(err,docs){
     not.recRole = 'student'
     not.senderPhoto = photo
     not.numDate = numDate
+    not.companyId = companyId
    
 
 
@@ -6960,6 +6962,7 @@ var choice3 = req.body.choice3;
 var choice4 = req.body.choice4
 var answer = req.body.answer;
 var duration = req.user.quizDuration
+var companyId = req.user.companyId
 var year = 2023
 var quizId = req.user.quizId
 var id = req.user._id
@@ -7020,7 +7023,7 @@ for(var i = 0;i<docs.length;i++){
   test.quizId= quizId
  test.quizDuration = duration
  test.questionNo= x
-  
+  test.companyId = companyId
   test.save()
   .then(tes =>{
 
@@ -7064,23 +7067,22 @@ for(var i = 0;i<docs.length;i++){
   tes.quizId= quizId
  tes.quizDuration = duration
  tes.questionNo= x
+ tes.companyId = companyId
   
   tes.save()
   .then(tes =>{
 
 
 
-  })
-
+ 
 
 
   
+  })
   x++
-  console.log('x',x)
   User.findByIdAndUpdate(id,{$set:{questNo:x}}, function(err,docs){
-  
-  
   })
+  
 })
 
 
@@ -8715,7 +8717,7 @@ router.get('/quiz/:id',isLoggedIn,function(req,res){
 router.post('/quest',isLoggedIn,function(req,res){
 var id = req.user._id
 var code = req.body.code
-QuestionT.find({teacher:id,quizId:code},(err,docs)=>{
+QuestionT.find({teacherId:id,quizId:code},(err,docs)=>{
 console.log(docs,'docs')
   res.send(docs)
 })

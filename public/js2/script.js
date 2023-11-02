@@ -81,7 +81,7 @@ let countDown = () => {
 
 let loadData = () => {
     questionNo.innerText = index + 1 + ". ";
-    questionText.innerText = MCQS[index].question;
+    questionText.innerHTML  = MCQS[index].question;
     option1.innerText = MCQS[index].choice1;
     option2.innerText = MCQS[index].choice2;
     option3.innerText = MCQS[index].choice3;
