@@ -96,7 +96,7 @@ User.find(function(err,docs){
  }
 })*/
 
-const mongoURI = 'mongodb://0.0.0.0:27017/smsDB';
+const mongoURI = process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB';
 
 const conn = mongoose.createConnection(mongoURI);
 
