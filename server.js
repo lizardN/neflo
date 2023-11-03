@@ -15,6 +15,9 @@ var validator = require('express-validator');
 var flash = require('connect-flash');
 var passport = require('passport');
 
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
 
 
 var indexRoute= require('./routes/index')
@@ -30,8 +33,17 @@ var indexRoute= require('./routes/index')
 
 
 var app = express();
+const mongoURI = 'mongodb://0.0.0.0:27017/smsDB'
+const conn = mongoose.createConnection(mongoURI);
 
+// Init gfs
+let gfs;
 
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);  
+  gfs.collection('uploads');
+});
 mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB',{
     useNewUrlParser:true,
     useUnifiedTopology:true

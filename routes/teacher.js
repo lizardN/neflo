@@ -48,20 +48,93 @@ const classTestX = require('../models/classTestX');
 var imageData= uploadModel.find({})
 const arr={}
 
-var Storage = multer.diskStorage({
-  destination:'./public/uploads/',
+
+const crypto = require('crypto');
+
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
+
+//const data = require('../data.json')
+
+var storageX = multer.diskStorage({
+  destination:function(req,file,cb){
+      cb(null,'./public/uploads/')
+  },
   filename:(req,file,cb)=>{
-    cb(null,file.originalname)
+      cb(null,file.originalname)
   }
 })
 
-var upload = multer({
-  storage:Storage
-}).single('file');
-//student Dashboard
 
 
+var uploadX = multer({
+  storage:storageX
+})
 
+/*
+User.find(function(err,docs){
+ for(var i = 0;i<docs.length;i++){
+   //data.push(docs[i])
+   data.users.push(docs[i]); 
+ }
+})*/
+
+const mongoURI = 'mongodb://0.0.0.0:27017/smsDB';
+
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Create mongo connection
+/*
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});*/
+
+
+// Create storage engine
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+        const filename = file.originalname;
+        const type = 'quiz';
+        const fileInfo = {
+          filename: filename,
+          type:type,
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+    });
+  }
+});
+
+const upload = multer({ storage })
+
+
+router.get('/upload',(req,res)=>{
+  res.render('teachers/upl')
+})
+router.post('/upload', upload.single('file'), (req, res) => {
+  // res.json({ file: req.file });
+  console.log(req.file,'kkk')
+  res.redirect('/teacher/upload');
+});
 
 
 
@@ -4006,7 +4079,7 @@ router.get('/assignAttach',isLoggedIn,teacher,function(req,res){
 
 
   
-router.post('/assignAttach',upload,isLoggedIn,teacher, function(req,res){
+router.post('/assignAttach',upload.single('file'),isLoggedIn,teacher, function(req,res){
   var pro = req.user
   var day = req.body.day
   var m2 = moment()
@@ -4384,7 +4457,7 @@ router.get('/attachMaterial',isLoggedIn,teacher,function(req,res){
 
 
   
-router.post('/attachMaterial',upload,isLoggedIn,teacher, function(req,res){
+router.post('/attachMaterial',upload.single('file'),isLoggedIn,teacher, function(req,res){
   var pro = req.user
   var day = req.body.day
   var m2 = moment()
@@ -6951,7 +7024,7 @@ router.get('/set',isLoggedIn,teacher, function(req,res){
 
 
   
-router.post('/set',isLoggedIn,teacher, function(req,res){
+router.post('/set',isLoggedIn,teacher,upload.single('file'), function(req,res){
   var batchNo = req.user.quizBatch
   var x =req.user.questNo
 var question = req.body.question;
@@ -6968,8 +7041,14 @@ var quizId = req.user.quizId
 var id = req.user._id
 var pro = req.user
 console.log(duration, quizId, 'quizId')
-console.log(x,'xxx')
+console.log(req.file,'xxx')
+var idX = req.file.id
 
+var chunkSize = req.file.chunkSize
+var uploadDate = req.file.uploadDate
+var filename = req.file.filename
+var md5 = req.file.md5
+var contentType = req.file.contentType
 
 
 /*
@@ -7024,6 +7103,13 @@ for(var i = 0;i<docs.length;i++){
  test.quizDuration = duration
  test.questionNo= x
   test.companyId = companyId
+  test.idX=idX
+  test.chunkSize = chunkSize
+  test.uploadDate = uploadDate
+  test.filename = filename
+  test.md5 = md5
+  test.contentType = contentType
+
   test.save()
   .then(tes =>{
 
@@ -7068,7 +7154,13 @@ for(var i = 0;i<docs.length;i++){
  tes.quizDuration = duration
  tes.questionNo= x
  tes.companyId = companyId
-  
+
+ tes.idX=idX
+ tes.chunkSize = chunkSize
+ tes.uploadDate = uploadDate
+ tes.filename = filename
+ tes.md5 = md5
+ tes.contentType = contentType
   tes.save()
   .then(tes =>{
 

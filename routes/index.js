@@ -73,7 +73,7 @@ const methodOverride = require('method-override');
 const arr = {}
 //const data = require('../data.json')
 
-var storage = multer.diskStorage({
+var storageX = multer.diskStorage({
   destination:function(req,file,cb){
       cb(null,'./public/uploads/')
   },
@@ -84,8 +84,8 @@ var storage = multer.diskStorage({
 
 
 
-var upload = multer({
-  storage:storage
+var uploadX = multer({
+  storage:storageX
 })
 
 /*
@@ -98,7 +98,6 @@ User.find(function(err,docs){
 
 const mongoURI = 'mongodb://0.0.0.0:27017/smsDB';
 
-// Create mongo connection
 const conn = mongoose.createConnection(mongoURI);
 
 // Init gfs
@@ -110,9 +109,38 @@ conn.once('open', () => {
   gfs.collection('uploads');
 });
 
+// Create mongo connection
+/*
+const conn = mongoose.createConnection(mongoURI);
 
-// Create storage engine
-const storageX = new GridFsStorage({
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});*/
+
+
+/* Create storage engine*/
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+        const filename = file.originalname;
+  
+        const fileInfo = {
+          filename: filename,
+          metadata:{type:'exam',teacherId:'666'},
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+    });
+  }
+});
+/*
+const storage = new GridFsStorage({
   url: mongoURI,
   file: (req, file) => {
     return new Promise((resolve, reject) => {
@@ -129,18 +157,84 @@ const storageX = new GridFsStorage({
       });
     });
   }
-});
-const uploadX = multer({ storageX })
+});*/
 
-console.log(uploadX,'vvv')
+const upload = multer({ storage })
+
+
+router.get('/files', (req, res) => {
+  let id = '6543e206120117b9ec463bd8'
+ /* gfs.files.find().toArray((err, files) => {*/
+    // Check if files
+    gfs.files.findOne({_id:id},function(err,locs){
+console.log(locs,'hhh')
+    })
+   /* if (!files || files.length === 0) {
+      return res.status(404).json({
+        err: 'No files exist'
+      });
+    }
+
+    // Files exist
+    return res.json(files);*/
+  /*});*/
+});
+
 
 router.get('/upload',(req,res)=>{
-  res.render('admin/upl')
+
+  gfs.files.find().toArray((err, files) => {
+    // Check if files
+    if (!files || files.length === 0) {
+      res.render('index', { files: false });
+    } else {
+      files.map(file => {
+        if (
+          file.contentType === 'image/jpeg' ||
+          file.contentType === 'image/png'
+        ) {
+          file.isImage = true;
+          console.log(files.metadata,'xxx')
+        } else {
+          file.isImage = false;
+        }
+      });
+      res.render('admin/upl', { files: files });
+    }
+  });
+  //res.render('admin/upl')
 })
-router.post('/upload', uploadX.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), (req, res) => {
   // res.json({ file: req.file });
+  console.log(req.file,'kkk')
   res.redirect('/upload');
 });
+
+
+router.get('/image/:filename', (req, res) => {
+  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+    // Check if file
+    if (!file || file.length === 0) {
+      return res.status(404).json({
+        err: 'No file exists'
+      });
+    }
+
+    // Check if image
+    if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
+      // Read output to browser
+
+      console.log(file,'file baba')
+      const readstream = gfs.createReadStream(file.filename);
+      readstream.pipe(res);
+    } else {
+      res.status(404).json({
+        err: 'Not an image'
+      });
+    }
+  });
+});
+
 
 User.find({role:'student'},function(err,docs){
   for(var i=0;i<docs.length;i++){
