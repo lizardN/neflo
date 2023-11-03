@@ -45,8 +45,8 @@ conn.once('open', () => {
   gfs.collection('uploads');
 });
 mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB',{
-    useNewUrlParser:true,
-    useUnifiedTopology:true
+  useUnifiedTopology: true ,
+  
 } )
 
 mongoose.connection.on('connected',()=>{
