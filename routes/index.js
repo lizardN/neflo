@@ -3689,7 +3689,7 @@ const page = await browser.newPage()
 //create a pdf document
 
 await page.pdf({
-  path:('./reports/'+year+'/'+month+'/'+uid+'.pdf'),
+  path:('./public/'+'.pdf'),
   format:"A4",
   printBackground:true
 })
