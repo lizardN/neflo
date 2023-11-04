@@ -1,6 +1,6 @@
 FROM pull ghcr.io/puppeteer/puppeteer:21.4.1
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true 
     PUPPETEER_EXECUTABLE_PATH = /usr/bin/google-chrome-stable
 
 
