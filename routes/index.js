@@ -3664,6 +3664,7 @@ const compile = async function (templateName, arr){
 try{
 //const browser = await puppeteer.launch();
 const browser = await puppeteer.launch({
+  headless: true,
   args: [
     "--disable-setuid-sandbox",
     "--no-sandbox",
