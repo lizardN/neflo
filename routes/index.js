@@ -246,7 +246,7 @@ User.find({role:'student'},function(err,docs){
 
 
 /*router.get('/arr',function(req,res){*/
-
+console.log('vvx')
 var m = moment()
 var month = m.format('MMMM')
   var year = m.format('YYYY')
