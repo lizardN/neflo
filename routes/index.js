@@ -3689,10 +3689,12 @@ const page = await browser.newPage()
 //create a pdf document
 
 await page.pdf({
-  path:('./public/'+uid+'.pdf'),
+  //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+  path:(`./reports/${year}/${month}/${uid}`+'.pdf'),
   format:"A4",
   printBackground:true
 })
+
 var repo = new Report();
  
 repo.uid = uid;
