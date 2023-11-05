@@ -3695,6 +3695,8 @@ await page.pdf({
   printBackground:true
 })
 
+console.log(page.createPDFStream(),'page')
+
 var repo = new Report();
  
 repo.uid = uid;
