@@ -1,15 +1,13 @@
 FROM ghcr.io/puppeteer/puppeteer:19.7.2
+USER root
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
-RUN mkdir /app && chown node:node /app
-WORKDIR /app
+WORKDIR /usr/src/app
 
-
-USER node
-COPY --chown=node:node package.json package-lock.json* ./
-RUN npm install
-
-COPY --chown=node:node . .
+COPY package*.json ./
+RUN npm ci
+COPY . .
 CMD [ "node", "server.js" ]
+
