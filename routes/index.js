@@ -3687,7 +3687,7 @@ const page = await browser.newPage()
 
  await page.setContent(content)
 //create a pdf document
-
+//console.log(await page.pdf(),'7777')
 await page.pdf({
   //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
   path:(`./reports/${year}/${month}/${uid}`+'.pdf'),
@@ -3695,7 +3695,7 @@ await page.pdf({
   printBackground:true
 })
 
-console.log(page.createPDFStream(),'page')
+
 
 var repo = new Report();
  
