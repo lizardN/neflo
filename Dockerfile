@@ -7,6 +7,6 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm ci
-COPY . .
+COPY  --chown=myuser:myuser  ../
 CMD [ "node", "server.js" ]
 
