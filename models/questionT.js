@@ -25,6 +25,7 @@ idX:{type:String, required:true},
 chunkSize:{type:Number, required:true},
 uploadDate:{type:Date, required:true},
 filename:{type:String, required:true},
+fileId:{type:String, required:true},
 md5:{type:String, required:true},
 contentType:{type:String, required:true},
 

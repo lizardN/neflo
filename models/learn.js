@@ -13,6 +13,7 @@ var learnSchema = new mongoose.Schema({
     type:{type:String, required:true},
     mformat:{type:String, required:true},
     filename:{type:String, required:true},
+    fileId:{type:String, required:true},
     year:{type:Number, required:true},
     teacherName:{type:String, required:true},
     teacherId:{type:String, required:true},

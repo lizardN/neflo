@@ -20,6 +20,7 @@ var testSchema = new mongoose.Schema({
     date:{type:String, required:true},
     month:{type:String, required:true},
     filename:{type:String,required:true},
+    fileId:{type:String,required:true},
     mformat:{type:String, required:true},
     numDate:{type:Number, required:true},
     dateValue:{type:Number, required:true},

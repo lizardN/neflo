@@ -3841,6 +3841,7 @@ TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
           test.status3= 'null'
           test.dateValue2= 0
           test.filename = 'null'
+          test.fileId = 'null'
           test.displayFormat = displayFormat
           
           
@@ -4084,7 +4085,7 @@ router.post('/assignAttach',upload.single('file'),isLoggedIn,teacher, function(r
   var day = req.body.day
   var m2 = moment()
   var mformat = m2.format('L')
-
+ var fileId = req.file.id
   var m = moment(day)
   var displayFormat = m.format('MMMM Do YYYY')
   var dateValueOf = m2.valueOf()
@@ -4200,6 +4201,7 @@ console.log(filename,'filename')
           test.possibleMark = marks
           test.type = type
           test.filename = filename
+          test.fileId = fileId
           test.type2 = 'online assignment attached'
           test.type3 = 'class'
           test.grade = req.body.grade;
@@ -4462,7 +4464,7 @@ router.post('/attachMaterial',upload.single('file'),isLoggedIn,teacher, function
   var day = req.body.day
   var m2 = moment()
   var mformat = m2.format('L')
-
+  var fileId = req.file.id
   var m = moment(day)
   var displayFormat = m.format('MMMM Do YYYY')
   var dateValueOf = m2.valueOf()
@@ -4559,6 +4561,7 @@ console.log(filename,'filename')
           test.mformat = mformat
           test.type = type
           test.filename = filename
+          test.fileId = fileId
           test.type2 = 'learning material'
           test.type3 = 'study'
           test.grade = req.body.grade;
@@ -5559,6 +5562,7 @@ test.avgMark=0
 test.possibleMark = possibleMark
 test.type = type
 test.filename = "null"
+test.fileId = "null"
 test.type2 = 'offline'
 test.type3 = 'class'
 test.grade = req.body.grade;
@@ -6804,6 +6808,7 @@ test.duration = duration
 test.time = time
 test.timeLeft = "null"
 test.filename = 'null'
+test.fileId = 'null'
 test.companyId = companyId
 
 
@@ -7036,6 +7041,7 @@ var choice4 = req.body.choice4
 var answer = req.body.answer;
 var duration = req.user.quizDuration
 var companyId = req.user.companyId
+var fileId = req.file.id
 var year = 2023
 var quizId = req.user.quizId
 var id = req.user._id
@@ -7107,6 +7113,7 @@ for(var i = 0;i<docs.length;i++){
   test.chunkSize = chunkSize
   test.uploadDate = uploadDate
   test.filename = filename
+  test.fileId = fileId
   test.md5 = md5
   test.contentType = contentType
 
@@ -7159,6 +7166,7 @@ for(var i = 0;i<docs.length;i++){
  tes.chunkSize = chunkSize
  tes.uploadDate = uploadDate
  tes.filename = filename
+ tes.fileId = fileId
  tes.md5 = md5
  tes.contentType = contentType
   tes.save()
