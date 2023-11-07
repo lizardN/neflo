@@ -36,6 +36,7 @@ const FeesUpdate =require('../models/feesUpdate');
 const Question = require('../models/question');
 const QuestionT = require('../models/questionT');
 var mongoose = require('mongoose')
+var mongodb = require('mongodb');
 var passport = require('passport')
 var xlsx = require('xlsx')
 var multer = require('multer')
@@ -113,10 +114,10 @@ const storage = new GridFsStorage({
   file: (req, file) => {
     return new Promise((resolve, reject) => {
         const filename = file.originalname;
-        const type = 'quiz';
+        
         const fileInfo = {
           filename: filename,
-          type:type,
+         
           bucketName: 'uploads'
         };
         resolve(fileInfo);
@@ -170,7 +171,7 @@ Subject.find(function(err,zocs){
 
 
 
-TestX.find({year:year,uid:uid},function(err,vocs) {
+        TestX.find({year:year,uid:uid}).lean().then(vocs=>{
 for(var x = 0;x<vocs.length;x++){
   //size = docs.length
   let subjectCode = vocs[x].subjectCode
@@ -4152,7 +4153,7 @@ if(!req.file){
 
       req.flash('danger', 'Upload Failed');
   
-    res.redirect('/teacher/assgtAttach') 
+    res.redirect('/teacher/assignAttach') 
 
 }
 
@@ -4324,7 +4325,7 @@ res.render('lesson/add-lesson',{message:req.session.message,fullname:fullname, t
     
     req.flash('success', 'Assignment Posted Successfully!');
   
-    res.redirect('/teacher/assgignAttach')
+    res.redirect('/teacher/assignAttach')
   }
   else{
   
@@ -7052,10 +7053,16 @@ var idX = req.file.id
 
 var chunkSize = req.file.chunkSize
 var uploadDate = req.file.uploadDate
-var filename = req.file.filename
+var filename
 var md5 = req.file.md5
 var contentType = req.file.contentType
 
+
+if(!req.file){
+  filename = 'null'
+}else{
+  filename=req.file.filename
+}
 
 /*
 Class1.find({class1:classX},function(err,docs){
@@ -7119,8 +7126,14 @@ for(var i = 0;i<docs.length;i++){
 
   test.save()
   .then(tes =>{
+let questionVI = tes.question
+let fileIdV = tes.fileId
+if(tes.filename !== 'null'){
+  let questionV = `<br> <br> ${questionVI} <img src="/image/${fileIdV}">`
+  Question.findByIdAndUpdate(tes._id,{$set:{question:questionV}},function(err,docs){
 
-
+  })
+}
 
   })
 
@@ -7172,6 +7185,14 @@ for(var i = 0;i<docs.length;i++){
   tes.save()
   .then(tes =>{
 
+let questionVII = tes.question
+let fileIdVI = tes.fileId
+if(tes.filename !== 'null'){
+  let questionVI = `<br> <br> ${questionVII} <img src="/image/${fileIdVI}">`
+  QuestionT.findByIdAndUpdate(tes._id,{$set:{question:questionVI}},function(err,docs){
+    
+  })
+}
 
 
  

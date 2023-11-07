@@ -33,6 +33,7 @@ const Learn = require('../models/learn')
 const stripe = require('stripe')(' sk_test_IbxDt5lsOreFtqzmDUFocXIp0051Hd5Jol');
 const keys = require('../config1/keys')
 var mongoose = require('mongoose')
+var mongodb = require('mongodb');
 var passport = require('passport')
 var xlsx = require('xlsx')
 var multer = require('multer')
@@ -61,6 +62,12 @@ var upload = multer({
 */
 
 
+const crypto = require('crypto');
+
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
+
 
 
 //upload asignment
@@ -72,19 +79,65 @@ var router = express.Router();
 var imageData= uploadModel.find({})
 
 
-var Storage = multer.diskStorage({
+var StorageX = multer.diskStorage({
   destination:'./public/uploads/',
   filename:(req,file,cb)=>{
     cb(null,file.originalname)
   }
 })
 
-var upload = multer({
-  storage:Storage
+var uploadX = multer({
+  storageX:StorageX
 }).single('file');
 //student Dashboard
 
 
+
+const mongoURI = process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB';
+
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Create mongo connection
+/*
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});*/
+
+
+/* Create storage engine*/
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+        const filename = file.originalname;
+  
+        const fileInfo = {
+          filename: filename,
+     
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+    });
+  }
+});
+
+const upload = multer({ storage })
 
 // change password
 router.get('/pass',isLoggedIn,student, (req, res) => {
@@ -2690,7 +2743,7 @@ router.get('/assignments/:id',isLoggedIn,student,function(req,res,next){
   
 })
 
-router.post('/assignments/:id',upload,isLoggedIn,function(req,res){
+router.post('/assignments/:id',upload.single('file'),isLoggedIn,function(req,res){
   var id = req.params.id
   var m = moment()
   var filename = req.file.filename;
@@ -4872,13 +4925,41 @@ router.get('/assgtFiles/:id',isLoggedIn,student,function(req,res){
   
   })
 
-  router.get('/downloadAssgt/:id',isLoggedIn,student,function(req,res){
+  /*router.get('/downloadAssgt/:id',isLoggedIn,student,function(req,res){
     Test.findById(req.params.id,function(err,doc){
       var name = doc.filename;
       res.download( './public/uploads/'+name, name)
     })  
   
+  })*/
+  router.get('/downloadAssgt/:id',(req,res)=>{
+    var fileId = req.params.id
+    
+ 
+  
+  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+  
+    console.log(files[0].filename,'files9')
+  let filename = files[0].filename
+  let contentType = files[0].contentType
+  
+
+      res.set('Content-disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Type', contentType);
+      bucket.openDownloadStreamByName(filename).pipe(res);
+    })
+   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
   })
+  
+  
+
+
+
+
+
+
 
 
 
@@ -4951,14 +5032,38 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
 
   
 
-  router.get('/downloadMaterial/:id',isLoggedIn,student,function(req,res){
+  /*router.get('/downloadMaterial/:id',isLoggedIn,student,function(req,res){
     Learn.findById(req.params.id,function(err,doc){
       var name = doc.filename;
       res.download( './public/uploads/'+name, name)
     })  
   
-  })
+  })*/
 
+
+  router.get('/downloadMaterial/:id',(req,res)=>{
+    var fileId = req.params.id
+    
+ 
+  
+  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+  
+    console.log(files[0].filename,'files9')
+  let filename = files[0].filename
+  let contentType = files[0].contentType
+  
+
+      res.set('Content-disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Type', contentType);
+      bucket.openDownloadStreamByName(filename).pipe(res);
+    })
+   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
+  })
+  
+  
+  
 
   router.get('/downloadMonthlyReport/:id',isLoggedIn,student,function(req,res){
     var m = moment()
