@@ -7042,7 +7042,7 @@ var choice4 = req.body.choice4
 var answer = req.body.answer;
 var duration = req.user.quizDuration
 var companyId = req.user.companyId
-var fileId = req.file.id
+var fileId 
 var year = 2023
 var quizId = req.user.quizId
 var id = req.user._id
@@ -7060,8 +7060,10 @@ var contentType = req.file.contentType
 
 if(!req.file){
   filename = 'null'
+  fileId='null'
 }else{
   filename=req.file.filename
+  var fileId = req.file.id
 }
 
 /*
