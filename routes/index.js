@@ -72,6 +72,7 @@ const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
 
 const arr = {}
+const arr2 = {}
 //const data = require('../data.json')
 
 var storageX = multer.diskStorage({
@@ -494,6 +495,264 @@ Grade.find({},function(err,qocs){
 }
 res.redirect('/genPdf3')
 })
+
+})
+/////teacher
+
+
+Subject.find(function(err,docs){
+  for(var i=0;i<docs.length;i++){
+    let subjectCode = docs[i].code
+    arr2[subjectCode]=[]
+  }
+
+})
+
+
+
+
+
+
+
+//var term = req.user.term
+Subject.find(function(err,zocs){
+for(var z = 0; z<zocs.length;z++){
+  let subjectCodeX = zocs[z].code
+
+  StudentSub.find({subjectCode:subjectCodeX},function(err,tocs){
+    for(var q = 0;q<tocs.length;q++){
+      let uid = tocs[q].studentId
+   
+
+
+
+
+      TestX.find({year:year,uid:uid}).lean().then(vocs=>{
+for(var x = 0;x<vocs.length;x++){
+//size = docs.length
+let subjectCode = vocs[x].subjectCode
+let subject = vocs[x].subject
+
+ 
+ if( arr2[subjectCode].length > 0 && arr2[subjectCode].find(value => value.subjectCode == subjectCode)  && arr2[subjectCode].find(value => value.uid == uid)  ){
+
+       arr2[subjectCode].find(value => value.uid == uid).percentage += vocs[x].percentage;
+       arr2[subjectCode].find(value => value.uid == uid).size++;
+       //console.log(arr,'arrX')
+      }
+      
+       
+      
+      
+      else{
+        arr2[subjectCode].push(vocs[x])
+        // console.log(arr,'push')
+        
+          //element.size = 0
+          /*if(arr[uid].find(value => value.subject == subject)){*/
+     
+           
+                 arr2[subjectCode].find(value => value.uid == uid).size++;
+
+
+   
+          /*}*/
+        //  console.log(arr,'ll'+uid)
+          //element.size = element.size + 1
+            
+        } 
+
+
+       /* arr[uid].forEach((element,index)=>{
+          if(element.size > 0) {
+            //console.log(element,'element')
+          
+            //element.percentage  = element.percentage / element.size
+
+            console.log(element.percentage, element.size,'drumless')
+            let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+          }
+      
+        })*/
+
+       
+
+
+      }
+    })
+
+  }
+})
+}
+
+})
+
+
+
+router.get('/weightX',function(req,res){
+
+Subject.find(function(err,docs){
+if(docs){
+for(var x = 0;x<docs.length;x++){
+  let subjectCode = docs[x].code
+
+
+
+
+
+arr2[subjectCode].map(function(element){
+//console.log(element.percentage, element.size,'para')
+element.percentage  = element.percentage / element.size
+// console.log(element.mark,'mark')
+let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+for(var i = 0; i<qocs.length; i++){
+let symbol = qocs[i].symbol
+let from = qocs[i].from
+let to = qocs[i].to
+
+if(element.percentage >= from && element.percentage <= to ){
+
+element.symbol = symbol
+
+
+
+}
+}
+
+
+})
+
+if(element.percentage >= 50){
+
+
+element.result = 'pass'
+}else
+
+element.result = 'fail'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+})
+
+
+}
+}
+res.redirect('/teacher/genPdf33')
+})
+
+})
+
+//
+
+
+router.get('/genPdf33',isLoggedIn,function(req,res){
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var teacherId = req.user.uid
+ // console.log(arr,'arr')
+/*console.log(arr,'iiii')*/
+
+Subject.find(function(err,docs){
+for(var i = 0; i< docs.length;i++){
+
+
+let subjectCode = docs[i].code
+
+
+const compile = async function (templateName, arr2){
+const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+const html = await fs.readFile(filePath, 'utf8')
+
+return hbs.compile(html)(arr2)
+
+};
+
+
+
+
+(async function(){
+
+try{
+const browser = await puppeteer.launch();
+
+const page = await browser.newPage()
+
+
+
+const content = await compile('report4',arr2[subjectCode])
+
+//console.log(arr[uid],'tamama')
+
+await page.setContent(content)
+//create a pdf document
+
+await page.pdf({
+path:('../gitzoid2/reports2/'+year+'/'+month+'/'+subjectCode+'.pdf'),
+format:"A4",
+printBackground:true
+})
+var repo = new Report2();
+
+repo.subjectCode = subjectCode;
+repo.month = month;
+repo.filename = subjectCode+'.pdf';
+repo.year = year;
+repo.date = mformat
+repo.save().then(poll =>{
+console.log("Done creating pdf",subjectCode)
+})
+
+
+/*await browser.close()
+
+process.exit()*/
+
+}catch(e) {
+
+console.log(e)
+}
+
+}) ()
+
+}
+})
+
+
 
 })
 //login route
