@@ -734,7 +734,7 @@ await page.setContent(content)
 //create a pdf document
 
 await page.pdf({
-path:('../gitzoid2/reports2/'+year+'/'+month+'/'+subjectCode+'.pdf'),
+  path:(`./reports2/${year}/${month}/${uid}`+'.pdf'),
 format:"A4",
 printBackground:true
 })
