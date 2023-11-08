@@ -669,7 +669,7 @@ element.result = 'fail'
 
 }
 }
-res.redirect('/teacher/genPdf33')
+res.redirect('/genPdf33')
 })
 
 })
