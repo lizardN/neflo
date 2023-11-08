@@ -734,7 +734,7 @@ await page.setContent(content)
 //create a pdf document
 
 await page.pdf({
-  path:(`./reports2/${year}/${month}/${uid}`+'.pdf'),
+  path:(`./reports/${year}/${month}/${subjectCode}`+'.pdf'),
 format:"A4",
 printBackground:true
 })
