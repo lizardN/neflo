@@ -7031,6 +7031,7 @@ router.get('/set',isLoggedIn,teacher, function(req,res){
 
   
 router.post('/set',isLoggedIn,teacher,upload.single('file'), function(req,res){
+  var date = moment()
   var batchNo = req.user.quizBatch
   var x =req.user.questNo
 var question = req.body.question;
@@ -7047,23 +7048,33 @@ var year = 2023
 var quizId = req.user.quizId
 var id = req.user._id
 var pro = req.user
-console.log(duration, quizId, 'quizId')
-console.log(req.file,'xxx')
-var idX = req.file.id
 
-var chunkSize = req.file.chunkSize
-var uploadDate = req.file.uploadDate
-var filename
-var md5 = req.file.md5
-var contentType = req.file.contentType
+var idX 
 
+
+var chunkSize
+var uploadDate
+var md5 
+var contentType 
 
 if(!req.file){
   filename = 'null'
   fileId='null'
+  
+ chunkSize =0
+ uploadDate =date
+ 
+ md5 = 'null'
+ contentType = 'null'
 }else{
   filename=req.file.filename
-  var fileId = req.file.id
+ fileId = req.file.id
+  
+ chunkSize = req.file.chunkSize
+ uploadDate = req.file.uploadDate
+ filename
+ md5 = req.file.md5
+ contentType = req.file.contentType
 }
 
 /*
