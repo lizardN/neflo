@@ -249,7 +249,7 @@ if(docs){
 
 
 arr[subjectCode].map(function(element){
-  console.log(element.percentage, element.size,'para')
+  //console.log(element.percentage, element.size,'para')
  element.percentage  = element.percentage / element.size
 // console.log(element.mark,'mark')
  let num = Math.round(element.percentage)
@@ -327,7 +327,7 @@ router.get('/genPdf3',isLoggedIn,function(req,res){
     var year = m.format('YYYY')
     var mformat = m.format('L')
     var teacherId = req.user.uid
-    console.log(arr,'arr')
+   // console.log(arr,'arr')
 /*console.log(arr,'iiii')*/
 
 Subject.find(function(err,docs){
@@ -8658,7 +8658,7 @@ router.get('/typeFolderMaterial/:id',isLoggedIn,teacher,function(req,res){
 
 
 
-  router.get('/downloadAssgt/:id',isLoggedIn,teacher,function(req,res){
+  /*router.get('/downloadAssgt/:id',isLoggedIn,teacher,function(req,res){
     Test.findById(req.params.id,function(err,doc){
       var name = doc.filename;
       res.download( './public/uploads/'+name, name)
@@ -8674,7 +8674,77 @@ router.get('/typeFolderMaterial/:id',isLoggedIn,teacher,function(req,res){
       res.download( './public/uploads/'+name, name)
     })  
   
+  })*/
+
+
+  
+  router.get('/downloadMaterial/:id',(req,res)=>{
+    var fileId = req.params.id
+    
+ 
+  
+  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+  
+    console.log(files[0].filename,'files9')
+  let filename = files[0].filename
+  let contentType = files[0].contentType
+  
+
+      res.set('Content-disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Type', contentType);
+      bucket.openDownloadStreamByName(filename).pipe(res);
+    })
+   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
   })
+  
+
+  router.get('/downloadAssgt/:id',(req,res)=>{
+    var fileId = req.params.id
+    
+ 
+  
+  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+  
+    console.log(files[0].filename,'files9')
+  let filename = files[0].filename
+  let contentType = files[0].contentType
+  
+
+      res.set('Content-disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Type', contentType);
+      bucket.openDownloadStreamByName(filename).pipe(res);
+    })
+   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
+  })
+  
+  
+  router.get('/downloadMonthlyReport/:id',(req,res)=>{
+    var fileId = req.params.id
+    
+ 
+  
+  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+  
+    console.log(files[0].filename,'files9')
+  let filename = files[0].filename
+  let contentType = files[0].contentType
+  
+
+      res.set('Content-disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Type', contentType);
+      bucket.openDownloadStreamByName(filename).pipe(res);
+    })
+   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
+  })
+  
+  
+
 
   /*
   router.post('/topics',isLoggedIn,teacher, function(req,res){

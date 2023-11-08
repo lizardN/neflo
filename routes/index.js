@@ -239,9 +239,9 @@ router.get('/image/:filename', (req, res) => {
 
 
 
-router.get('/image/:fileId', (req, res) => {
+router.get('/imageC/:fileId', (req, res) => {
   let fileId = req.params.fileId
-  console.log(fileId,'id')
+
   gfs.files.findOne({ _id: mongodb.ObjectId(fileId) }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
