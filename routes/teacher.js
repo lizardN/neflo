@@ -7060,7 +7060,7 @@ var contentType
 if(!req.file){
   filename = 'null'
   fileId='null'
-  
+  idX = 'null'
  chunkSize =0
  uploadDate =date
  
@@ -7072,7 +7072,8 @@ if(!req.file){
   
  chunkSize = req.file.chunkSize
  uploadDate = req.file.uploadDate
- filename
+
+ idX = req.file.id
  md5 = req.file.md5
  contentType = req.file.contentType
 }
