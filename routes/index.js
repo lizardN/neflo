@@ -682,7 +682,7 @@ var m = moment()
 var month = m.format('MMMM')
   var year = m.format('YYYY')
   var mformat = m.format('L')
-  var teacherId = req.user.uid
+  
  // console.log(arr,'arr')
 /*console.log(arr,'iiii')*/
 
@@ -708,7 +708,19 @@ return hbs.compile(html)(arr2)
 (async function(){
 
 try{
-const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
 
 const page = await browser.newPage()
 
