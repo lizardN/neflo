@@ -7202,7 +7202,7 @@ if(tes.filename !== 'null'){
 let questionVII = tes.question
 let fileIdVI = tes.fileId
 if(tes.filename !== 'null'){
-  let questionVI = `<br> <br> ${questionVII} <img src="/image/${fileIdVI}">`
+  let questionVI = `<br> <br> ${questionVII} <img src="image/${fileIdVI}">`
   QuestionT.findByIdAndUpdate(tes._id,{$set:{question:questionVI}},function(err,docs){
     
   })
