@@ -6914,6 +6914,7 @@ router.get('/setX9',isLoggedIn,function(req,res){
 
 router.get('/editQuiz/:id',isLoggedIn,function(req,res){
   var id = req.params.id;
+  var id2 = req.user._id
   var pro = req.user
   var batchNo = req.user.quizBatch
   var quizBatch
@@ -6921,11 +6922,11 @@ router.get('/editQuiz/:id',isLoggedIn,function(req,res){
   Test.findById(id,function(err,doc){
      quizBatch = doc.quizBatch
 
-console.log(quizBatch,'Batch')
+//console.log(quizBatch,'Batch')
 
      
      if(x > quizBatch){
-      User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+      User.findByIdAndUpdate(id2,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
   
   
       })
@@ -6942,8 +6943,8 @@ console.log(quizBatch,'Batch')
 
 
        Question.find({quizId:id,questionNo:x},function(err,docs){
-console.log(id,'xx',x)
- console.log(docs,'DOCS')
+//console.log(id,'xx',x)
+ //console.log(docs,'DOCS')
         res.render("onlineQuiz/edit", {
                
           exam: docs[0],pro:pro
@@ -6959,12 +6960,18 @@ console.log(id,'xx',x)
 })
 })
 
-router.post('/editQuiz/:id',isLoggedIn,teacher, function(req,res){
+router.post('/editQuiz/:id',isLoggedIn,teacher,upload.single('file'), function(req,res){
   var id = req.params.id;
   var batchNo = req.user.quizBatch
   var quizBatch
+ var x =req.user.questNo
   var questNo=req.user.questNo
   var userId = req.user._id
+
+  if(req.file){
+    let filename = req.file.filename;
+    let fileId = req.file.id
+    console.log(filename,fileId,'777')
   Test.findById(id,function(err,doc){
      quizBatch = doc.quizBatch
 console.log(quizBatch)
@@ -6977,12 +6984,74 @@ for(var x = 0; x<docs.length;x++){
      
      
    })
+   let question =  `<br> <br> ${docs[x].questionStore} <img src="imageC/${fileId}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
+
+   Question.findByIdAndUpdate(docs[x]._id,{$set:{question:question, filename:filename,fileId:fileId}},function(err,locs){
+
+   })
+
+   
 }
+
+QuestionT.find({quizId:id,questionNo:questNo},function(err,nocs){
+  for(var v = 0; v<nocs.length;v++){
+   
+    QuestionT.findOneAndUpdate({_id:nocs[v]._id},req.body,
+      { new: true }, (err, noc) => {
+       
+       
+     })
+
+
+     let questionVI = `<br> <br> ${nocs[v].questionStore} <img src="imageC/${fileId}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
+     
+   QuestionT.findByIdAndUpdate(nocs[v]._id,{$set:{filename:filename,fileId:fileId,question:questionVI}},function(err,locs){
+     
+  })
+
+  
+     
+  }
+
+})
        })
      //}
   })
+  }else{
+    Test.findById(id,function(err,doc){
+      quizBatch = doc.quizBatch
+ console.log(quizBatch)
+     // for(var i = 1; i<=quizBatch; i++){
+        Question.find({quizId:id,questionNo:questNo},function(err,docs){
+ for(var x = 0; x<docs.length;x++){
+  
+   Question.findOneAndUpdate({_id:docs[x]._id},req.body,
+     { new: true }, (err, doc) => {
+      
+      
+    })
+ 
+    
+ }
+ 
+ QuestionT.find({quizId:id,questionNo:questNo},function(err,docs){
+   for(var x = 0; x<docs.length;x++){
+    
+     QuestionT.findOneAndUpdate({_id:docs[x]._id},req.body,
+       { new: true }, (err, doc) => {
+        
+        
+      })
+   
+      
+   }
+ 
+ })
+        })
+      //}
+   })
+  }
 
-  x =req.user.questNo
 
   
   x++
@@ -7113,6 +7182,7 @@ for(var i = 0;i<docs.length;i++){
 
   var test = Question();
   test.question = question;
+  test.questionStore = question;
   test.subject = subject;
   test.choice1 = choice1;
   test.choice2 = choice2;
@@ -7140,7 +7210,7 @@ for(var i = 0;i<docs.length;i++){
 
   test.save()
   .then(tes =>{
-let questionVI = tes.question
+let questionVI = tes.questionStore
 let fileIdV = tes.fileId
 if(tes.filename !== 'null'){
   let questionV = `<br> <br> ${questionVI} <img src="imageC/${fileIdV}">`
@@ -7171,6 +7241,7 @@ if(tes.filename !== 'null'){
 
   var tes = QuestionT();
   tes.question = question;
+  tes.questionStore = question;
   tes.subject = subject;
   tes.choice1 = choice1;
   tes.choice2 = choice2;
@@ -7199,10 +7270,10 @@ if(tes.filename !== 'null'){
   tes.save()
   .then(tes =>{
 
-let questionVII = tes.question
+let questionVII = tes.questionStore
 let fileIdVI = tes.fileId
 if(tes.filename !== 'null'){
-  let questionVI = `<br> <br> ${questionVII} <img src="image/${fileIdVI}">`
+  let questionVI = `<br> <br> ${questionVII} <img src="image/${fileIdVI}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
   QuestionT.findByIdAndUpdate(tes._id,{$set:{question:questionVI}},function(err,docs){
     
   })
@@ -8670,7 +8741,19 @@ router.get('/typeFolderMaterial/:id',isLoggedIn,teacher,function(req,res){
   })
 
 
-
+  router.get('/downloadMonthlyReport/:id',isLoggedIn,teacher,function(req,res){
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var mformat = m.format('L')
+    Report2.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      //res.download( './public/uploads/'+name, name)
+   
+      res.download( './reports2/'+year+'/'+month+'/'+name, name)
+    })  
+  
+  })
 
   /*router.get('/downloadAssgt/:id',isLoggedIn,teacher,function(req,res){
     Test.findById(req.params.id,function(err,doc){
@@ -8735,27 +8818,6 @@ router.get('/typeFolderMaterial/:id',isLoggedIn,teacher,function(req,res){
    //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
   })
   
-  
-  router.get('/downloadMonthlyReport/:id',(req,res)=>{
-    var fileId = req.params.id
-    
- 
-  
-  //const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
-  const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
-  gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
-  
-    console.log(files[0].filename,'files9')
-  let filename = files[0].filename
-  let contentType = files[0].contentType
-  
-
-      res.set('Content-disposition', `attachment; filename="${filename}"`);
-      res.set('Content-Type', contentType);
-      bucket.openDownloadStreamByName(filename).pipe(res);
-    })
-   //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
-  })
   
   
 

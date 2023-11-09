@@ -6683,13 +6683,17 @@ let teacherName = hocs[0].teacherName
 })
 
 
+
 router.get('/downloadMonthlyReport/:id',isLoggedIn,adminX,function(req,res){
   var m = moment()
-var month = m.format('MMMM')
-var year = m.format('YYYY')
-  Report.findById(req.params.id,function(err,doc){
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report2.findById(req.params.id,function(err,doc){
     var name = doc.filename;
-    res.download( './reports/'+year+'/'+month+'/'+name, name)
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reports2/'+year+'/'+month+'/'+name, name)
   })  
 
 })

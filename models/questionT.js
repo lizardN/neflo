@@ -5,6 +5,7 @@ var questionSchemaT = new mongoose.Schema({
 
 
 question:{type:String, required:true},
+questionStore:{type:String, required:true},
 questionNo:{type:Number, required:true},
 choice1:{type:String, required:true},
 choice2:{type:String, required:true},
