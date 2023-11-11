@@ -5080,7 +5080,7 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
 
   router.get('/feesRecord',isLoggedIn,student, function(req,res){
        var pro = req.user
-    res.redirect('/student/feesRecordX',{pro:pro})
+    res.redirect('/student/feesRecordX')
   })
   
   router.get('/feesRecordX',isLoggedIn,student, function(req,res){

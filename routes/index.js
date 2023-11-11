@@ -3,6 +3,7 @@ require("../config5/keys")
 var express = require('express');
 var router = express.Router();
 const User =require('../models/user')
+const Trip =require('../models/trip')
 const Setup =require('../models/setup')
 const Report =require('../models/reports')
 const Class1 =require('../models/class');
@@ -678,6 +679,7 @@ res.redirect('/genPdf33')
 
 
 router.get('/genPdf33',isLoggedIn,function(req,res){
+  
 var m = moment()
 var month = m.format('MMMM')
   var year = m.format('YYYY')
@@ -788,6 +790,8 @@ router.get('/', function (req, res, next) {
     res.redirect('/records/stats')
       else if(req.user.role == 'student')
       res.redirect('/student/card')
+      else if(req.user.role == 'eurit')
+      res.redirect('/stEuritUpload')
       else
       res.redirect('/parent/card')
   
@@ -3888,63 +3892,46 @@ res.send(code)
 
 
 router.get('/genEmail',isLoggedIn,function(req,res){
-  console.log('xxx')
-  hbs.renderFile(
-    path.join(__dirname,"/views", "report.hbs"),
-  /*  {
-      users:users
-    },*/
-    (err,data) => {
-      if(err){
-        res.send(err);
-      }else {
-        let options = {
-          height: "11.25in",
-          width:"8.5in",
-          header:{
-            height:"20mm"
-          },
-          footer:{
-            height:"20mm"
-          }
-        };
-        pdf.create(data, options).toFile("test.pdf", function(err,data){
-          if(err){
-            res.send(err);
-          }else{
-            res.send("File created successfully");
-            let mailTransporter = nodemailer.createTransport({
+ 
+            
+            const transporter = nodemailer.createTransport({
               service: 'gmail',
-              auth: {
-                  user: "cashreq00@gmail.com",
-                  pass: "itzgkkqtmchvciik",
-              },
               port:465,
-              host:'smtp.gmail.com'
+              secure:true,
+              logger:true,
+              debug:true,
+              secureConnection:false,
+              auth: {
+                  user: "kratosmusasa@gmail.com",
+                  pass: "znbmadplpvsxshkg",
+              },
+              tls:{
+                rejectUnAuthorized:true
+              }
+              //host:'smtp.gmail.com'
             });
-            let mailDetails ={
-              from: '"Admin" <cashreq00@gmail.com>', // sender address
-                          to: "kratosmusasa@gmail.com", // list of receivers
+            let mailOptions ={
+              from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                          to: "kratosmusasa94@gmail.com", // list of receivers
                           subject: "KMD",
               text:"Node js testing",
               attachments: [
                 {
-                  path:data.filename
+                  filename:'document.pdf',
+                  path:'./reports/2023/November/SZ120.pdf'
                 }
               ]
             };
-            mailTransporter.sendMail(mailDetails, function (err,data){
-              if(err){
-                console.log('Error Occurs')
+            transporter.sendMail(mailOptions, function (error,info){
+              if(error){
+                console.log(error)
               }else{
                 console.log('Email sent successfully')
               }
             })
-          }
-        })
-      }
-    }
-  )
+         
+      
+    
 })
 
 
@@ -4163,52 +4150,123 @@ process.exit()*/
 })
 
 
-
-router.get('/genPdf2',isLoggedIn,function(req,res){
-  console.log(data,'ccc')
- 
-const compile = async function (templateName, data){
-  const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
-
-  const html = await fs.readFile(filePath, 'utf8')
-
-  return hbs.compile(html)(data)
-};
-
-
-
-
-  (async function(){
-
-try{
-const browser = await puppeteer.launch();
-
-const page = await browser.newPage()
-
- const content = await compile('report',data)
-
- await page.setContent(content)
-//create a pdf document
-
-await page.pdf({
-  path:'output.pdf',
-  format:"A4",
-  printBackground:true
+router.get('/stEurit',function(req,res){
+  res.render('eurit/index')
 })
-console.log("Done creating pdf")
 
-/*await browser.close()
-
-process.exit()*/
-
-}catch(e) {
-
-  console.log(e)
+router.get('/stEuritUpload',isLoggedIn,function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('eurit/batch',{successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+})
+router.post('/stEuritUpload/',isLoggedIn,upload.single('file'), function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+  var filename,fileId
+ var name = req.body.name
+if(!req.file){
+  req.flash('danger', 'Select File');
+       
+        
+        res.redirect('/stEuritUpload');
 }
+filename = req.file.filename
+fileId = req.file.id
+  req.check('name','Enter Name of Trip').notEmpty();
 
-  }) ()
+  var errors = req.validationErrors();
+
+if (errors) {
+
+
+req.session.errors = errors;
+req.session.success = false
+//res.render('eurit/batch',{errors:req.session.errors,pro:pro})
+
+req.flash('danger', req.session.errors[0].msg);
+       
+        
+        res.redirect('/stEuritUpload');
+
+
+}else{
+
+
+
+
+  var not = new Trip();
+  not.name = name
+  not.month = month;
+  not.year = year
+  not.fileId = fileId;
+  not.filename = filename;
+  
+ 
+
+
+  
+  
+
+
+  
+   
+
+   
+
+  not.save()
+    .then(user =>{
+      
 })
 
+req.flash('success', 'File Uploaded Successfully!');
+  
+    res.redirect('/stEuritUpload')
+
+}
+})
+
+
+router.get('/euritFiles',isLoggedIn,function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var uid = req.user.studentId
+
+    Trip.find(function(err,docs){
+
+  
+
+    res.render('eurit/files',{pro:pro,listX:docs})
+ 
+  })
+})
+
+
+
+
+router.get('/euritDownload/:id',(req,res)=>{
+  var fileId = req.params.id
+  
+
+
+//const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+
+  console.log(files[0].filename,'files9')
+let filename = files[0].filename
+let contentType = files[0].contentType
+
+
+    res.set('Content-disposition', `attachment; filename="${filename}"`);
+    res.set('Content-Type', contentType);
+    bucket.openDownloadStreamByName(filename).pipe(res);
+  })
+ //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
+})
 
 
 

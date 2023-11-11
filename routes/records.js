@@ -7474,7 +7474,659 @@ console.log(docs[0])
 
 
 
-//register student subjects
+//upload quiz
+
+  
+router.get('/quizBatch',isLoggedIn,records,  function(req,res){
+  var user = req.user.term
+  //var teacherId = req.user.uid
+  var pro = req.user
+  var companyId = req.user.companyId
+  
+  
+  
+  Class1.find({companyId:companyId}, function(err,docs){
+  var arr1 = docs;  
+  
+  res.render('onlineQuiz/batchX',{ arr1:arr1, user:user, pro:pro})
+    
+  })
+  
+
+  
+  })
+
+router.post('/quizBatch',isLoggedIn,records,   function(req,res){
+var icon = req.body.icon
+var class1 = req.body.class1;
+var subject = req.body.subject;
+var subjectCode = req.body.subjectCode;
+var date = req.body.date;
+var id = req.user._id;
+var duration = req.body.duration
+var time = req.body.start
+var type = req.body.type
+var grade = req.body.grade
+var quizBatch = req.body.number
+var stdNum
+var teacherName = req.user.fullname
+var teacherId = req.user._id
+var n= moment()
+var user = req.user.fullname
+var numDate = n.valueOf()
+var m2 = moment(date+" "+time)
+var m = moment(date+" "+time)
+console.log(m,'m')
+var displayFormat = m.format('MMMM Do YYYY')
+var year = m.format('YYYY')
+var month = m.format('MMMM')
+var topic = req.body.topic
+var dateValue = m.valueOf()
+var companyId = req.user.companyId
+var photo = req.user.photo
+let newTime = m.add(duration,'minutes')
+var dateValue2 = moment(newTime).valueOf()//end time
+var mformat = m.format("L")
+
+
+
+
+
+/*
+Class1.find({class1:classX},function(err,docs){
+//grade = docs[0].grade
+console.log(docs,'horror')
+
+})
+*/
+
+req.check('class1','Enter Class').notEmpty();
+req.check('subject','Enter Subject').notEmpty();
+
+req.check('date','Enter Date').notEmpty();
+
+
+var errors = req.validationErrors();
+
+if (errors) {
+
+
+req.session.errors = errors;
+req.session.success = false
+res.render('onlineQuiz/batchX',{errors:req.session.errors})
+
+
+
+}
+
+else{
+
+Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type })
+.then(tes =>{
+if(tes){ 
+
+
+req.session.message = {
+type:'errors',
+message:'Test Exists'
+}     
+ res.render('onlineQuiz/batchX', {
+    message:req.session.message})
+ 
+ 
+
+
+}else
+
+
+var test = Test();
+test.date = m2;
+test.subject = subject;
+test.subjectCode = subjectCode;
+test.class1 = class1;
+test.year = year;
+test.name = date +" "+class1;
+test.month  = month;
+test.numDate = numDate
+test.dateValue = dateValue
+test.dateValue2 = dateValue2
+test.teacherName = teacherName;
+test.teacherId = teacherId
+test.numberOfStudents = 0;
+test.passRate = 0;
+test.term = 1;
+test.displayFormat = displayFormat
+test.question = 'null';
+test.possibleMark = quizBatch
+test.status = 'unactivated'
+test.status2 = 'active'
+test.icon = icon
+test.topic = topic;
+test.highScore = 0
+test.lowestScore=0;
+test.numPasses=0
+test.avgMark=0
+test.mformat = mformat
+test.type = type
+test.type2 = 'online quiz'
+test.type3 = 'class'
+test.grade = grade;
+test.quizBatch=quizBatch
+test.quizNo = 0
+test.status3= 'null'
+test.examLink = 'null'
+test.examStatus = 'pending'
+test.quizId = 'null'
+test.duration = duration
+test.time = time
+test.timeLeft = "null"
+test.filename = 'null'
+test.fileId = 'null'
+test.companyId = companyId
+
+
+
+
+test.save()
+.then(tesn =>{
+User.find({role:'student'},function(err,pocs){
+  let num = pocs.length
+  let nquizBatch = num * quizBatch
+
+
+User.findByIdAndUpdate(id,{$set:{quizId:tesn._id,quizBatch:quizBatch,quizNo:0, quizDuration:duration }}, function(err,trocs){
+
+console.log(trocs)
+
+
+let examLink ='http://' + req.headers.host+'/student/quiz/'+tesn._id;
+
+Test.findByIdAndUpdate(tesn._id,{$set:{quizId:tesn._id,examLink:examLink}},function(err,kocs){
+
+})
+
+
+
+User.find({role:"student",class1:class1},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+
+    let id = docs[i]._id
+    var not = new Note();
+    not.role = 'teacher'
+    not.subject = 'Online Quiz'+" "+subject;
+    not.message = "Online Quiz on"+" "+date
+    not.examLink = examLink
+    not.status = 'not viewed';
+    not.status1 = 'new';
+    not.user = user;
+    not.quizId = tesn._id
+    not.type = 'exam'
+    not.status2 = 'new'
+    not.status3 = 'new'
+    not.status4 = 'null'
+    not.date = n
+    not.dateViewed = 'null'
+    not.recId = docs[i]._id
+    not.recRole = 'student'
+    not.senderPhoto = photo
+    not.numDate = numDate
+    not.companyId = companyId
+   
+
+
+    
+    
+ 
+
+    
+     
+
+     
+
+    not.save()
+      .then(user =>{
+        
+  })
+}
+})
+
+
+
+
+
+})
+
+})
+res.redirect('/teacher/setX9')
+
+
+
+})
+
+
+})
+
+
+
+}
+
+
+})
+
+
+
+router.get('/setX9',isLoggedIn,function(req,res){
+  res.redirect('/teacher/set')
+})
+
+
+//enter exam qustions
+
+
+router.get('/editQuiz/:id',isLoggedIn,function(req,res){
+  var id = req.params.id;
+  var id2 = req.user._id
+  var pro = req.user
+  var batchNo = req.user.quizBatch
+  var quizBatch
+  var x  = req.user.questNo
+  Test.findById(id,function(err,doc){
+     quizBatch = doc.quizBatch
+
+//console.log(quizBatch,'Batch')
+
+     
+     if(x > quizBatch){
+      User.findByIdAndUpdate(id2,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+  
+  
+      })
+     res.redirect('/teacher/testsList')
+     }else{
+
+     
+     
+    // x++
+     //res.render('onlineQuiz/batch',{x:x})
+   
+   
+
+
+
+       Question.find({quizId:id,questionNo:x},function(err,docs){
+//console.log(id,'xx',x)
+ //console.log(docs,'DOCS')
+        res.render("onlineQuiz/edit", {
+               
+          exam: docs[0],pro:pro
+        
+          
+      })
+    
+
+    
+})
+     }
+     
+})
+})
+
+router.post('/editQuiz/:id',isLoggedIn,records, upload.single('file'), function(req,res){
+  var id = req.params.id;
+  var batchNo = req.user.quizBatch
+  var quizBatch
+ var x =req.user.questNo
+  var questNo=req.user.questNo
+  var userId = req.user._id
+
+  if(req.file){
+    let filename = req.file.filename;
+    let fileId = req.file.id
+    console.log(filename,fileId,'777')
+  Test.findById(id,function(err,doc){
+     quizBatch = doc.quizBatch
+console.log(quizBatch)
+    // for(var i = 1; i<=quizBatch; i++){
+       Question.find({quizId:id,questionNo:questNo},function(err,docs){
+for(var x = 0; x<docs.length;x++){
+ 
+  Question.findOneAndUpdate({_id:docs[x]._id},req.body,
+    { new: true }, (err, doc) => {
+     
+     
+   })
+   let question =  `<br> <br> ${docs[x].questionStore} <img src="imageC/${fileId}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
+
+   Question.findByIdAndUpdate(docs[x]._id,{$set:{question:question, filename:filename,fileId:fileId}},function(err,locs){
+
+   })
+
+   
+}
+
+QuestionT.find({quizId:id,questionNo:questNo},function(err,nocs){
+  for(var v = 0; v<nocs.length;v++){
+   
+    QuestionT.findOneAndUpdate({_id:nocs[v]._id},req.body,
+      { new: true }, (err, noc) => {
+       
+       
+     })
+
+
+     let questionVI = `<br> <br> ${nocs[v].questionStore} <img src="imageC/${fileId}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
+     
+   QuestionT.findByIdAndUpdate(nocs[v]._id,{$set:{filename:filename,fileId:fileId,question:questionVI}},function(err,locs){
+     
+  })
+
+  
+     
+  }
+
+})
+       })
+     //}
+  })
+  }else{
+    Test.findById(id,function(err,doc){
+      quizBatch = doc.quizBatch
+ console.log(quizBatch)
+     // for(var i = 1; i<=quizBatch; i++){
+        Question.find({quizId:id,questionNo:questNo},function(err,docs){
+ for(var x = 0; x<docs.length;x++){
+  
+   Question.findOneAndUpdate({_id:docs[x]._id},req.body,
+     { new: true }, (err, doc) => {
+      
+      
+    })
+ 
+    
+ }
+ 
+ QuestionT.find({quizId:id,questionNo:questNo},function(err,docs){
+   for(var x = 0; x<docs.length;x++){
+    
+     QuestionT.findOneAndUpdate({_id:docs[x]._id},req.body,
+       { new: true }, (err, doc) => {
+        
+        
+      })
+   
+      
+   }
+ 
+ })
+        })
+      //}
+   })
+  }
+
+
+  
+  x++
+  User.findByIdAndUpdate(userId,{$set:{questNo:x}}, function(err,docs){
+  
+  
+  })
+  res.redirect('/teacher/editQuiz/'+id)
+  
+  })
+
+
+router.get('/set',isLoggedIn,records,  function(req,res){
+  var id = req.user._id;
+  var batchNo = req.user.quizBatch
+  
+  
+
+  x =req.user.questNo
+  if(x > batchNo){
+
+     console.log('true ehe')
+  User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+  if(!err)
+    res.redirect('/teacher/quizBatch')
+  })
+
+  }else{
+
+  
+  
+  //x++
+   //x++
+  console.log('false',x)
+  User.findByIdAndUpdate(id,{$set:{questNo:x}}, function(err,docs){
+    if(!err)
+    res.render('onlineQuiz/batch',{x:x})
+  
+  })
+}
+  //res.render('onlineQuiz/batch',{x:x})
+  
+  })
+
+
+
+  
+router.post('/set',isLoggedIn,records,upload.single('file'), function(req,res){
+  var date = moment()
+  var batchNo = req.user.quizBatch
+  var x =req.user.questNo
+var question = req.body.question;
+var subject = req.body.subject;
+var choice1 = req.body.choice1;
+var choice2 = req.body.choice2;
+var choice3 = req.body.choice3;
+var choice4 = req.body.choice4
+var answer = req.body.answer;
+var duration = req.user.quizDuration
+var companyId = req.user.companyId
+var fileId 
+var year = 2023
+var quizId = req.user.quizId
+var id = req.user._id
+var pro = req.user
+
+var idX 
+
+
+var chunkSize
+var uploadDate
+var md5 
+var contentType 
+
+if(!req.file){
+  filename = 'null'
+  fileId='null'
+  idX = 'null'
+ chunkSize =0
+ uploadDate =date
+ 
+ md5 = 'null'
+ contentType = 'null'
+}else{
+  filename=req.file.filename
+ fileId = req.file.id
+  
+ chunkSize = req.file.chunkSize
+ uploadDate = req.file.uploadDate
+
+ idX = req.file.id
+ md5 = req.file.md5
+ contentType = req.file.contentType
+}
+
+/*
+Class1.find({class1:classX},function(err,docs){
+//grade = docs[0].grade
+console.log(docs,'horror')
+
+})
+*/
+
+req.check('question','Enter Question').notEmpty();
+req.check('subject','Enter Subject').notEmpty();
+
+req.check('choice1','Enter Choice1').notEmpty();
+
+
+var errors = req.validationErrors();
+
+if (errors) {
+
+
+req.session.errors = errors;
+req.session.success = false
+res.render('onlineQuiz/batch',{errors:req.session.errors,pro:pro})
+
+
+}
+
+User.find({role:'student'},function(err,docs){
+
+for(var i = 0;i<docs.length;i++){
+
+
+
+
+  var test = Question();
+  test.question = question;
+  test.questionStore = question;
+  test.subject = subject;
+  test.choice1 = choice1;
+  test.choice2 = choice2;
+  test.year = year;
+  test.finalAns = 'null';
+  test.stdAns = -1;
+  test.activeNum = 0
+  test.choice3  = choice3;
+  test.choice4 = choice4;
+  test.answer = answer;
+  test.status = 'valid'
+  test.status2 = 'null'
+  test.studentId = docs[i]._id
+  test.quizId= quizId
+ test.quizDuration = duration
+ test.questionNo= x
+  test.companyId = companyId
+  test.idX=idX
+  test.chunkSize = chunkSize
+  test.uploadDate = uploadDate
+  test.filename = filename
+  test.fileId = fileId
+  test.md5 = md5
+  test.contentType = contentType
+
+  test.save()
+  .then(tes =>{
+let questionVI = tes.questionStore
+let fileIdV = tes.fileId
+if(tes.filename !== 'null'){
+  let questionV = `<br> <br> ${questionVI} <img src="imageC/${fileIdV}">`
+  Question.findByIdAndUpdate(tes._id,{$set:{question:questionV}},function(err,docs){
+
+  })
+}
+
+  })
+
+}
+
+
+
+
+/*if(batchNo == x){
+  
+  User.findByIdAndUpdate(id,{$set:{questNo:1,quizBatch:0, quizId:"null"}}, function(err,docs){
+  
+  
+  })
+  
+  //res.redirect('/teacher/quizBatch')
+  
+  
+  }else*/
+
+
+  var tes = QuestionT();
+  tes.question = question;
+  tes.questionStore = question;
+  tes.subject = subject;
+  tes.choice1 = choice1;
+  tes.choice2 = choice2;
+  tes.year = year;
+  tes.finalAns = 'null';
+  tes.stdAns = -1;
+  tes.activeNum = 0
+  tes.choice3  = choice3;
+  tes.choice4 = choice4;
+  tes.answer = answer;
+  tes.status = 'valid'
+  tes.status2 = 'null'
+  tes.teacherId = req.user._id
+  tes.quizId= quizId
+ tes.quizDuration = duration
+ tes.questionNo= x
+ tes.companyId = companyId
+
+ tes.idX=idX
+ tes.chunkSize = chunkSize
+ tes.uploadDate = uploadDate
+ tes.filename = filename
+ tes.fileId = fileId
+ tes.md5 = md5
+ tes.contentType = contentType
+  tes.save()
+  .then(tes =>{
+
+let questionVII = tes.questionStore
+let fileIdVI = tes.fileId
+if(tes.filename !== 'null'){
+  let questionVI = `<br> <br> ${questionVII} <img src="image/${fileIdVI}"  style="display:block;margin-left:auto;margin-right:auto;width:100%">`
+  QuestionT.findByIdAndUpdate(tes._id,{$set:{question:questionVI}},function(err,docs){
+    
+  })
+}
+
+
+ 
+
+
+  
+  })
+  x++
+  User.findByIdAndUpdate(id,{$set:{questNo:x}}, function(err,docs){
+  })
+  
+})
+
+
+res.redirect('/teacher/set')
+})
+
+
+
+router.get('/onlineQuiz/delete/:id',isLoggedIn, (req, res) => {
+  Question.find({quizId:req.params.id},function(err,docs){
+
+    for(var i = 0; i<docs.length;i++){
+      Question.findByIdAndRemove(docs[i]._id, (err, doc) => {
+
+      })
+    }
+    Test.findByIdAndRemove(req.params.id, (err, doc) => {
+      if (!err) {
+        res.redirect('/teacher/testsList');
+      }
+    })
+  })
+  })
+
+
+
 
 
 

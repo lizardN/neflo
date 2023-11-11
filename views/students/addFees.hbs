@@ -1027,7 +1027,7 @@ License: For each use you must have a valid license purchased only from above li
 													
 														<!--end::Label-->
 														<!--begin::Image input wrapper-->
-														
+														<input type="hidden" name="idN" id="idN" value="">
 													<!--end::Input group-->
 																<!--begin::Row-->
 													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
@@ -1298,8 +1298,9 @@ License: For each use you must have a valid license purchased only from above li
                 success: function(data) {
                
                 
-                
+                console.log(data.id,'id7')
                  $("#uid").val(data.uid)
+				 $("#idN").val(data.id)
                  $("#fullname").val(data.fullname)
                  $("#class1").val(data.class1)
                  $("#balance").val(data.balance)

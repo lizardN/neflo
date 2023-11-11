@@ -3,6 +3,7 @@ require("../config5/keys")
 var express = require('express');
 var router = express.Router();
 const User =require('../models/user')
+const puppeteer = require('puppeteer')
 const Setup =require('../models/setup')
 const Class1 =require('../models/class');
 const Subject =require('../models/subject');
@@ -54,7 +55,15 @@ var bcrypt = require('bcrypt-nodejs');
 const { countReset } = require('console');
 
 
-var storage = multer.diskStorage({
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
+
+const arr = {}
+const arr2 = {}
+//const data = require('../data.json')
+
+var storageX = multer.diskStorage({
   destination:function(req,file,cb){
       cb(null,'./public/uploads/')
   },
@@ -65,12 +74,64 @@ var storage = multer.diskStorage({
 
 
 
-var upload = multer({
-  storage:storage
+var uploadX = multer({
+  storage:storageX
 })
 
+/*
+User.find(function(err,docs){
+ for(var i = 0;i<docs.length;i++){
+   //data.push(docs[i])
+   data.users.push(docs[i]); 
+ }
+})*/
+
+const mongoURI = process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB';
+
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Create mongo connection
+/*
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});*/
 
 
+/* Create storage engine*/
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+        const filename = file.originalname;
+  
+        const fileInfo = {
+          filename: filename,
+     
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+    });
+  }
+});
+
+
+const upload = multer({ storage })
 // change password
 router.get('/pass',isLoggedIn, (req, res) => {
   var pro = req.user
@@ -1891,6 +1952,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   var m = moment()
   var xId = req.user._id;
   var uid = req.body.uid;
+  var studentId = req.body.idN
   var fullname = req.body.fullname;
   var class1 = req.body.class1;
   var date = moment().toString();
@@ -1947,7 +2009,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
           .then(fee =>{
             User.find({companyId:companyId,uid:uid},function(err,docs){
   
-             User.findByIdAndUpdate(xId,{$set:{studentId:uid,amount:amount,receiptNumber:receiptNumber}},function(err,gocs){
+             User.findByIdAndUpdate(xId,{$set:{studentId:studentId,amount:amount,receiptNumber:receiptNumber}},function(err,gocs){
             
   
   console.log('xId',xId)
@@ -1995,7 +2057,83 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   
   
   router.get('/printX',isLoggedIn,function(req,res){
-    res.redirect('/clerk/print')
+
+    
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var studentId = req.user.studentId
+ // console.log(arr,'arr')
+/*console.log(arr,'iiii')*/
+
+User.findById(studentId,function(err,docs){
+let uid = docs.uid
+
+const compile = async function (templateName, docs){
+const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+const html = await fs.readFile(filePath, 'utf8')
+
+return hbs.compile(html)(docs)
+
+};
+
+
+
+
+(async function(){
+
+try{
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+
+const page = await browser.newPage()
+
+
+
+const content = await compile('receipt',docs)
+
+
+
+await page.setContent(content)
+//create a pdf document
+
+await page.pdf({
+  path:(`./finance/${year}/${month}/${uid}`+'.pdf'),
+format:"A4",
+printBackground:true
+})
+
+
+/*await browser.close()
+
+process.exit()*/
+
+}catch(e) {
+
+console.log(e)
+}
+
+}) ()
+res.redirect('/clerk/print')
+
+})
+
+
+
+
   })
   
   router.get('/print',isLoggedIn,function(req,res){
@@ -2003,12 +2141,12 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
     var day = moment().toString();
     var amount = req.user.amount
     var companyId = req.user.companyId
-    User.find({companyId:companyId,uid:uid},function(err,zocs){
+    User.findById(uid,function(err,zocs){
   
       
          
          res.render('accounts/receipt', {
-           date:day,uid:uid,user:zocs[0], clerk:req.user.fullname, amount:amount})
+           date:day,uid:uid,user:zocs, clerk:req.user.fullname, amount:amount})
      
     })
   })

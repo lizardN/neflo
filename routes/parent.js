@@ -3727,7 +3727,7 @@ router.get('/profile',isLoggedIn,parent, function(req,res){
     var month = m.format('MMMM')
     var year = m.format('YYYY')
     var mformat = m.format('L')
-    var uid = req.user.student
+    var uid = req.user.studentId
   
       Report.find({uid:uid,year:year},function(err,docs){
   
@@ -3739,6 +3739,24 @@ router.get('/profile',isLoggedIn,parent, function(req,res){
   })
   
 
+   
+  router.get('/financeReports',isLoggedIn, function(req,res){
+    var pro = req.user
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var id = req.user.paymentId
+    var uid = req.user.studentId
+   
+    var companyId = req.user.companyId
+    Fees.find({companyId:companyId,uid:uid},function(err,docs){
+     
+      res.render('repositoryP/filesFinance',{listX:docs,pro:pro})
+ 
+  })
+    
+  })
+
   router.get('/downloadMonthlyReport/:id',isLoggedIn,parent,function(req,res){
     var m = moment()
   var month = m.format('MMMM')
@@ -3746,6 +3764,20 @@ router.get('/profile',isLoggedIn,parent, function(req,res){
     Report.findById(req.params.id,function(err,doc){
       var name = doc.filename;
       res.download( './reports/'+year+'/'+month+'/'+name, name)
+    })  
+  
+  })
+
+
+  router.get('/downloadFinanceReport/:id',isLoggedIn,parent,function(req,res){
+    var m = moment()
+  //var month = m.format('MMMM')
+  //var year = m.format('YYYY')
+    Fees.findById(req.params.id,function(err,doc){
+      var name = doc.uid;
+      var month = doc.month
+      var year = doc.year
+      res.download( './finance/'+year+'/'+month+'/'+name+'.pdf', name+'.pdf')
     })  
   
   })

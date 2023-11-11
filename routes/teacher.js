@@ -6234,7 +6234,7 @@ res.redirect('/teacher/gradeX9')
 
 //autocomplete teacherName & uid
 
-router.get('/autocomplete/',isLoggedIn,teacher, function(req, res, next) {
+router.get('/autocomplete/',isLoggedIn, function(req, res, next) {
 var teacherId = req.user.uid
 var companyId = req.user.companyId
 var regex= new RegExp(req.query["term"],'i');
@@ -6289,7 +6289,7 @@ console.log('Result',result)
 
 // role admin
 //this routes autopopulates teachers info from the id selected from automplet1
-router.post('/auto',isLoggedIn,teacher,function(req,res){
+router.post('/auto',isLoggedIn,function(req,res){
 var code = req.body.code
 var teacherId = req.user.uid
 var companyId = req.user.companyId
