@@ -47,19 +47,19 @@ window.print();
 
           
 <div class="container-fluid" id="voucher">
-	 {{#each this}}
+	
 	<p class="text-center"><b></b></p>
 	<hr>
 	<div class="flex">
 		<div class="w-50">
-			<p>Student ID: <b>{{this.uid}}</b></p>
-			<p>Student: <b>{{this.fullname}}</b></p>
-			<p>Class: <b>{{this.class1}}</b></p>
+			<p>Student ID: <b>{{uid}}</b></p>
+			<p>Student: <b>{{fullname}}</b></p>
+			<p>Class: <b>{{class1}}</b></p>
 		</div>
 	
 		<div class="w-50">
-			<p>Payment Date: <b>{{this.date}}</b></p>
-			<p>Paid Amount: <b>${{this.amount}}</b></p>
+			<p>Payment Date: <b>{{date}}</b></p>
+			<p>Paid Amount: <b>${{amount}}</b></p>
 			
 		</div>
 		
@@ -74,12 +74,12 @@ window.print();
 				<table width="100%">
 					<tr>
 						<td width="50%">Clerk:</td>
-						<td width="50%" class='text-right'>{{this.clerk}}</td>
+						<td width="50%" class='text-right'>{{clerk}}</td>
 					</tr>
 			
 				<tr>
 					<td><b>Receipt Number</b></td>
-					<td class='text-right'><b>{{this.receiptNumber}}</b></td>
+					<td class='text-right'><b>{{receiptNumber}}</b></td>
 				</tr>
 			
 				</table>
@@ -90,20 +90,20 @@ window.print();
 				<table width="100%" class="wborder">
 					<tr>
 						<td>Old Balance ($)</td>
-						<td class='text-right'><b>{{this.balanceCarriedOver}}</b></td>
+						<td class='text-right'><b>{{balanceCarriedOver}}</b></td>
 					</tr>
 					<tr>
 						<td>Total Paid ($)</td>
-						<td class='text-right'><b>{{this.amount}}</b></td>
+						<td class='text-right'><b>{{amount}}</b></td>
 					</tr>
 					<tr>
 						<td>New Balance ($)</td>
-						<td class='text-right'><b>${{this.balance}}</b></td>
+						<td class='text-right'><b>${{balance}}</b></td>
 					</tr>
 				</table>
 			</td>			
 		</tr>
-		      {{/each}}
+		     
 	</table>
 </div>
 

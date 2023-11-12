@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 const User =require('../models/user')
 const puppeteer = require('puppeteer')
+var hbs = require('handlebars');
 const Setup =require('../models/setup')
 const Class1 =require('../models/class');
 const Subject =require('../models/subject');
@@ -37,6 +38,7 @@ var Quiz = require('../models/quiz');
 const stripe = require('stripe')('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');
 const keys = require('../config1/keys')
 var mongoose = require('mongoose')
+var mongodb = require('mongodb');
 const { google } = require("googleapis");
 const OAuth2 = google.auth.OAuth2;
 const jwt = require('jsonwebtoken');
@@ -46,7 +48,7 @@ var nodemailer = require('nodemailer');
 var passport = require('passport')
 var xlsx = require('xlsx')
 var multer = require('multer')
-const fs = require('fs')
+const fs = require('fs-extra')
 var path = require('path');
 var bcrypt = require('bcrypt-nodejs');
 var passport = require('passport')
@@ -1964,6 +1966,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   var method = 'manual'
   var day = moment().toString()
   var companyId = req.user.companyId
+  console.log(studentId,'studentId')
   
     req.check('uid','Enter Student ID').notEmpty();
     req.check('fullname','Enter Student Name').notEmpty();
@@ -2019,7 +2022,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   
               if(newBalance >= 0){
       
-                User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"paid", term:term, year:year,balanceCarriedOver:balance}},function(err,docs){
+                User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"paid", term:term,amount:amount, year:year,balanceCarriedOver:balance}},function(err,docs){
               
           
                 
@@ -2028,7 +2031,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
             
               }else
               
-              User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"owing", term:term, year:year,balanceCarriedOver:balance}},function(err,docs){
+              User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"owing",amount:amount, term:term, year:year,balanceCarriedOver:balance}},function(err,docs){
               
               
                 
@@ -2067,9 +2070,10 @@ var month = m.format('MMMM')
  // console.log(arr,'arr')
 /*console.log(arr,'iiii')*/
 
-User.findById(studentId,function(err,docs){
+//User.findById(studentId,function(err,docs){
+  User.findById(studentId).lean().then(docs=>{
 let uid = docs.uid
-
+console.log(uid,'uid')
 const compile = async function (templateName, docs){
 const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
 
@@ -2116,7 +2120,8 @@ format:"A4",
 printBackground:true
 })
 
-
+console.log("Done creating pdf",uid)
+res.redirect('/clerk/print')
 /*await browser.close()
 
 process.exit()*/
@@ -2127,7 +2132,7 @@ console.log(e)
 }
 
 }) ()
-res.redirect('/clerk/print')
+
 
 })
 
@@ -2232,7 +2237,7 @@ res.redirect('/clerk/print')
   
   
   
-        router.get('/feesRecords',isLoggedIn, (req, res) => {
+       /* router.get('/feesRecords',isLoggedIn, (req, res) => {
           var pro = req.user
           var companyId = req.user.companyId
           Fees.find({companyId:companyId},(err, docs) => {
@@ -2243,7 +2248,44 @@ res.redirect('/clerk/print')
                   });
               }
           });
-        });
+        });*/
+
+        
+   
+  router.get('/feesRecords',isLoggedIn, function(req,res){
+    var pro = req.user
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
+   
+   
+    var companyId = req.user.companyId
+    Fees.find(function(err,docs){
+     
+      res.render('clerk/filesFinance',{listX:docs,pro:pro})
+ 
+  })
+    
+  })
+
+
+
+  
+  router.get('/downloadFinanceReport/:id',isLoggedIn,function(req,res){
+    var m = moment()
+  //var month = m.format('MMMM')
+  //var year = m.format('YYYY')
+    Fees.findById(req.params.id,function(err,doc){
+      var name = doc.uid;
+      var month = doc.month
+      var year = doc.year
+      res.download( './finance/'+year+'/'+month+'/'+name+'.pdf', name+'.pdf')
+    })  
+  
+  })
+
+
+
         
   
   
