@@ -11,6 +11,8 @@ const Calendar =require('../models/calendar');
 var Message = require('../models/message');
 var Recepient = require('../models/recepients');
 const Student =require('../models/studentStats');
+let pdf = require('html-pdf');
+const Report2 = require('../models/reportsT');
 const Grade =require('../models/grade');
 var Note = require('../models/note');
 const Level =require('../models/level');
@@ -47,33 +49,703 @@ var nodemailer = require('nodemailer');
 var passport = require('passport')
 var xlsx = require('xlsx')
 var multer = require('multer')
-const fs = require('fs')
+const fs = require('fs-extra')
 var path = require('path');
 var bcrypt = require('bcrypt-nodejs');
+var hbs = require('handlebars');
+const puppeteer = require('puppeteer')
 var passport = require('passport')
 var moment = require('moment')
 var bcrypt = require('bcrypt-nodejs');
+const crypto = require('crypto');
+
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const methodOverride = require('method-override');
+
+const arr = {}
+const arr2 = {}
 
 
-
-
-var storage = multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,'./public/uploads/')
-    },
-    filename:(req,file,cb)=>{
-        cb(null,file.originalname)
-    }
+var storageX = multer.diskStorage({
+  destination:function(req,file,cb){
+      cb(null,'./public/uploads/')
+  },
+  filename:(req,file,cb)=>{
+      cb(null,file.originalname)
+  }
 })
 
 
 
-var upload = multer({
-    storage:storage
+var uploadX = multer({
+  storage:storageX
+})
+
+const mongoURI = process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB';
+
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Create mongo connection
+/*
+const conn = mongoose.createConnection(mongoURI);
+
+// Init gfs
+let gfs;
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});*/
+
+
+/* Create storage engine*/
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+        const filename = file.originalname;
+  
+        const fileInfo = {
+          filename: filename,
+     
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+    });
+  }
+});
+/*
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+      });
+    });
+  }
+});*/
+
+const upload = multer({ storage })
+
+
+User.find({role:'student'},function(err,docs){
+  for(var i=0;i<docs.length;i++){
+    let uid = docs[i].uid
+     arr[uid]=[]
+  }
+})
+
+console.log('vvx')
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+console.log(month,'mmmmm')
+//var term = req.user.term
+User.find({role:"student"},function(err,docs){
+
+for(var i = 0; i<docs.length;i++){
+
+//console.log(docs[i].uid,'ccc')
+let uid = docs[i].uid
+//let uid = "SZ125"
+
+
+//TestX.find({year:year,uid:uid},function(err,vocs) {
+  TestX.find({year:year,uid:uid}).lean().then(vocs=>{
+
+  
+for(var x = 0;x<vocs.length;x++){
+  //size = docs.length
+  let subject = vocs[x].subject
+   
+   if( arr[uid].length > 0 && arr[uid].find(value => value.subject == subject) ){
+ 
+         arr[uid].find(value => value.subject == subject).percentage += vocs[x].percentage;
+         arr[uid].find(value => value.subject == subject).size++;
+         //console.log(arr,'arrX')
+        }
+        
+         
+        
+        
+        else{
+          arr[uid].push(vocs[x])
+          // console.log(arr,'push')
+          
+            //element.size = 0
+            /*if(arr[uid].find(value => value.subject == subject)){*/
+       
+             
+                   arr[uid].find(value => value.subject == subject).size++;
+
+
+     
+            /*}*/
+          //  console.log(arr,'ll'+uid)
+            //element.size = element.size + 1
+              
+          } 
+
+
+         /* arr[uid].forEach((element,index)=>{
+            if(element.size > 0) {
+              //console.log(element,'element')
+            
+              //element.percentage  = element.percentage / element.size
+
+              console.log(element.percentage, element.size,'drumless')
+              let num = Math.round(element.percentage)
+  num.toFixed(2)
+  element.percentage =num
+
+
+            }
+        
+          })*/
+
+         
+
+}
+        })
+        }
+      })
+
+/*})*/
+
+router.get('/weight',function(req,res){
+User.find({role:"student"},function(err,hocs){
+for(var i = 0;i<hocs.length;i++){
+
+let uid = hocs[i].uid
+
+arr[uid].map(function(element){
+  console.log(element.percentage, element.size,'para')
+ element.percentage  = element.percentage / element.size
+// console.log(element.mark,'mark')
+ let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+  for(var i = 0; i<qocs.length; i++){
+  let symbol = qocs[i].symbol
+  let from = qocs[i].from
+  let to = qocs[i].to
+  
+  if(element.percentage >= from && element.percentage <= to ){
+  
+  element.symbol = symbol
+  
+  
+  
+  }
+  }
+  
+  
+  })
+  
+  if(element.percentage >= 50){
+  
+  
+  element.result = 'pass'
+  }else
+  
+ element.result = 'fail'
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+})
+}
+res.redirect('/records/genPdf3')
+})
+
+})
+////////////
+
+router.get('/genPdf3',isLoggedIn,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var mformat = m.format('L')
+/*console.log(arr,'iiii')*/
+
+User.find({role:"student"},function(err,docs){
+  for(var i = 0; i< docs.length;i++){
+
+  
+  let uid = docs[i].uid
+
+
+const compile = async function (templateName, arr){
+  const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+  const html = await fs.readFile(filePath, 'utf8')
+
+  return hbs.compile(html)(arr)
+ 
+};
+
+
+
+
+ (async function(){
+
+try{
+//const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({
+  headless: true,
+  args: [
+    "--disable-setuid-sandbox",
+    "--no-sandbox",
+    "--single-process",
+    "--no-zygote",
+  ],
+  executablePath:
+    process.env.NODE_ENV === "production"
+      ? process.env.PUPPETEER_EXECUTABLE_PATH
+      : puppeteer.executablePath(),
+});
+
+const page = await browser.newPage()
+
+
+
+ const content = await compile('report3',arr[uid])
+
+//console.log(arr[uid],'tamama')
+
+ await page.setContent(content)
+//create a pdf document
+//console.log(await page.pdf(),'7777')
+await page.pdf({
+  //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+  path:(`./reports/${year}/${month}/${uid}`+'.pdf'),
+  format:"A4",
+  printBackground:true
 })
 
 
 
+var repo = new Report();
+ 
+repo.uid = uid;
+repo.month = month;
+repo.filename = uid+'.pdf';
+repo.year = year;
+repo.date = mformat
+repo.save().then(poll =>{
+  console.log("Done creating pdf",uid)
+})
+
+
+/*await browser.close()
+
+process.exit()*/
+
+
+
+}catch(e) {
+
+  console.log(e)
+
+
+}
+
+}) ()
+
+}
+res.redirect('/records/weightX')
+})
+
+
+
+})
+
+
+/////teacher
+
+
+Subject.find(function(err,docs){
+  for(var i=0;i<docs.length;i++){
+    let subjectCode = docs[i].code
+    arr2[subjectCode]=[]
+  }
+
+})
+
+
+
+
+
+
+
+//var term = req.user.term
+Subject.find(function(err,zocs){
+for(var z = 0; z<zocs.length;z++){
+  let subjectCodeX = zocs[z].code
+
+  StudentSub.find({subjectCode:subjectCodeX},function(err,tocs){
+    for(var q = 0;q<tocs.length;q++){
+      let uid = tocs[q].studentId
+   
+
+
+
+
+      TestX.find({year:year,uid:uid}).lean().then(vocs=>{
+for(var x = 0;x<vocs.length;x++){
+//size = docs.length
+let subjectCode = vocs[x].subjectCode
+let subject = vocs[x].subject
+
+ 
+ if( arr2[subjectCode].length > 0 && arr2[subjectCode].find(value => value.subjectCode == subjectCode)  && arr2[subjectCode].find(value => value.uid == uid)  ){
+
+       arr2[subjectCode].find(value => value.uid == uid).percentage += vocs[x].percentage;
+       arr2[subjectCode].find(value => value.uid == uid).size++;
+       //console.log(arr,'arrX')
+      }
+      
+       
+      
+      
+      else{
+        arr2[subjectCode].push(vocs[x])
+        // console.log(arr,'push')
+        
+          //element.size = 0
+          /*if(arr[uid].find(value => value.subject == subject)){*/
+     
+           
+                 arr2[subjectCode].find(value => value.uid == uid).size++;
+
+
+   
+          /*}*/
+        //  console.log(arr,'ll'+uid)
+          //element.size = element.size + 1
+            
+        } 
+
+
+       /* arr[uid].forEach((element,index)=>{
+          if(element.size > 0) {
+            //console.log(element,'element')
+          
+            //element.percentage  = element.percentage / element.size
+
+            console.log(element.percentage, element.size,'drumless')
+            let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+          }
+      
+        })*/
+
+       
+
+
+      }
+    })
+
+  }
+})
+}
+
+})
+
+
+
+router.get('/weightX',function(req,res){
+
+Subject.find(function(err,docs){
+if(docs){
+for(var x = 0;x<docs.length;x++){
+  let subjectCode = docs[x].code
+
+
+
+
+
+arr2[subjectCode].map(function(element){
+//console.log(element.percentage, element.size,'para')
+element.percentage  = element.percentage / element.size
+// console.log(element.mark,'mark')
+let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+for(var i = 0; i<qocs.length; i++){
+let symbol = qocs[i].symbol
+let from = qocs[i].from
+let to = qocs[i].to
+
+if(element.percentage >= from && element.percentage <= to ){
+
+element.symbol = symbol
+
+
+
+}
+}
+
+
+})
+
+if(element.percentage >= 50){
+
+
+element.result = 'pass'
+}else
+
+element.result = 'fail'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+})
+
+
+}
+}
+res.redirect('/records/genPdf33')
+})
+
+})
+
+//
+
+
+router.get('/genPdf33',isLoggedIn,function(req,res){
+  
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  
+ // console.log(arr,'arr')
+/*console.log(arr,'iiii')*/
+
+Subject.find(function(err,docs){
+for(var i = 0; i< docs.length;i++){
+
+
+let subjectCode = docs[i].code
+
+
+const compile = async function (templateName, arr2){
+const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+const html = await fs.readFile(filePath, 'utf8')
+
+return hbs.compile(html)(arr2)
+
+};
+
+
+
+
+(async function(){
+
+try{
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+
+const page = await browser.newPage()
+
+
+
+const content = await compile('report4',arr2[subjectCode])
+
+//console.log(arr[uid],'tamama')
+
+await page.setContent(content)
+//create a pdf document
+
+await page.pdf({
+  path:(`./reports2/${year}/${month}/${subjectCode}`+'.pdf'),
+format:"A4",
+printBackground:true
+})
+var repo = new Report2();
+
+repo.subjectCode = subjectCode;
+repo.month = month;
+repo.filename = subjectCode+'.pdf';
+repo.year = year;
+repo.date = mformat
+repo.save().then(poll =>{
+console.log("Done creating pdf",subjectCode)
+})
+
+
+/*await browser.close()
+
+process.exit()*/
+req.flash('success', 'Reports Generated Successfully!');
+  
+res.redirect('/records/dash')
+
+}catch(e) {
+
+console.log(e)
+
+req.flash('danger', 'Reports Generation Failed!');
+  
+res.redirect('/records/dash')
+}
+
+}) ()
+
+}
+})
+
+
+
+})
+
+
+
+
+router.get('/genEmail2',isLoggedIn,function(req,res){
+  User.find({role:"parent"},function(err,docs){
+ 
+   for(var i = 0;i<docs.length;i++){
+     let email = docs[i].email
+     let studentId = docs[i].studentId
+ 
+ 
+ 
+ 
+ 
+             
+   const transporter = nodemailer.createTransport({
+     service: 'gmail',
+     port:465,
+     secure:true,
+     logger:true,
+     debug:true,
+     secureConnection:false,
+     auth: {
+         user: "kratosmusasa@gmail.com",
+         pass: "znbmadplpvsxshkg",
+     },
+     tls:{
+       rejectUnAuthorized:true
+     }
+     //host:'smtp.gmail.com'
+   });
+   let mailOptions ={
+     from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                 to: email, // list of receivers
+                 subject: "Monthly Assessment Reports",
+     //text:"Node js testing",
+     attachments: [
+       {
+         filename:'document.pdf',
+         path:`./reports/${year}/${month}/${studentId}.pdf`
+       }
+     ]
+   };
+   transporter.sendMail(mailOptions, function (error,info){
+     if(error){
+       console.log(error)
+       req.flash('danger', 'Reports Not Emailed!');
+  
+res.redirect('/records/dash')
+     }else{
+       console.log('Email sent successfully')
+       req.flash('success', 'Reports Emailed Successfully!');
+  
+res.redirect('/records/dash')
+     }
+   })
+ 
+ }
+ })
+ 
+ })
 
 router.get('/stats',isLoggedIn,records, function(req,res){
     var students, teachers, paid, unpaid, depts, class1
@@ -535,6 +1207,8 @@ if(currCount == 0){
   
   router.get('/dash',isLoggedIn,records,function(req,res){
     var pro = req.user
+    var errorMsg = req.flash('danger')[0];
+    var successMsg = req.flash('success')[0];
     const arr = []
   const m = moment();
    var id =req.user._id
@@ -578,7 +1252,7 @@ if(currCount == 0){
        
   
          
-          res.render('dashboard/records',{pro:pro,list:arr, les:les,gt:gt })
+          res.render('dashboard/records',{pro:pro,list:arr, les:les,gt:gt,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg })
   
         })
         })

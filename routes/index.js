@@ -3935,6 +3935,9 @@ router.get('/genEmail',isLoggedIn,function(req,res){
 })
 
 
+
+
+
 router.get('/genPdf',isLoggedIn,function(req,res){
   //console.log(data,'ccc')
   var m = moment()
