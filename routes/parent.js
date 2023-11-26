@@ -3662,7 +3662,7 @@ router.post('/calendarChart',isLoggedIn,parent,function(req,res){
 
 
 //role student
-
+/*
 router.get('/profile',isLoggedIn,parent, function(req,res){
    
   var pro = req.user
@@ -3781,7 +3781,38 @@ router.get('/profile',isLoggedIn,parent, function(req,res){
     })  
   
   })
+//student profile
 
+router.get('/profile',isLoggedIn,parent, function(req,res){
+  var id = req.user.studentId
+  var pro = req.user
+  User.find({uid:id},function(err,doc){
+    
+ 
+  //var pro = req.user
+  res.render('parents/overview3',{doc:doc[0],id:id,pro:doc})
+  
+})
+    
+      
+  })
+
+
+
+
+  router.get('/subjectsProfile/:id',isLoggedIn,parent,function(req,res){
+    var id = req.params.id
+    console.log(id,'idd')
+    var pro = req.user
+    User.find({uid:id},function(err,doc){
+      let uid = doc[0].uid
+  
+      StudentSub.find({studentId:uid},function(err,locs){
+        res.render('parents/subjects5',{listX:locs,pro:doc[0],doc:doc,id:id})
+      })
+    })
+   
+  })
 
 
 //student registered subjects
