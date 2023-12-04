@@ -2809,13 +2809,13 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
                 var id = req.user.id
                 var list = []
                 var num
-            Recepient.find({recepientId :id,companyId:companyId},function(err,nocs){
+            Recepient.find({recepientId :id},function(err,nocs){
             
             for(var i = 0 ; i<nocs.length;i++){
             
             let recId = nocs[i].msgId
             
-                Message.find({status:'reply',msgId:recId,companyId:companyId},function(err,docs){
+                Message.find({status:'reply',msgId:recId},function(err,docs){
                   for(var i = 0; i<docs.length;i++){
                     let date = docs[i].date
                     let Vid = docs[i]._id

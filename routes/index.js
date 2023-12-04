@@ -4156,6 +4156,16 @@ process.exit()*/
 router.get('/stEurit',function(req,res){
   res.render('eurit/index')
 })
+router.get('/about',function(req,res){
+  res.render('eurit/about')
+})
+router.get('/comm',function(req,res){
+  res.render('eurit/comm')
+})
+
+router.get('/enroll',function(req,res){
+  res.render('eurit/enroll')
+})
 
 router.get('/stEuritUpload',isLoggedIn,function(req,res){
   var errorMsg = req.flash('danger')[0];
