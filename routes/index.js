@@ -4640,8 +4640,8 @@ router.get('/teacherAnalytics/:id',isLoggedIn,adminX,function(req,res){
    let uid = voc.uid
    let fullname = voc.fullname
   
-  Class1.find({companyId:companyId},function(err,locs){
-    TeacherSub.find({companyId:companyId},{teacherId:uid},function(err,docs){
+  Class1.find({},function(err,locs){
+    TeacherSub.find({},{teacherId:uid},function(err,docs){
 
 
       res.render('admin/teacherAn',{arr1:locs,listX:docs,fullname:fullname,uid:uid,pro:pro})
