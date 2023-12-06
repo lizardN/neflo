@@ -4677,7 +4677,7 @@ router.post('/dashChartA1',isLoggedIn,adminX,function(req,res){
   console.log(subjectCode,term,'outa here')
   
   
-    TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,companyId:companyId},function(err,docs) {
+    TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term},function(err,docs) {
      // console.log(docs,'docs')
       for(var i = 0;i<docs.length;i++){
   size = docs.length
@@ -6531,8 +6531,8 @@ var uid1 = prefix1 + idNum1
                   });
               router.get('/classListX',isLoggedIn,adminX,function(req,res){
                 var pro = req.user
-                var companyId = req.user.companyId
-                Class1.find({companyId:companyId},function(err,docs){
+            
+                Class1.find({},function(err,docs){
                   res.render('admin/classes',{listX:docs,pro:pro})
                 })
               
