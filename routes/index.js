@@ -4611,8 +4611,8 @@ router.post('/passChart',isLoggedIn,adminX,function(req,res){
 
 router.get('/analytics',isLoggedIn,adminX,function(req,res){
   var pro = req.user
-  Subject.find({companyId:companyId},function(err,docs){
-    Class1.find({companyId:companyId},function(err,locs){
+  Subject.find({},function(err,docs){
+    Class1.find({},function(err,locs){
 
  
     res.render('admin/classAn',{listX:docs,arr1:locs,pro:pro})
