@@ -4624,7 +4624,7 @@ router.get('/analytics',isLoggedIn,adminX,function(req,res){
 
 router.get('/appraisal',isLoggedIn,adminX,function(req,res){
   var pro = req.user
-  User.find({role:'teacher',companyId:companyId},function(err,docs){
+  User.find({role:'teacher'},function(err,docs){
     res.render('admin/list5',{listX:docs,pro:pro})
   })
  
