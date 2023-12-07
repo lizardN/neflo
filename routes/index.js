@@ -4139,7 +4139,7 @@ await page.pdf({
 console.log("Done creating pdf",uid)
 
 /*await browser.close()
-
+nova 8i
 process.exit()*/
 
 }catch(e) {

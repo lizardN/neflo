@@ -5624,6 +5624,7 @@ router.get('/lessonBatch',isLoggedIn,records,function(req,res){
    var teacherId = req.user.teacherId;
    var companyId = req.user.companyId
    var arr1 =[]
+   var arr = []
    Class1.find({companyId:companyId},function(err,focs){
    Room.find({companyId:companyId},(err, docs) => {
      arr1 = docs
@@ -5646,7 +5647,7 @@ router.get('/lessonBatch',isLoggedIn,records,function(req,res){
     var m = moment(day)
     var year = m.format('YYYY')
     var month = m.format('MMMM')
-   
+   var arrX=[]
     var mformat = m.format("L")
     var fullname = req.user.teacherName;
     var teacherID = req.user.teacherId;
@@ -5684,7 +5685,7 @@ router.get('/lessonBatch',isLoggedIn,records,function(req,res){
     Room.find({companyId:companyId},(err, wocs) => {
       Class1.find({companyId:companyId},function(err,focs){
       arr1 = wocs
-      arr = focs
+      arrX = focs
     req.session.errors = errors;
     req.session.success = false
     res.render('lesson/add-lesson',{errors:req.session.errors, arr1:arr1, arr:arr,pro:pro})
@@ -5703,7 +5704,7 @@ router.get('/lessonBatch',isLoggedIn,records,function(req,res){
         if(lsn){
           Room.find({companyId:companyId,},(err, wocs) => {
             Class1.find({companyId:companyId},function(err,focs){
-              arr = focs
+              arrX = focs
             arr1 = wocs
           req.session.message = {
             type:'errors',

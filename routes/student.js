@@ -3786,7 +3786,7 @@ router.post('/calendarChart',isLoggedIn,student,function(req,res){
   var uid = req.user.uid
   var class1 = req.user.class1
   var arr = []
- Lesson.find({class1:class1},function(err,docs){
+ Lesson.find({},function(err,docs){
    /* for(var i = 0;i<docs.length;i++){
       let subjectCode = docs[i].subjectCode
 
