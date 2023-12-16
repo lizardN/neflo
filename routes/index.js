@@ -9,6 +9,7 @@ const Report =require('../models/reports')
 const Class1 =require('../models/class');
 let pdf = require('html-pdf');
 const Report2 = require('../models/reportsT');
+const Enroll = require('../models/enroll');
 var Learn = require('../models/learn');
 const puppeteer = require('puppeteer')
 const Subject =require('../models/subject');
@@ -4159,6 +4160,121 @@ router.get('/stEurit',function(req,res){
 router.get('/about',function(req,res){
   res.render('eurit/about')
 })
+router.get('/open',function(req,res){
+  res.render('eurit/openDay')
+})
+
+router.get('/form',function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('eurit/form',{successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  //res.render('eurit/form')
+})
+
+
+router.post('/form',function(req,res){
+  var salutation = req.body.q3_salutation
+  var firstName = req.body.firstName
+  var lastName = req.body.lastName
+  var address = req.body.address
+  var address1 = req.body.address1
+  var city = req.body.city
+  var state = req.body.state
+  var postal = req.body.postal
+  var phone = req.body.phoneNumber
+  var email = req.body.email
+  var child1 = req.body.child1
+  var child2 = req.body.child2
+  var child3 = req.body.child3
+  var child4 = req.body.child4
+  var age1 = req.body.age1
+  var age2 = req.body.age2
+  var age3 = req.body.age3
+  var age4 = req.body.age4
+  var level1 = req.body.level1
+  var level2 = req.body.level2
+  var level3 = req.body.level3
+  var level4 = req.body.level4
+  req.check('city','Enter City').notEmpty();
+  req.check('state','Enter State').notEmpty();
+  req.check('postal','Postal Address').notEmpty();
+  req.check('phoneNumber','Enter Phone Number').notEmpty();
+  req.check('email','Enter Email').isEmail();
+  req.check('child1','Enter Child').notEmpty();
+  req.check('age1','Enter Child Age').notEmpty();
+  req.check('level1','Enter Year Level').notEmpty();
+  
+
+
+  var errors = req.validationErrors();
+
+  if (errors) {
+  
+  
+  req.session.errors = errors;
+  req.session.success = false
+  //res.render('eurit/batch',{errors:req.session.errors,pro:pro})
+  
+  req.flash('danger', req.session.errors[0].msg);
+         
+          
+          res.redirect('/form');
+  
+  
+  }else{
+
+
+    
+  var enroll = new Enroll();
+enroll.salutation = salutation
+enroll.firstName = firstName
+enroll.lastName = lastName
+enroll.address = address
+enroll.address1 = address1
+enroll.city = city
+enroll.state = state
+enroll.postal = postal
+enroll.phone = phone
+enroll.email = email
+enroll.child1 = child1
+enroll.child2 = child2
+enroll.child3 = child3
+enroll.child4 = child4
+enroll.age1=age1
+enroll.age2 = age2
+enroll.age3=age3
+enroll.age4 = age4
+enroll.level1 = level1
+enroll.level2 = level2
+enroll.level3 = level3
+enroll.level4 = level4
+
+
+enroll.save()
+.then(user =>{
+  
+req.flash('success', 'File Uploaded Successfully!');
+
+res.redirect('/form')
+
+})
+
+  }
+
+ 
+})
+
+router.get('/feesUni',function(req,res){
+  res.render('eurit/fees')
+})
+
+router.get('/primary',function(req,res){
+  res.render('eurit/primary')
+})
+
+router.get('/ecd',function(req,res){
+  res.render('eurit/ecd')
+})
 router.get('/comm',function(req,res){
   res.render('eurit/comm')
 })
@@ -4259,6 +4375,22 @@ router.get('/euritFiles',isLoggedIn,function(req,res){
 
 
 
+router.get('/euritUsers',isLoggedIn,(req, res) => {
+  var pro = req.user
+  var companyId = req.user.companyId
+   User.find({companyId:companyId,role:"euritP"},(err, docs) => {
+       if (!err) {
+           res.render("eurit/list", {
+               listX: docs, pro:pro
+               
+           });
+       }
+       else {
+           console.log('Error in retrieving Student list :' + err);
+       }
+   });
+ });
+
 
 router.get('/euritDownload/:id',(req,res)=>{
   var fileId = req.params.id
@@ -4280,6 +4412,337 @@ let contentType = files[0].contentType
   })
  //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
 })
+
+
+
+router.get('/parentSignup',function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('eurit/parentForm',{successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+
+})
+  
+
+
+ router.post('/parentSignup',function(req,res){
+  var salutation = req.body.salutation
+  var email = req.body.email;
+  var password = req.body.password;
+  var phoneNumber = req.body.phoneNumber
+  var firstName = req.body.firstName
+  var lastName = req.body.lastName
+       req.check('email','Enter email ').notEmpty();
+       req.check('phoneNumber','Enter Phone Number ').notEmpty();
+       req.check('firstName','Enter FirstName ').notEmpty();
+       req.check('lastName','Enter Surname ').notEmpty();
+       req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
+
+       var errors = req.validationErrors();
+            
+       if (errors) {
+   
+         req.session.errors = errors;
+         req.session.success = false;
+        // res.render('eurit/parentForm',{ errors1:req.session.errors})
+
+        req.flash('danger', req.session.errors[0].msg);
+         
+          
+        res.redirect('/parentSignup');
+       
+     }
+     User.findOne({'email':email})
+     .then(user =>{
+         if(user){ 
+       // req.session.errors = errors
+         //req.success.user = false;
+         
+         req.flash('danger', 'Email already exists!');
+
+         res.redirect('/parentSignup')
+         
+   }
+   else  {   
+             
+  
+
+       const token = jwt.sign({email,password, phoneNumber, firstName,lastName,salutation }, JWT_KEY, { expiresIn: '100000m' });
+       const CLIENT_URL = 'http://' + req.headers.host;
+ 
+       const output = `
+       <h2>Please click on below link to activate your account</h2>
+       <a href="${CLIENT_URL}/activateParent/${token}">click here</a>
+       <h1> User credentials</h1>
+       <p>email:${email}</p>
+       <p>password:${password}</p>
+       <p><b>NOTE: </b> The above activation link expires in 1 week.</p>
+       `;
+ 
+       const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        port:465,
+        secure:true,
+        logger:true,
+        debug:true,
+        secureConnection:false,
+        auth: {
+            user: "kratosmusasa@gmail.com",
+            pass: "znbmadplpvsxshkg",
+        },
+        tls:{
+          rejectUnAuthorized:true
+        }
+        //host:'smtp.gmail.com'
+      
+       });
+       
+ 
+       // send mail with defined transport object
+       const mailOptions = {
+           from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+           to: email, // list of receivers
+           subject: "St Eurit Account Verification ✔", // Subject line
+           html: output, // html body
+       };
+ 
+       transporter.sendMail(mailOptions, (error, info) => {
+           if (error) {
+             console.log(error)
+             req.flash('danger', 'Email not sent');
+
+             res.redirect('/parentSignup')
+     
+           }
+           else {
+               console.log('Mail sent : %s', info.response);
+
+               
+               req.flash('success', 'Email sent');
+
+               res.redirect('/parentSignup')
+           }
+       })
+      // res.redirect('/multi')
+  
+                 
+   }
+  })
+
+
+ })
+
+
+
+
+ 
+ router.get('/activateParent/:token',(req,res)=>{
+  const token = req.params.token;
+  var a = moment();
+  var year = a.format('YYYY')
+  let errors = [];
+  if (token) {
+      jwt.verify(token, JWT_KEY, (err, decodedToken) => {
+          if (err) {
+              
+          
+                req.flash('danger', 'Incorrect or expired link! Please register again');
+
+                res.redirect('/')
+          }
+          else {
+            const { email, password,firstName,lastName,salutation, mobile } = decodedToken;
+              User.findOne({ email: email }).then(user => {
+                  if (user) {
+                      //------------ User already exists ------------//
+                  
+                      req.flash('danger', 'User already Registered. Please Log In!');
+
+                      res.redirect('/')
+               
+                      
+                  }
+                  else  {      
+
+                    var user = new User();
+                    
+                    user.email = email;
+                    user.num=0;
+                    user.mobile =phoneNumber;
+                    user.name = firstName
+                    user.surname = lastName
+                    user.salutation = salutation
+                    user.fullname = firstName +" "+lastName;
+                    user.category = 'null';
+                    user.role = 'euritP'
+                    user.photo='null'
+                    user.password = user.encryptPassword(password)
+user.uid = 'null';
+
+user.gender ='null';
+user.dob = 'null';
+user.studentId = 'null'
+user.grade = 'null';
+user.class1 = 'null';
+
+user.classLength = 0;
+user.studentNum = 0;
+user.uidNum = 0;
+user.teacherId = 'null';
+user.teacherName = 'null';
+user.classNo = 0
+user.examDate = 'null';
+user.feeStatus = 'null';
+user.feesUpdate = 'null';
+user.term = 0;
+user.amount = 0;
+user.idNumber = 0;
+user.schoolName = 'null';
+user.receiptNumber = 0;
+user.year = year;
+user.prefix = prefix
+user.possibleMark = 0;
+user.balance = adminBal;
+user.balanceCarriedOver = 0;
+user.status = 'owing';
+user.status4 = 'null';
+user.number = 0;
+user.paymentId = 'null';
+user.suffix ='null';
+
+user.level = 'null';
+user.levelX = 'normal';
+user.pollUrl ='null';
+user.annual = 0;
+user.fees = 0;
+user.state = 'new'
+user.companyId = 'null'
+user.idNumber = 0;
+user.idNumX = 0
+user.recNumber=0
+user.type = 'null';
+user.address = 'null';
+
+user.subject = 0;
+user.subjects = 'null'
+user.subjectCode = 'null'
+user.dept = 'null';
+user.paynow = 0
+
+user.expdate=0;
+user.expStr = 'null';    
+user.status3 = "null"
+user.pollUrl2 = "null"
+user.count=count
+user.pollCount = 0
+user.possibleMark = 0;
+user.topic = 'null';
+user.actualCount =0
+user.startYear = 0
+user.currentYearCount = 0
+user.stdYearCount = 0
+user.admissionYear = 0
+user.icon = 'null'
+user.subjectNo = 0
+user.quizDuration = 0
+user.inboxNo = 0
+user.quizNo = 0
+user.quizBatch = 0
+user.quizId = 'null'
+user.testId = 'null'
+                    user.save()
+                      .then(user =>{
+                
+                          
+                          
+                        req.flash('success', 'Account Registered!');
+
+                        res.redirect('/')
+                    
+
+
+                  })
+                      .catch(err => console.log(err))
+                    }
+                    
+                      })
+                     }
+              });
+            }
+  });
+
+
+
+
+
+
+/*
+ router.get('/activate/:token',(req,res)=>{
+  const token = req.params.token;
+  var a = moment();
+  var year = a.format('YYYY')
+  let errors = [];
+  if (token) {
+      jwt.verify(token, JWT_KEY, (err, decodedToken) => {
+          if (err) {
+              
+              req.session.message = {
+                  type:'errors',
+                  message:'Incorrect or expired link! Please register again'
+                } 
+                res.render('reg',{message1:req.session.message});
+          }
+          else {
+            const { email, password,fullname, mobile } = decodedToken;
+              User.findOne({ email: email }).then(user => {
+                  if (user) {
+                      //------------ User already exists ------------//
+                  
+                      req.session.message = {
+                          type:'errors',
+                          message:'User  already registered! Please log in.'
+                        }  
+                        res.render('reg',{message1:req.session.message});
+               
+                      
+                  }
+                  else  {      
+
+                    var user = new User();
+                    
+                    user.email = email;
+                    user.num=0;
+                    user.mobile =mobile;
+                    user.fullname = fullname;
+                    user.category = 'null';
+                    user.role = 'client'
+                    user.photo='propic.jpg'
+                    user.password = user.encryptPassword(password)
+                    user.save()
+                      .then(user =>{
+                
+                          
+                          
+                        req.session.message = {
+                          type:'success',
+                          message:'Account Registered'
+                        }  
+                        res.render('reg',{message1:req.session.message});
+                    
+
+
+                  })
+                      .catch(err => console.log(err))
+                    }
+                    
+                      })
+                     }
+              });
+            }
+  });
+
+
+*/
+
 
 
 

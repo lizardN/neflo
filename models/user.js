@@ -79,6 +79,7 @@ var userSchema = new mongoose.Schema({
     quizDuration:{type:Number, required:true},
     subjectNo:{type:Number, required:true},
     icon:{type:String, required:true},
+    salutation:{type:String},
     companyId:{type:String, required:true},
     
    
