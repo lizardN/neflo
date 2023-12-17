@@ -793,6 +793,9 @@ router.get('/', function (req, res, next) {
       res.redirect('/student/card')
       else if(req.user.role == 'eurit')
       res.redirect('/stEuritUpload')
+
+      else if(req.user.role == 'euritP')
+      res.redirect('/euritFilesP')
       else
       res.redirect('/parent/card')
   
@@ -4373,6 +4376,23 @@ router.get('/euritFiles',isLoggedIn,function(req,res){
   })
 })
 
+router.get('/euritFilesP',isLoggedIn,function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var uid = req.user.studentId
+
+    Trip.find(function(err,docs){
+
+  
+
+    res.render('eurit/filesP',{pro:pro,listX:docs})
+ 
+  })
+})
+
 
 
 router.get('/euritUsers',isLoggedIn,(req, res) => {
@@ -4550,7 +4570,7 @@ router.get('/parentSignup',function(req,res){
                 res.redirect('/')
           }
           else {
-            const { email, password,firstName,lastName,salutation, mobile } = decodedToken;
+            const { email, password,firstName,lastName,salutation, phoneNumber } = decodedToken;
               User.findOne({ email: email }).then(user => {
                   if (user) {
                       //------------ User already exists ------------//
@@ -4581,7 +4601,7 @@ user.uid = 'null';
 user.gender ='null';
 user.dob = 'null';
 user.studentId = 'null'
-user.grade = 'null';
+user.grade = 0;
 user.class1 = 'null';
 
 user.classLength = 0;
@@ -4599,9 +4619,9 @@ user.idNumber = 0;
 user.schoolName = 'null';
 user.receiptNumber = 0;
 user.year = year;
-user.prefix = prefix
+user.prefix = 'null'
 user.possibleMark = 0;
-user.balance = adminBal;
+user.balance = 0;
 user.balanceCarriedOver = 0;
 user.status = 'owing';
 user.status4 = 'null';
@@ -4632,7 +4652,7 @@ user.expdate=0;
 user.expStr = 'null';    
 user.status3 = "null"
 user.pollUrl2 = "null"
-user.count=count
+user.count=0
 user.pollCount = 0
 user.possibleMark = 0;
 user.topic = 'null';
