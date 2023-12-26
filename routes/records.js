@@ -826,7 +826,8 @@ router.get('/stats',isLoggedIn,records, function(req,res){
   
     })
   })
-  res.redirect('/records/gradeUpdate')
+  /*res.redirect('/records/gradeUpdate')*/
+  res.redirect('/records/idUp')
   })
   
     
