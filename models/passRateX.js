@@ -11,7 +11,7 @@ secondTerm:{type:Number, required:true},
 thirdTerm:{type:Number, required:true},
 
 year:{type:Number, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String, },
 
 
 

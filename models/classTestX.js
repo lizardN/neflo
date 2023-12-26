@@ -47,7 +47,7 @@ type2:{type:String,required:true},
 type3:{type:String,required:true},
 type:{type:String,required:true},
 photo:{type:String,required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 })

@@ -17,7 +17,7 @@ unpaid:{type:Number, required:true},
 companyId:{type:String, required:true},
 male:{type:Number, required:true},
 female:{type:Number, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

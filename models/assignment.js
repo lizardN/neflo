@@ -42,7 +42,7 @@ quizId:{type:String, required:true},
 percentage:{type:Number, required:true},
 date:{type:String, required:true},
 type2:{type:String,required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 })

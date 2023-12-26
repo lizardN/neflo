@@ -13,7 +13,7 @@ grade:{type:String, required:true},
 class1:{type:String, required:true},
 status:{type:String, required:true},
 
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

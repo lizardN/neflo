@@ -219,12 +219,12 @@ router.get('/pass',isLoggedIn,student, (req, res) => {
 var term =  req.user.term
 var m = moment()
 var year = m.format('YYYY')
-var companyId = req.user.companyId
+
 var uid = req.user.uid
 var id = req.user._id
 console.log('zzz')
 
-StudentDB.find({companyId:companyId,year:year,term:term,uid:uid},function(err,docs){
+StudentDB.find({year:year,term:term,uid:uid},function(err,docs){
 
   if(docs.length == 0){
     var student =StudentDB();
@@ -236,7 +236,7 @@ StudentDB.find({companyId:companyId,year:year,term:term,uid:uid},function(err,do
     student.year = year
     student.studentId = id
     student.uid = uid
-    student.companyId = companyId
+ 
 
     student.save()
 .then(pas =>{
@@ -367,7 +367,7 @@ router.get('/passRate',isLoggedIn,student,function(req,res){
   var term = req.user.term
   var uid = req.user.uid
   var fullname = req.user.fullname;
-  var companyId = req.user.companyId
+
   var studentId = req.user.uid
   var clas6 = req.user.class1
    var m = moment()
@@ -377,13 +377,13 @@ router.get('/passRate',isLoggedIn,student,function(req,res){
    var number1
 console.log(studentId, 'studentId')
     
-   StudentExamRate.find({companyId:companyId,year:year,term:term, studentId:studentId, class1:clas6},function(err,docs){
+   StudentExamRate.find({year:year,term:term, studentId:studentId, class1:clas6},function(err,docs){
  
      if(docs.length == 0){
  
-       TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Final Exam' },function(err,hods){
+       TestX.find({term:term,year:year,uid:studentId, type:'Final Exam' },function(err,hods){
  
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Final Exam'},function(err,lods){
+         TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Final Exam'},function(err,lods){
        /*  if(hods.length >=1){*/
  
  
@@ -420,7 +420,7 @@ console.log(studentId, 'studentId')
              pass.term = term
              pass.type = 'Final Exam';
              pass.year = year
-             pass.companyId = companyId
+             
  
              pass.save()
      .then(pas =>{
@@ -457,9 +457,9 @@ console.log(studentId, 'studentId')
  
          var  idX  = docs[0]._id
  
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6},function(err,shods){
+         TestX.find({term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6},function(err,shods){
  
-          TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6},function(err,slods){
+          TestX.find({term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6},function(err,slods){
         /*  if(shods.length >=1){*/
 console.log(shods)
 console.log(slods)
@@ -544,21 +544,21 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
    var marks, marks2
    var arr1=[]
    var number1
-   var companyId = req.user.companyId
+  
 
 
 
 
 
     
-   StudentClassRate.find({companyId:companyId,year:year,term:term, studentId:studentId, class1:clas6, type:"Class Test"},function(err,docs){
+   StudentClassRate.find({year:year,term:term, studentId:studentId, class1:clas6, type:"Class Test"},function(err,docs){
  //console.log(docs,'buda')
      if(docs.length == 0){
   
  
-       TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Class Test', class1:clas6},function(err,hods){
+       TestX.find({term:term,year:year,uid:studentId, type:'Class Test', class1:clas6},function(err,hods){
  
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Class Test'},function(err,lods){
+         TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Class Test'},function(err,lods){
        /*  if(hods.length >=1){*/
  
  
@@ -595,7 +595,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
              pass.term = term
              pass.type = 'Class Test';
              pass.year = year
-             pass.companyId = companyId
+     
  
              pass.save()
      .then(pas =>{
@@ -632,9 +632,9 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
  
          var  idX  = docs[0]._id
  
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Class Test",class1:clas6, },function(err,hods){
+         TestX.find({term:term,year:year,uid:studentId, type:"Class Test",class1:clas6, },function(err,hods){
  
-          TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId, type:"Class Test",class1:clas6},function(err,lods){
+          TestX.find({term:term,year:year, result:'pass',uid:studentId, type:"Class Test",class1:clas6},function(err,lods){
          /* if(hods.length >=1){*/
   
   
@@ -719,16 +719,16 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
      var marks, marks2
      var arr1=[]
      var number1
-     var companyId = req.user.companyId
+
   console.log(studentId, 'studentId')
       
-     StudentExamRate.find({companyId:companyId,year:year, studentId:studentId, class1:clas6},function(err,docs){
+     StudentExamRate.find({year:year, studentId:studentId, class1:clas6},function(err,docs){
    
        if(docs.length == 0){
    
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Final Exam' },function(err,hods){
+         TestX.find({term:term,year:year,uid:studentId, type:'Final Exam' },function(err,hods){
    
-           TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Final Exam'},function(err,lods){
+           TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Final Exam'},function(err,lods){
          /*  if(hods.length >=1){*/
    
    
@@ -802,9 +802,9 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
    
            var  idX  = docs[0]._id
    
-           TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6},function(err,shods){
+           TestX.find({term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6},function(err,shods){
    
-            TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6},function(err,slods){
+            TestX.find({term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6},function(err,slods){
           /*  if(shods.length >=1){*/
 
     
@@ -887,20 +887,20 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
      var marks, marks2
      var arr1=[]
      var number1
-     var companyId = req.user.companyId
+     
   
   
   
   
   
       
-     StudentClassRate.find({companyId:companyId,year:year, studentId:studentId, class1:clas6},function(err,docs){
+     StudentClassRate.find({year:year, studentId:studentId, class1:clas6},function(err,docs){
    
        if(docs.length == 0){
    
-         TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Class Test', class1:clas6},function(err,hods){
+         TestX.find({term:term,year:year,uid:studentId, type:'Class Test', class1:clas6},function(err,hods){
    
-           TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Class Test'},function(err,lods){
+           TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Class Test'},function(err,lods){
          /*  if(hods.length >=1){*/
    
    
@@ -934,7 +934,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
                pass.term = term
                pass.type = 'Class Test';
                pass.year = year
-               pass.companyId = companyId
+               
    
                pass.save()
        .then(pas =>{
@@ -971,9 +971,9 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
    
            var  idX  = docs[0]._id
    
-           TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Class Test",class1:clas6, },function(err,hods){
+           TestX.find({term:term,year:year,uid:studentId, type:"Class Test",class1:clas6, },function(err,hods){
    
-            TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId, type:"Class Test",class1:clas6},function(err,lods){
+            TestX.find({term:term,year:year, result:'pass',uid:studentId, type:"Class Test",class1:clas6},function(err,lods){
            /* if(hods.length >=1){*/
     
     
@@ -1092,7 +1092,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
       var fullname = req.user.fullname
       var class1 = req.user.class1
       var term = req.user.term
-      var companyId = req.user.companyId
+
       var method = 'paynow'
       var paymentId = req.user.pollUrl
       var xId = req.user._id
@@ -1193,7 +1193,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
       var term = req.user.term
       var uid = req.user.uid
       var fullname = req.user.fullname;
-      var companyId = req.user.companyId
+   
       var studentId = req.user.uid
       var clas6 = req.user.class1
        var m = moment()
@@ -1211,13 +1211,13 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
         let icon = atc[j].icon
  
      console.log(subjectCode,'subjectCode')
-       SubRate.find({companyId:companyId,year:year,term:term, studentId:studentId, class1:clas6,subjectCode:subjectCode},function(err,docs){
+       SubRate.find({year:year,term:term, studentId:studentId, class1:clas6,subjectCode:subjectCode},function(err,docs){
      
          if(docs.length == 0){
      
-           TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Class Test',subjectCode:subjectCode },function(err,hods){
+           TestX.find({term:term,year:year,uid:studentId, type:'Class Test',subjectCode:subjectCode },function(err,hods){
      
-             TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Class Test',subjectCode:subjectCode},function(err,lods){
+             TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Class Test',subjectCode:subjectCode},function(err,lods){
            /*  if(hods.length >=1){*/
      
      
@@ -1257,7 +1257,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
                  pass.term = term
                  pass.type = 'Class Test';
                  pass.year = year
-                 pass.companyId = companyId
+          
      
                  pass.save()
          .then(pas =>{
@@ -1294,9 +1294,9 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
      
              var  idX  = docs[0]._id
      
-             TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Class Test",class1:clas6,subjectCode:subjectCode},function(err,shods){
+             TestX.find({term:term,year:year,uid:studentId, type:"Class Test",class1:clas6,subjectCode:subjectCode},function(err,shods){
      
-              TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId,type:"Class Test",class1:clas6,subjectCode:subjectCode},function(err,slods){
+              TestX.find({term:term,year:year, result:'pass',uid:studentId,type:"Class Test",class1:clas6,subjectCode:subjectCode},function(err,slods){
             /*  if(shods.length >=1){*/
 
       
@@ -1377,7 +1377,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
         var term = req.user.term
         var uid = req.user.uid
         var fullname = req.user.fullname;
-        var companyId = req.user.companyId
+  
         var studentId = req.user.uid
         var clas6 = req.user.class1
          var m = moment()
@@ -1395,13 +1395,13 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
           let icon = atc[j].icon
    
        console.log(subjectCode,'subjectCode')
-         SubRateX.find({companyId:companyId,year:year,term:term, studentId:studentId, class1:clas6,subjectCode:subjectCode},function(err,docs){
+         SubRateX.find({year:year,term:term, studentId:studentId, class1:clas6,subjectCode:subjectCode},function(err,docs){
        
            if(docs.length == 0){
        
-             TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:'Final Exam',subjectCode:subjectCode },function(err,hods){
+             TestX.find({term:term,year:year,uid:studentId, type:'Final Exam',subjectCode:subjectCode },function(err,hods){
        
-               TestX.find({companyId:companyId,term:term,year:year,uid:studentId, result:'pass', type:'Final Exam',subjectCode:subjectCode},function(err,lods){
+               TestX.find({term:term,year:year,uid:studentId, result:'pass', type:'Final Exam',subjectCode:subjectCode},function(err,lods){
              /*  if(hods.length >=1){*/
        
        
@@ -1441,7 +1441,7 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
                    pass.term = term
                    pass.type = 'Final Exam';
                    pass.year = year
-                   pass.companyId = companyId
+               
        
                    pass.save()
            .then(pas =>{
@@ -1478,9 +1478,9 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
        
                var  idX  = docs[0]._id
        
-               TestX.find({companyId:companyId,term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6,subjectCode:subjectCode},function(err,shods){
+               TestX.find({term:term,year:year,uid:studentId, type:"Final Exam",class1:clas6,subjectCode:subjectCode},function(err,shods){
        
-                TestX.find({companyId:companyId,term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6,subjectCode:subjectCode},function(err,slods){
+                TestX.find({term:term,year:year, result:'pass',uid:studentId,type:"Final Exam",class1:clas6,subjectCode:subjectCode},function(err,slods){
               /*  if(shods.length >=1){*/
      
         
@@ -1610,8 +1610,8 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
         var year = m.format('YYYY')
         var term = req.user.term
         var uid = req.user.uid
-        var companyId = req.user.companyId
-              SubRate.find({companyId:companyId,year:year,studentId:uid, term:term},function(err,docs){
+     
+              SubRate.find({year:year,studentId:uid, term:term},function(err,docs){
                 if(docs == undefined){
                   res.redirect('/dash')
                 }else
@@ -1629,8 +1629,8 @@ router.get('/passRateX',isLoggedIn,student,function(req,res){
               var year = m.format('YYYY')
               var term = req.user.term
               var uid = req.user.uid
-              var companyId = req.user.companyId
-                    SubRateX.find({companyId:companyId,year:year,studentId:uid, term:term},function(err,docs){
+             
+                    SubRateX.find({year:year,studentId:uid, term:term},function(err,docs){
                       if(docs == undefined){
                         res.redirect('/dash')
                       }else
@@ -2482,8 +2482,8 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
       var year = m.format('YYYY')
       var uid = req.user.uid
       var term = req.user.term
-      var companyId = req.user.companyId
-            StudentExamRate.find({companyId:companyId,year:year, term:term, studentId:uid},function(err,docs){
+     
+            StudentExamRate.find({year:year, term:term, studentId:uid},function(err,docs){
               if(docs == undefined){
                 res.redirect('/student/dash')
               }else
@@ -2502,8 +2502,8 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
             var year = m.format('YYYY')
             var uid = req.user.uid
             var term = req.user.term
-            var companyId = req.user.companyId
-                  StudentClassRate.find({companyId:companyId,year:year, term:term,studentId:uid},function(err,docs){
+           
+                  StudentClassRate.find({year:year, term:term,studentId:uid},function(err,docs){
                     if(docs == undefined){
                       res.redirect('/student/dash')
                     }else
@@ -3897,8 +3897,8 @@ router.get('/profile',isLoggedIn,student, function(req,res){
   router.get('/subjects',isLoggedIn,student, function(req,res){
     var pro = req.user
     var uid = req.user.uid
-    var companyId = req.user.companyId
-    StudentSub.find({companyId:companyId,studentId:uid},(err, docs) => {
+    
+    StudentSub.find({studentId:uid},(err, docs) => {
       if (!err) {
           res.render('students/subjects', {
              listX:docs, pro:pro
@@ -3952,8 +3952,8 @@ router.get('/timetable',isLoggedIn,student, (req, res) => {
 router.get('/examList',isLoggedIn,student,(req, res) => {
   var pro = req.user
  var grade = req.user.grade
- var companyId = req.user.companyId
-    Exam.find({companyId:companyId,grade:grade},(err, docs) => {
+
+    Exam.find({grade:grade},(err, docs) => {
         if (!err) {
             res.render("exam/examListStudent", {
                list:docs,pro:pro
@@ -3988,8 +3988,8 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     var n = moment()
     var year = n.format('YYYY')
     var term = req.user.term
-    var companyId = req.user.companyId
-     TestX.find({companyId:companyId,uid:uid,type2:'online assignment',status3:'recorded'},(err, docs) => {
+    
+     TestX.find({uid:uid,type2:'online assignment',status3:'recorded'},(err, docs) => {
          if (!err) {
              res.render("exam/productList", {
                 listX:docs, pro:pro
@@ -4009,7 +4009,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
   var uid = req.user.uid
   var n = moment()
   var year = n.format('YYYY')
-  var companyId = req.user.companyId
+ 
     var m = moment(date)
   
    
@@ -4027,7 +4027,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     console.log(startValue,endValue,'output')
   1
   
-          TestX.find({companyId:companyId,uid:uid,type2:'online assignment',status3:'recorded'},function(err, docs){
+          TestX.find({uid:uid,type2:'online assignment',status3:'recorded'},function(err, docs){
   console.log(docs,'777')
       if(docs){
   
@@ -4057,8 +4057,8 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     var year = n.format('YYYY')
     var term = req.user.term
     var uid= req.user.uid
-    var companyId = req.user.companyId
-     TestX.find({companyId:companyId,uid:uid,type2:'online quiz',status3:'recorded',term:term,year:year},(err, docs) => {
+
+     TestX.find({uid:uid,type2:'online quiz',status3:'recorded',term:term,year:year},(err, docs) => {
          if (!err) {
              res.render("exam/productList2", {
                 listX:docs, pro:pro
@@ -4075,7 +4075,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
   var id = req.params.id
     var date = req.body.date
     var arr = []
-    var companyId = req.user.companyId
+   
     var term = req.user.term
   var uid = req.user.uid
   var n = moment()
@@ -4098,7 +4098,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     console.log(startValue,endValue,'output')
   
   
-  TestX.find({companyId:companyId,uid:uid,type2:'online quiz',status3:'recorded',term:term,year:year},function(err, docs){
+  TestX.find({uid:uid,type2:'online quiz',status3:'recorded',term:term,year:year},function(err, docs){
   console.log(docs,'777')
       if(docs){
   
@@ -4129,8 +4129,8 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     var n = moment()
     var year = n.format('YYYY')
     var term = req.user.term
-    var companyId = req.user.companyId
-     TestX.find({companyId:companyId,uid:uid,type3:'class',term:term,year:year/*type2:'offline'*/},(err, docs) => {
+
+     TestX.find({uid:uid,type3:'class',term:term,year:year/*type2:'offline'*/},(err, docs) => {
          if (!err) {
              res.render("exam/productList3", {
                 listX:docs, pro:pro
@@ -4152,7 +4152,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
   var uid = req.user.uid
   var n = moment()
   var year = n.format('YYYY')
-  var companyId = req.user.companyId
+ 
     
     var m = moment(date)
   
@@ -4171,7 +4171,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     console.log(startValue,endValue,'output')
   
   
-    TestX.find({companyId:companyId,uid:uid,type3:'class',term:term,year:year},function(err, docs){
+    TestX.find({uid:uid,type3:'class',term:term,year:year},function(err, docs){
   //console.log(docs,'777')
       if(docs){
   
@@ -4203,7 +4203,7 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     var pro = req.user
     var uid= req.user.uid
     var companyId = req.user.companyId
-     TestX.find({companyId:companyId,uid:uid},(err, docs) => {
+     TestX.find({uid:uid},(err, docs) => {
          if (!err) {
              res.render("exam/productList", {
                 list:docs, pro:pro
@@ -4228,8 +4228,8 @@ res.render('students/assgt2',{doc:doc,pro:pro})
    router.get('/examResults',isLoggedIn,student,  (req, res) => {
     var uid= req.user.uid
     var pro = req.user
-    var companyId = req.user.companyId
-     TestX.find({companyId:companyId,uid:uid, type:'Final Exam'},(err, docs) => {
+
+     TestX.find({uid:uid, type:'Final Exam'},(err, docs) => {
          if (!err) {
              res.render("exam/resultX", {
                 list:docs,pro:pro
@@ -4780,11 +4780,11 @@ router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
     var uid= req.user.uid
     var id = req.params.id
     var pro = req.user
-    var companyId = req.user.companyId
+   
     TestX.find({_id:id},(err,nocs)=>{
 let term = nocs[0].term
 let year = nocs[0].year
-     TestX.find({companyId:companyId,uid:uid, type:'Final Exam',term:term, year:year},(err, docs) => {
+     TestX.find({uid:uid, type:'Final Exam',term:term, year:year},(err, docs) => {
          if (!err) {
              res.render("students/studentReport", {
                 list:docs,pro:pro
@@ -4802,10 +4802,10 @@ let year = nocs[0].year
     var pro = req.user
     var year = m.format('YYYY')
     var term = req.user.term
-    var companyId = req.user.companyId
+
 
   
-  FeesUpdate.find({companyId:companyId,term:term, year:year},(err, docs) => {
+  FeesUpdate.find({term:term, year:year},(err, docs) => {
       if (!err) {
           res.render("students/newTerm", {
              list:docs, pro:pro
@@ -5088,8 +5088,8 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
     var id = req.user.paymentId
     var uid = req.user.uid
     var use
-    var companyId = req.user.companyId
-    Fees.find({companyId:companyId,paymentId:id},function(err,docs){
+  
+    Fees.find({paymentId:id},function(err,docs){
       User.find({uid:uid},function(err,nocs){
       use = nocs[0]
     
@@ -5104,8 +5104,8 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
   router.get('/paymentRecords',isLoggedIn,student, (req, res) => {
    var id = req.user.uid
       var pro = req.user
-      var companyId = req.user.companyId
-    Fees.find({companyId:companyId,uid:id},(err, docs) => {
+     
+    Fees.find({uid:id},(err, docs) => {
         if (!err) {
             res.render("accounts/list", {
                list:docs,pro:pro
@@ -5119,8 +5119,8 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
   router.get('/paymentRecord',isLoggedIn,student,  (req, res) => {
     var id = req.user.uid
     var pro = req.user
-    var companyId = req.user.companyId
-     Fees.find({companyId:companyId,uid:id},(err, docs) => {
+
+     Fees.find({uid:id},(err, docs) => {
          if (!err) {
              res.render("accounts/list", {
                 list:docs, pro:pro
@@ -5483,7 +5483,7 @@ res.send(doc)
 router.post('/fquest/',isLoggedIn,function(req,res){
 var code = req.body.code
 var arr
-var companyId = req.user.companyId
+
 console.log(code,'code')
 var studentId = req.user._id
 var m = moment()
@@ -5542,7 +5542,7 @@ test.possibleMark = possibleMark;
 test.type = type
 test.topic = topic
 test.quizId = quizId
-test.companyId= companyId
+
 
 
 test.type3 = 'class'

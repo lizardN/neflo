@@ -80,7 +80,7 @@ var userSchema = new mongoose.Schema({
     subjectNo:{type:Number, required:true},
     icon:{type:String, required:true},
     salutation:{type:String},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
     
    
 });

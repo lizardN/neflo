@@ -23,7 +23,7 @@ var schema = new Schema({
     recRole:{type:String,required:true},
     senderPhoto:{type:String,required:true},
     numDate: {type: Number, required: true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
  
 });
 

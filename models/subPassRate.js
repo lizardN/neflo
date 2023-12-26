@@ -19,7 +19,7 @@ term:{type:Number, required:true},
 icon:{type:String, required:true},
 
 year:{type:Number, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

@@ -5,7 +5,7 @@ var roomSchema = new mongoose.Schema({
 
 
 name:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 })
 

@@ -8,7 +8,7 @@ var schemaQuiz = new Schema({
     c: {type: String, required: true},
     d: {type: String, required: true},
     correct: {type: String, required: true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
 });
 
 module.exports = mongoose.model('Quiz', schemaQuiz);

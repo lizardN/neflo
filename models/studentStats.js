@@ -16,7 +16,7 @@ year9:{type:Number, required:true},
 year10:{type:Number, required:true},
 startYear:{type:Number, required:true},
 count:{type:Number, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

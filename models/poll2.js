@@ -11,7 +11,7 @@ var schema = new Schema({
     date:{type:Date, default:Date.now},
     amount:{type:Number, required:true},
     count:{type:Number, required:true},
-    duration:{type:Number, required:true},
+    duration:{type:Number},
 
     
   

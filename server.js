@@ -33,7 +33,7 @@ var indexRoute= require('./routes/index')
 
 
 var app = express();
-const mongoURI =process.env.MONGO_URL|| 'mongodb://0.0.0.0:27017/smsDB'
+const mongoURI =process.env.MONGO_URL|| 'mongodb://0.0.0.0:27017/avonDB'
 const conn = mongoose.createConnection(mongoURI);
 
 // Init gfs
@@ -44,7 +44,7 @@ conn.once('open', () => {
   gfs = Grid(conn.db, mongoose.mongo);  
   gfs.collection('uploads');
 });
-mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB',{
+mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/avonDB',{
   useUnifiedTopology: true ,
   
 } )

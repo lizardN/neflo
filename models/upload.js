@@ -10,7 +10,7 @@ var uploadSchema= new mongoose.Schema({
     teacherName:{type:String, required:true},
     asignmentId:{type:String, required:true},
     mformat:{type:String, required:true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
     date:{type:String, required:true}
 })
 

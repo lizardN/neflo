@@ -18,7 +18,7 @@ mformat:{type:String,required:true},
 mformat2:{type:String,required:true},
 dateValue:{type:Number, required:true},
 userRole:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 })

@@ -9,7 +9,7 @@ var schema = new Schema({
     date:{type:Date, default:Date.now},
     amount:{type:Number, required:true},
     fullname:{type:String, required:true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
   
   
 });

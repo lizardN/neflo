@@ -45,7 +45,7 @@ var KTAppInboxReply=function()
         url: "./replyX/"+id,
         success: function(data) {
 arr1.push(data)
-window.location.href = 'http://localhost:9000/reply/'+id
+window.location.href = 'http://localhost:7000/reply/'+id
 console.log(data,'data')
 
 
@@ -69,7 +69,7 @@ code2:code2
   type: 'POST',
   url: "./replyX2/"+id,
   success: function(data) {
-    window.location.href = 'http://localhost:9000/reply/'+id
+    window.location.href = 'http://localhost:7000/reply/'+id
   }
 })
 }
@@ -89,7 +89,7 @@ code2:code2
   type: 'POST',
   url: "./replyX3/"+id,
   success: function(data) {
-    window.location.href = 'http://localhost:9000/reply/'+id
+    window.location.href = 'http://localhost:7000/reply/'+id
   }
 })
   

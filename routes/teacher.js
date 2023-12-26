@@ -501,9 +501,9 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
      let numX
      var marks, marks2
      var arr1=[]
-     var companyId = req.user.companyId
+   
      var number1
-    TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,lods){
+    TeacherSub.find({teacherId:teacherId},function(err,lods){
       for(var i = 0; i<lods.length;i++){
         let sub = lods[i].subjectName
         let subCode = lods[i].subjectCode
@@ -512,15 +512,15 @@ router.get('/passRate',isLoggedIn,teacher,function(req,res){
   
       
   
-     TeacherExamRate.find({companyId:companyId,year:year, teacherId:teacherId, subject:sub,  subjectCode:subCode},function(err,docs){
+     TeacherExamRate.find({year:year, teacherId:teacherId, subject:sub,  subjectCode:subCode},function(err,docs){
   
   
        if(docs.length == 0){
    console.log(sub, subCode)
-         TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:'Final Exam',  subject:sub,subjectCode:subCode },function(err,hods){
+         TestX.find({term:term,year:year,teacherId:uid, type:'Final Exam',  subject:sub,subjectCode:subCode },function(err,hods){
            console.log(hods, 'hods')
    
-           TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, result:'pass', type:'Final Exam', subject:sub, subjectCode:subCode},function(err,lods){
+           TestX.find({term:term,year:year,teacherId:uid, result:'pass', type:'Final Exam', subject:sub, subjectCode:subCode},function(err,lods){
           /* if(hods.length >=1){*/
             console.log(lods,'lods')
             for(var i = 0;i<hods.length;i++){
@@ -596,7 +596,7 @@ element.percentage =numX
                pass.photo = photo
                pass.type = 'Final Exam';
                pass.year = year
-               pass.companyId = companyId
+     
    
                pass.save()
        .then(pas =>{
@@ -634,9 +634,9 @@ element.percentage =numX
            var  idX  = docs[0]._id
     
    
-           TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,hods){
+           TestX.find({term:term,year:year,teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,hods){
    
-            TestX.find({companyId:companyId,term:term,year:year, result:'pass',teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,lods){
+            TestX.find({term:term,year:year, result:'pass',teacherId:uid, type:"Final Exam", subject:sub, subjectCode:subCode},function(err,lods){
             if(hods.length >=1){
               for(var i = 0;i<hods.length;i++){
                 size = hods.length
@@ -785,8 +785,8 @@ element.percentage =numX
        var arrX =[]
        var number1
        var term = req.user.term
-       var companyId = req.user.companyId
-       TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,lods){
+  
+       TeacherSub.find({teacherId:teacherId},function(err,lods){
         for(var i = 0; i<lods.length;i++){
           let sub = lods[i].subjectName
           let subCode = lods[i].subjectCode
@@ -795,13 +795,13 @@ element.percentage =numX
          
   
   
-       TeacherClassRate.find({companyId:companyId,year:year,teacherId:teacherId,  subject:sub, subjectCode:subCode},function(err,docs){
+       TeacherClassRate.find({year:year,teacherId:teacherId,  subject:sub, subjectCode:subCode},function(err,docs){
      
          if(docs.length == 0){
      
-           TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:'Class Test',  subject:sub, subjectCode:subCode},function(err,hods){
+           TestX.find({term:term,year:year,teacherId:uid, type:'Class Test',  subject:sub, subjectCode:subCode},function(err,hods){
      
-             TestX.find({companyId:companyId,term:term,year:year, result:'pass',teacherId:uid, type:'Class Test', subject:sub, subjectCode:subCode},function(err,lods){
+             TestX.find({term:term,year:year, result:'pass',teacherId:uid, type:'Class Test', subject:sub, subjectCode:subCode},function(err,lods){
             /* if(hods.length >=1){*/
      
      console.log(hods.length,lods.length,'well, well')
@@ -883,9 +883,9 @@ element.percentage =numX
              let arrW=[]
              let numX
      
-             TestX.find({companyId:companyId,term:term,year:year,teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,hods){
+             TestX.find({term:term,year:year,teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,hods){
      
-              TestX.find({companyId:companyId,term:term,year:year, result:'pass',teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,lods){
+              TestX.find({term:term,year:year, result:'pass',teacherId:uid, type:"Class Test",  subject:sub, subjectCode:subCode},function(err,lods){
               if(hods.length >=1){
            
                
@@ -1109,12 +1109,12 @@ let numPasses = tocs.length
       var year = m.format('YYYY')
       var arr = []
       var id = req.user._id
-      var companyId = req.user.companyId
-      TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+     
+      TeacherSub.find({teacherId:uid},function(err,locs){
         if(locs){
           let subjectCode = locs[0].subjectCode
           let term = req.user.term
-        StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+        StudentSub.find({subjectCode:subjectCode},function(err,noc){
           if(noc){
             let class1 = noc[0].class1
          
@@ -1126,7 +1126,7 @@ let numPasses = tocs.length
       console.log(subjectCode,class1,term,'outa here')
       
       
-        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
           if(docs){
 
         
@@ -1178,8 +1178,8 @@ let numPasses = tocs.length
         var year = m.format('YYYY')
         var arr = []
         var id = req.user._id
-        var companyId = req.user.companyId
-        TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+
+        TeacherSub.find({teacherId:uid},function(err,locs){
           if(locs){
             let subjectCode = locs[0].subjectCode
             let term = req.user.term
@@ -1238,16 +1238,16 @@ let numPasses = tocs.length
         router.post('/dashChart3',isLoggedIn,teacher,function(req,res){
           var uid = req.user.uid
           var size
-          var companyId = req.user.companyId
+          
           var m = moment()
           var year = m.format('YYYY')
           var arr = []
           var id = req.user._id
-          TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+          TeacherSub.find({teacherId:uid},function(err,locs){
             if(locs){
               let subjectCode = locs[1].subjectCode
               let term = req.user.term
-            StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+            StudentSub.find({subjectCode:subjectCode},function(err,noc){
               if(noc){
                 let class1 = noc[0].class1
              
@@ -1327,7 +1327,7 @@ let numPasses = tocs.length
       
       
       
-        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',},function(err,docs) {
           if(docs){
 
          
@@ -1378,11 +1378,11 @@ let numPasses = tocs.length
         var arr = []
         var id = req.user._id
       
-        var companyId = req.user.companyId
+       
       
       
       
-        TestX.find({year:year,subjectCode:subjectCode,term:term,type3:'class',companyId:companyId},function(err,docs) {
+        TestX.find({year:year,subjectCode:subjectCode,term:term,type3:'class'},function(err,docs) {
           if(docs){
 
           
@@ -1426,7 +1426,7 @@ let numPasses = tocs.length
         var term = req.body.term
         var class1 = req.body.class1
        
-        var companyId = req.user.companyId
+        
         var m = moment()
         var year = m.format('YYYY')
         var arr = []
@@ -1436,7 +1436,7 @@ let numPasses = tocs.length
       
       
       
-        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
           if(docs){
 
         
@@ -1487,18 +1487,18 @@ let numPasses = tocs.length
       router.post('/dashChartS1',isLoggedIn,teacher,function(req,res){
         var uid = req.user.uid
         var size
-        var companyId = req.user.companyId
+        
   
         var m = moment()
         var year = m.format('YYYY')
         var arr = []
         var id = req.user._id
 
-        TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+        TeacherSub.find({teacherId:uid},function(err,locs){
           if(locs){
             let subjectCode = locs[1].subjectCode
             let term = req.user.term
-          StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+          StudentSub.find({subjectCode:subjectCode},function(err,noc){
             if(noc){
               let studentId = noc[0].studentId
            
@@ -1510,7 +1510,7 @@ let numPasses = tocs.length
         console.log(subjectCode,studentId,term,'outa here')
         
         
-          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term},function(err,docs) {
             if(docs){
 
             
@@ -1575,10 +1575,10 @@ let numPasses = tocs.length
           var id = req.user._id
         
           
-          var companyId = req.user.companyId
+      
         
         
-          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
             
@@ -1676,7 +1676,7 @@ let numPasses = tocs.length
           var subjectCode = req.body.subjectCode
           var term = req.body.term
           var studentId = req.body.studentId
-          var companyId = req.user.companyId
+    
          console.log(subjectCode,term,studentId,'button03')
           var m = moment()
           var year = m.format('YYYY')
@@ -1687,7 +1687,7 @@ let numPasses = tocs.length
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class'},function(err,docs) {
             if(docs){
 //console.log(docs,'docs')
             
@@ -1753,11 +1753,11 @@ let numPasses = tocs.length
           var arr = []
           var id = req.user._id
         
-          var companyId = req.user.companyId
+         
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,class1:class1,topic:topic,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,class1:class1,topic:topic,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
             
@@ -1813,12 +1813,12 @@ let numPasses = tocs.length
           var year = m.format('YYYY')
           var arr = []
           var id = req.user._id
-          var companyId = req.user.companyId
+          
           
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
             
@@ -1871,7 +1871,7 @@ let numPasses = tocs.length
           var subjectCode = req.body.subjectCode
           var term = req.body.term
           var class1 = req.body.class1
-          var companyId = req.user.companyId
+ 
          
           var m = moment()
           var year = m.format('YYYY')
@@ -1882,7 +1882,7 @@ let numPasses = tocs.length
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
             
@@ -1941,7 +1941,7 @@ let numPasses = tocs.length
           var term = req.body.term
           var studentId = req.body.studentId
          
-          var companyId = req.companyId
+   
           var m = moment()
           var year = m.format('YYYY')
           var arr = []
@@ -1951,7 +1951,7 @@ let numPasses = tocs.length
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term},function(err,docs) {
             if(docs){
 
             
@@ -2007,7 +2007,7 @@ let numPasses = tocs.length
           var id = req.user._id
         
           
-        var companyId = req.user.companyId
+      
         
         
           TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
@@ -2063,8 +2063,8 @@ router.get('/dashX',isLoggedIn,teacher,function(req,res){
 const m = moment();
 var id =req.user._id
 var uid = req.user.uid
-var companyId = req.user.companyId
-  Recepient.find({recepientId:id,statusCheck:'not viewed',companyId:companyId},function(err,rocs){
+
+  Recepient.find({recepientId:id,statusCheck:'not viewed'},function(err,rocs){
     let lgt = rocs.length
     var gt = lgt > 0
   
@@ -2091,7 +2091,7 @@ var companyId = req.user.companyId
           })
         }
   
-        Note.find({recId:req.user._id,status1:'new',companyId:companyId},function(err,flocs){
+        Note.find({recId:req.user._id,status1:'new'},function(err,flocs){
           var les 
        
           Note.find({recId:req.user._id,status:'not viewed'},function(err,jocs){
@@ -2102,9 +2102,9 @@ var companyId = req.user.companyId
             arr.push(flocs[i])
           }
        
-          Class1.find({companyId:companyId},function(err,plocs){
+          Class1.find({},function(err,plocs){
             
- TeacherSub.find({teacherId:uid,companyId:companyId},function(err,yocs){
+ TeacherSub.find({teacherId:uid},function(err,yocs){
          
           res.render('dashboard/teacher',{pro:pro,list:arr,arr1:plocs,listX:yocs, les:les,gt:gt })
           })
@@ -2130,12 +2130,12 @@ var companyId = req.user.companyId
 router.post('/dashChartA1',isLoggedIn,teacher,function(req,res){
   var uid = req.user.uid
   var size
-   var companyId = req.user.companyId
+
   var m = moment()
   var year = m.format('YYYY')
   var arr = []
   var id = req.user._id
-  TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+  TeacherSub.find({teacherId:uid},function(err,locs){
     if(locs){
       let subjectCode = locs[0].subjectCode
       let term = req.user.term
@@ -2151,7 +2151,7 @@ router.post('/dashChartA1',isLoggedIn,teacher,function(req,res){
   console.log(subjectCode,term,'outa here')
   
   
-    TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class',companyId:companyId},function(err,docs) {
+    TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,type3:'class'},function(err,docs) {
       if(docs){
       //console.log(docs,'docs')
       for(var i = 0;i<docs.length;i++){
@@ -2214,12 +2214,12 @@ router.post('/dashChartA2',isLoggedIn,teacher,function(req,res){
   var year = m.format('YYYY')
   var arr = []
   var id = req.user._id
-  var companyId = req.user.companyId
-  TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+
+  TeacherSub.find({teacherId:uid},function(err,locs){
     if(locs){
       let subjectCode = locs[0].subjectCode
       let term = req.user.term
-    Topic.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+    Topic.find({subjectCode:subjectCode},function(err,noc){
       if(noc){
         let name = noc[0].name
      
@@ -2231,7 +2231,7 @@ router.post('/dashChartA2',isLoggedIn,teacher,function(req,res){
   console.log(subjectCode,term,'outa here')
   
   
-    TestX.find({year:year,subjectCode:subjectCode,topic:name,term:term,type3:'class',companyId:companyId},function(err,docs) {
+    TestX.find({year:year,subjectCode:subjectCode,topic:name,term:term,type3:'class'},function(err,docs) {
       if(docs){
 
       
@@ -2294,16 +2294,16 @@ router.post('/dashChartA2',isLoggedIn,teacher,function(req,res){
 router.post('/dashChartA3',isLoggedIn,teacher,function(req,res){
   var uid = req.user.uid
   var size
-   var companyId = req.user.companyId
+
   var m = moment()
   var year = m.format('YYYY')
   var arr = []
   var id = req.user._id
-  TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+  TeacherSub.find({teacherId:uid},function(err,locs){
     if(locs){
       let subjectCode = locs[0].subjectCode
       let term = req.user.term
-    Class1.find({companyId:companyId},function(err,noc){
+    Class1.find({},function(err,noc){
       if(noc){
         let class1 = noc[1].class1
      
@@ -2315,7 +2315,7 @@ router.post('/dashChartA3',isLoggedIn,teacher,function(req,res){
   console.log(subjectCode,term,'outa here')
   
   
-    TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+    TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
       if(docs){
 
       
@@ -2381,16 +2381,16 @@ router.post('/dashChartA3',isLoggedIn,teacher,function(req,res){
 router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
   var uid = req.user.uid
   var size
-  var companyId = req.user.companyId
+  
   var m = moment()
   var year = m.format('YYYY')
   var arr = []
   var id = req.user._id
-  TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+  TeacherSub.find({teacherId:uid},function(err,locs){
     if(locs){
       let subjectCode = locs[1].subjectCode
       let term = req.user.term
-    Class1.find({companyId:companyId},function(err,noc){
+    Class1.find({},function(err,noc){
       if(noc){
         let class1 = noc[1].class1
      
@@ -2402,7 +2402,7 @@ router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
   console.log(subjectCode,term,'outa here')
   
   
-    TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+    TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
       if(docs){
       //console.log(docs,'docs')
       for(var i = 0;i<docs.length;i++){
@@ -2461,15 +2461,15 @@ router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
     var size
   
     var m = moment()
-    var companyId = req.user.companyId
+   
     var year = m.format('YYYY')
     var arr = []
     var id = req.user._id
-    TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+    TeacherSub.find({teacherId:uid},function(err,locs){
       if(locs){
         let subjectCode = locs[1].subjectCode
         let term = req.user.term
-      StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+      StudentSub.find({subjectCode:subjectCode},function(err,noc){
         if(noc){
           let studentId = noc[0].studentId
        
@@ -2481,7 +2481,7 @@ router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
     console.log(subjectCode,term,'outa here')
     
     
-      TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term,companyId:companyId},function(err,docs) {
+      TestX.find({year:year,subjectCode:subjectCode,uid:studentId,term:term},function(err,docs) {
         if(docs){
         //console.log(docs,'docs')
         for(var i = 0;i<docs.length;i++){
@@ -2532,12 +2532,12 @@ router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
       var year = m.format('YYYY')
       var arr = []
       var id = req.user._id
-      var companyId = req.user.companyId
-      TeacherSub.find({teacherId:uid,companyId:companyId},function(err,locs){
+
+      TeacherSub.find({teacherId:uid},function(err,locs){
         if(locs){
           let subjectCode = locs[1].subjectCode
           let term = req.user.term
-        Class1.find({companyId:companyId},function(err,noc){
+        Class1.find({},function(err,noc){
           if(noc){
             let class1 = noc[1].class1
          
@@ -2549,7 +2549,7 @@ router.post('/dashChartA4',isLoggedIn,teacher,function(req,res){
       console.log(subjectCode,term,'outa here')
       
       
-        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+        TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
           if(docs){
          // console.log(docs,'docs')
           for(var i = 0;i<docs.length;i++){
@@ -2608,9 +2608,9 @@ res.redirect('/teacher/passRate')
 router.get('/analytics',isLoggedIn,teacher,function(req,res){
   var pro = req.user
   var uid = req.user.uid
-  var companyId = req.user.companyId
-  Class1.find({companyId:companyId},function(err,plocs){
-  TeacherSub.find({teacherId:uid,companyId:companyId},function(err,docs){
+
+  Class1.find({},function(err,plocs){
+  TeacherSub.find({teacherId:uid},function(err,docs){
   res.render('dashboard/teacher3',{pro:pro,arr:docs,arr1:plocs,listX:docs})
 
   })
@@ -2622,10 +2622,10 @@ router.get('/analytics',isLoggedIn,teacher,function(req,res){
 
 
 router.post('/fill',function(req,res){
-var companyId = req.user.companyId
+
   console.log(req.body.value)
       var subjectCode = req.body.value
-  StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,docs){
+  StudentSub.find({subjectCode:subjectCode},function(err,docs){
     console.log(docs,'data')
   
       if(docs == undefined){
@@ -2665,8 +2665,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
     var year = m.format('YYYY')
     var uid = req.user.uid
  
-    var companyId = req.user.companyId
-          TeacherExamRate.find({companyId:companyId,year:year, teacherId:uid},function(err,docs){
+   
+          TeacherExamRate.find({year:year, teacherId:uid},function(err,docs){
             if(docs == undefined){
               res.redirect('/teacher/dash')
             }else
@@ -2685,8 +2685,7 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
           var year = m.format('YYYY')
           var uid = req.user.uid
    
-          var companyId = req.user.companyId
-                TeacherClassRate.find({companyId:companyId,year:year,  teacherId:uid},function(err,docs){
+                TeacherClassRate.find({year:year,  teacherId:uid},function(err,docs){
                   if(docs == undefined){
                     res.redirect('/teacher/dash')
                   }else
@@ -2709,9 +2708,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
                 var m = moment()
                 var year = m.format('YYYY')
                 var uid = req.user.uid
-                var companyId = req.user.companyId
+                
                 var term = req.user.term
-                TeacherExamRate.find({companyId:companyId,year:year,  teacherId:uid, type:"Final Exam"},function(err,docs){
+                TeacherExamRate.find({year:year,  teacherId:uid, type:"Final Exam"},function(err,docs){
                   if (!err) {
                       res.render('teachers/statf', {
                          listX:docs,pro:pro
@@ -2730,12 +2729,12 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
 
               router.get('/tstats',isLoggedIn,teacher,function(req,res){
                 var pro = req.user
-                var companyId = req.user.companyId
+            
                 var m = moment()
                 var year = m.format('YYYY')
                 var uid = req.user.uid
                 var term = req.user.term
-                TeacherClassRate.find({companyId:companyId,year:year,  teacherId:uid, type:"Class Test"},function(err,docs){
+                TeacherClassRate.find({year:year,  teacherId:uid, type:"Class Test"},function(err,docs){
                   if (!err) {
                       res.render('teachers/statc', {
                          listX:docs,pro
@@ -2759,8 +2758,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
               router.get('/msgUpdate',isLoggedIn,teacher,function(req,res){
                 var id = req.user._id
                 var arr = []
-                var companyId = req.user.companyId
-                Recepient.find({recepientId:id,companyId:companyId},function(err,docs){
+           
+                Recepient.find({recepientId:id},function(err,docs){
               //  
                 if(docs.length > 0){
                   for(var i = 0; i<docs.length;i++){
@@ -2784,7 +2783,7 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
                 
                 router.get('/sentUpdate',isLoggedIn,teacher,function(req,res){
                   var id = req.user._id
-                  Message.find({senderId:id,companyId:companyId},function(err,docs){
+                  Message.find({senderId:id},function(err,docs){
                     let size = docs.length
                     User.findByIdAndUpdate(id,{$set:{sent:size}},function(err,nocs){
                 
@@ -2862,7 +2861,7 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             var num = req.user.inboxNo
             var sent = req.user.sent 
             var pro = req.user
-            Recepient.find({recepientId :id, status:'active', statusXX:'null',companyId:companyId},function(err,klocs){
+            Recepient.find({recepientId :id, status:'active', statusXX:'null'},function(err,klocs){
             
             //var recFilter =Recepient.find({recepientId :id}).sort({"numDate":-1});
             //recFilter.exec(function(err,klocs){
@@ -2912,9 +2911,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             router.post('/msg/:id',function(req,res){
               var m = moment()
               var date = m.toString()
-            var companyId = req.user.companyId
+ 
             var id = req.params.id
-              Recepient.find({recepientId:id,companyId:companyId},function(err,docs){
+              Recepient.find({recepientId:id},function(err,docs){
                 for(var i = 0; i<docs.length; i++){
                   let nId = docs[i]._id
             
@@ -2933,9 +2932,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             var id = req.user.id
             var list = []
             var num
-            var companyId = req.user.companyId
+      
             
-            Message.find({senderId:id,companyId:companyId},function(err,docs){
+            Message.find({senderId:id},function(err,docs){
               for(var i = 0; i<docs.length;i++){
                 let date = docs[i].date
                 let Vid = docs[i]._id
@@ -2968,8 +2967,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             var pro = req.user
             var num = req.user.inboxNo
             var sent = req.user.sent
-             var companyId = req.user.companyId
-            Message.find({senderId :id,companyId:companyId},function(err,docs){
+ 
+            Message.find({senderId :id},function(err,docs){
             
             
             
@@ -3014,8 +3013,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             var id = req.user.id
             var list = []
             var num
-            var companyId = req.user.companyId
-            Recepient.find({recepientId :id, status:'active', statusXX:'yes', archive:'yes',companyId:companyId},function(err,klocs){
+         
+            Recepient.find({recepientId :id, status:'active', statusXX:'yes', archive:'yes'},function(err,klocs){
             
               for(var c = 0 ; c <klocs.length;c++){
               
@@ -3068,8 +3067,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             var num = req.user.inboxNo
             var pro = req.user
             var sent = req.user.sent
-            var companyId = req.user.companyId
-            Recepient.find({recepientId :id, status:'active', statusXX:'yes', archive:'yes',companyId:companyId},function(err,klocs){
+            
+            Recepient.find({recepientId :id, status:'active', statusXX:'yes', archive:'yes'},function(err,klocs){
             
             for(var c = 0 ; c <klocs.length;c++){
             
@@ -3119,8 +3118,8 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             let code = req.body.code
             console.log(code,'code')
             let id = req.user.id
-            var companyId = req.user.comapnyId
-            Recepient.find({ msgId:code, recepientId:id,companyId:companyId },function(err,docs){
+        
+            Recepient.find({ msgId:code, recepientId:id },function(err,docs){
             let nId = docs[0]._id
             if(docs[0].statusX == 'unmarked'){
             Recepient.findByIdAndUpdate(nId,{$set:{statusX:'marked'}},function(err,nocs){
@@ -3137,9 +3136,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             })
             
             router.post('/archiveX',isLoggedIn,teacher,function(req,res){
-            var companyId = req.user.companyId
+           
             let id = req.user.id
-            Recepient.find({ statusX:'marked', recepientId:id,companyId:companyId },function(err,docs){
+            Recepient.find({ statusX:'marked', recepientId:id },function(err,docs){
             
             for(var i = 0; i<docs.length;i++){
             
@@ -3157,9 +3156,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             
             
             router.post('/readX',isLoggedIn,teacher,function(req,res){
-            var companyId = req.user.companyId
+     
             let id = req.user.id
-            Recepient.find({ statusX:'marked', recepientId:id,companyId:companyId },function(err,docs){
+            Recepient.find({ statusX:'marked', recepientId:id },function(err,docs){
             
             for(var i = 0; i<docs.length;i++){
             
@@ -3182,9 +3181,9 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
             
             
             router.post('/delete',isLoggedIn,teacher,function(req,res){
-            var companyId = req.user.companyId
+         
             let id = req.user.id
-            Recepient.find({ statusX:'marked', recepientId:id,companyId:companyId },function(err,docs){
+            Recepient.find({ statusX:'marked', recepientId:id},function(err,docs){
             
             for(var i = 0; i<docs.length;i++){
             
@@ -3211,7 +3210,7 @@ router.post('/passChart',isLoggedIn,teacher,function(req,res){
               router.post('/userX',isLoggedIn,teacher,function(req,res){
                 var id =req.user._id
                 var arr = []
-                User.find({companyId:companyId},function(err,docs){
+                User.find({},function(err,docs){
                   console.log(docs.length,'length')
                   for(var i = 0; i< docs.length;i++){
             if(docs[i]._id != id){
@@ -3696,13 +3695,13 @@ router.get('/assgt',isLoggedIn,teacher,function(req,res){
   var pro = req.user
   var errorMsg = req.flash('danger')[0];
   var successMsg = req.flash('success')[0];
-  var companyId = req.user.companyId
+
   var subject = req.user.subjects
   var subjectCode = req.user.subjectCode
   var grade = req.user.grade
   var icon = req.user.icon
-  Class1.find({companyId:companyId}, function(err,docs){
-    Topic.find({subjectCode:subjectCode,companyId:companyId},function(err,zoc){
+  Class1.find({}, function(err,docs){
+    Topic.find({subjectCode:subjectCode},function(err,zoc){
   
    var arr2 = zoc
   var arr1 = docs;  
@@ -3742,7 +3741,7 @@ var icon = req.body.icon
 console.log(icon,'icon')
 var term = req.user.term
 var arr1 = []
-var companyId = req.user.companyId
+
 var topic = req.body.topic
 var numDate = m.valueOf()
 
@@ -3826,7 +3825,6 @@ TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
           test.type3 = 'class'
           test.grade = req.body.grade;
           test.level = 'highschool';
-          test.companyId = companyId
           test.status = 'null'
           test.timeLeft= 'null'
           test.examStatus = 'null'
@@ -3858,7 +3856,7 @@ TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
 
 
       
-StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,docs){
+StudentSub.find({subjectCode:subjectCode},function(err,docs){
 for(var i = 0;i<docs.length;i++){
 let studentId = docs[i].studentId
 let studentName = docs[i].studentName
@@ -3914,7 +3912,7 @@ let photo = docs[i].photo
         lesson.type2 = 'online assignment'
         lesson.type3 = 'class'
         lesson.status3 = 'null'
-        lesson.companyId = companyId
+       
      
         
     
@@ -3949,7 +3947,7 @@ res.render('lesson/add-lesson',{message:req.session.message,fullname:fullname, t
   }
   else{
   
-      Class1.find({companyId:companyId},function(err,focs){
+      Class1.find({},function(err,focs){
         arr = focs
  
     req.session.message = {
@@ -4014,7 +4012,7 @@ router.post('/assignmentAttachBatch',isLoggedIn,teacher,  function(req,res){
   
   else {
   
-  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade,'companyId':companyId})
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
   .then(sub =>{
   
     if(sub){
@@ -4066,8 +4064,8 @@ router.get('/assignAttach',isLoggedIn,teacher,function(req,res){
    var subjectCode = req.user.subjectCode
    var grade = req.user.grade
    var icon = req.user.icon
-   Class1.find({companyId:companyId}, function(err,docs){
-     Topic.find({subjectCode:subjectCode,companyId:companyId},function(err,zoc){
+   Class1.find({}, function(err,docs){
+     Topic.find({subjectCode:subjectCode},function(err,zoc){
    
     var arr2 = zoc
    var arr1 = docs;  
@@ -4108,7 +4106,7 @@ var icon = req.body.icon
 console.log(icon,'icon')
 var term = req.user.term
 var arr1 = []
-var companyId = req.user.companyId
+
 var topic = req.body.topic
 var numDate = m.valueOf()
 
@@ -4160,7 +4158,7 @@ if(!req.file){
 
 else 
 {
-TeacherSub.findOne({'companyId':companyId,'subjectCode':subjectCode})
+TeacherSub.findOne({'subjectCode':subjectCode})
 .then(teach=>{
   if(teach){
   
@@ -4207,7 +4205,7 @@ console.log(filename,'filename')
           test.type3 = 'class'
           test.grade = req.body.grade;
           test.level = 'highschool';
-          test.companyId = companyId
+       
           test.status = 'null'
           test.timeLeft= 'null'
           test.examStatus = 'null'
@@ -4393,7 +4391,7 @@ router.post('/materialBatch',isLoggedIn,teacher,  function(req,res){
   
   else {
   
-  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade,'companyId':companyId})
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
   .then(sub =>{
   
     if(sub){
@@ -4440,13 +4438,13 @@ router.get('/attachMaterial',isLoggedIn,teacher,function(req,res){
    var pro = req.user
    var errorMsg = req.flash('danger')[0];
    var successMsg = req.flash('success')[0];
-   var companyId = req.user.companyId
+   
    var subject = req.user.subjects
    var subjectCode = req.user.subjectCode
    var grade = req.user.grade
    var icon = req.user.icon
-   Class1.find({companyId:companyId}, function(err,docs){
-     Topic.find({subjectCode:subjectCode,companyId:companyId},function(err,zoc){
+   Class1.find({}, function(err,docs){
+     Topic.find({subjectCode:subjectCode},function(err,zoc){
    
     var arr2 = zoc
    var arr1 = docs;  
@@ -4486,7 +4484,7 @@ var icon = req.body.icon
 console.log(icon,'icon')
 var term = req.user.term
 var arr1 = []
-var companyId = req.user.companyId
+
 var topic = req.body.topic
 var numDate = m.valueOf()
 
@@ -4567,7 +4565,7 @@ console.log(filename,'filename')
           test.type3 = 'study'
           test.grade = req.body.grade;
          
-          test.companyId = companyId
+
          
           test.teacherId = teacherId
           test.teacherName = teacherName
@@ -4669,7 +4667,7 @@ router.get('/viewAssignments',isLoggedIn,teacher,function(req,res){
   var companyId = req.user.companyId
   var n = moment()
   var year = n.format('YYYY')
-  Test.find({teacherId:teacherId,type2:"online assignment",term:term,year:year,companyId:companyId},function(err,docs){
+  Test.find({teacherId:teacherId,type2:"online assignment",term:term,year:year},function(err,docs){
     res.render('exam/assgtList',{  id:id,listX:docs,pro:pro})
   })
 
@@ -4701,7 +4699,7 @@ var companyId = req.user.companyId
    var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
 
-  Test.find({type2:"online assignment",teacherId:teacherId,year:year,term:term,companyId:companyId},function(err, docs){
+  Test.find({type2:"online assignment",teacherId:teacherId,year:year,term:term},function(err, docs){
 //console.log(docs,'777')
     if(docs){
 
@@ -4730,8 +4728,8 @@ router.get('/viewAssignments/:id',isLoggedIn,teacher,function(req,res){
   var id = req.params.id
   var pro = req.user
   var uid = req.user.uid
-  var companyId = req.user.companyId
- TestX.find({type2:'online assignment',submissionStatus:'submitted',teacherId:uid,quizId:id,companyId:companyId},function(err,docs){
+
+ TestX.find({type2:'online assignment',submissionStatus:'submitted',teacherId:uid,quizId:id},function(err,docs){
 res.render('teachers/assgtList',{listX:docs,pro:pro,id:id})
   })
 
@@ -4754,7 +4752,7 @@ var year = n.format('YYYY')
   var m = moment(date)
 
  
- var companyId = req.user.companyId
+
   console.log(date.split('-')[0])
   var startDate = date.split('-')[0]
   var endDate = date.split('-')[1]
@@ -4767,7 +4765,7 @@ var year = n.format('YYYY')
    var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
 
-  TestX.find({type2:'online assignment',submissionStatus:'submitted',teacherId:teacherId,quizId:id,year:year,term:term,companyId:companyId},function(err, docs){
+  TestX.find({type2:'online assignment',submissionStatus:'submitted',teacherId:teacherId,quizId:id,year:year,term:term},function(err, docs){
 //console.log(docs,'777')
     if(docs){
 
@@ -4807,8 +4805,8 @@ router.get('/viewPending/:id',isLoggedIn,teacher,function(req,res){
   var id = req.params.id
   var pro = req.user
   var uid = req.user.uid
-  var companyId = req.user.companyId
- TestX.find({type2:'online assignment',submissionStatus:'pending',teacherId:uid,quizId:id,companyId:companyId},function(err,docs){
+
+ TestX.find({type2:'online assignment',submissionStatus:'pending',teacherId:uid,quizId:id},function(err,docs){
 res.render('teachers/assgtListW',{listX:docs,pro:pro,id:id})
   })
 
@@ -4817,8 +4815,8 @@ res.render('teachers/assgtListW',{listX:docs,pro:pro,id:id})
 router.get('/subjects',isLoggedIn,teacher,function(req,res){
      var pro = req.user
 var uid = req.user.uid
-var companyId = req.user.companyId
-TeacherSub.find({companyId:companyId,teacherId:uid},(err, docs) => {
+
+TeacherSub.find({teacherId:uid},(err, docs) => {
 if (!err) {
 res.render('teachers/subjectList', {
  listX:docs, pro:pro
@@ -4841,8 +4839,8 @@ res.render('teachers/subjectList', {
 router.get('/classWork',isLoggedIn,teacher,function(req,res){
   var id = req.user.testId
   var pro = req.user
-  var companyId = req.user.companyId
-  TestX.find({quizId:id,companyId:companyId},function(err,docs){
+ 
+  TestX.find({quizId:id},function(err,docs){
     res.render('exam/resultUpdate',{     listX:docs,pro:pro})
   })
 
@@ -4859,7 +4857,7 @@ router.post('/classwork/',isLoggedIn,teacher,function(req,res){
 var teacherId = req.user.uid
 var n = moment()
 var year = n.format('YYYY')
-  var companyId = req.user.companyId
+
   var m = moment(date)
 
  
@@ -4876,7 +4874,7 @@ var year = n.format('YYYY')
    var endValue= moment(endValueB).valueOf()
   console.log(startValue,endValue,'output')
 
-  TestX.find({quizId:id,companyId:companyId},function(err,docs){
+  TestX.find({quizId:id},function(err,docs){
 console.log(docs,'777')
     if(docs){
 
@@ -4904,8 +4902,8 @@ router.get('/viewClassWorkX',isLoggedIn,teacher,function(req,res){
   var id = req.user.testId
   var pro = req.user
   var teacherId = req.user.uid
-  var companyId = req.user.companyId
-  TestX.find({teacherId:teacherId,companyId:companyId},function(err,docs){
+
+  TestX.find({teacherId:teacherId},function(err,docs){
     res.render('exam/listX',{     listX:docs,pro:pro})
   })
 
@@ -4917,10 +4915,10 @@ router.get('/viewClassWork',isLoggedIn,teacher,function(req,res){
   var pro = req.user
   var teacherId = req.user.uid
   var term = req.user.term
-  var companyId = req.user.companyId
+
   var n = moment()
 var year = n.format('YYYY')
-  Test.find({teacherId:teacherId,year:year,term,companyId:companyId},function(err,docs){
+  Test.find({teacherId:teacherId,year:year,term},function(err,docs){
     res.render('exam/list',{     listX:docs,pro:pro})
   })
 
@@ -4937,7 +4935,7 @@ var id = req.params.id
 var teacherId = req.user.uid
 var n = moment()
 var year = n.format('YYYY')
-  var companyId = req.user.companyId
+
   var m = moment(date)
 
  
@@ -4955,7 +4953,7 @@ var year = n.format('YYYY')
   console.log(startValue,endValue,'output')
 
 
-  Test.find({teacherId:teacherId,term:term,year:year,companyId:companyId},function(err, docs){
+  Test.find({teacherId:teacherId,term:term,year:year},function(err, docs){
 //console.log(docs,'777')
     if(docs){
 
@@ -4984,8 +4982,8 @@ router.get('/viewClassWork/:id',isLoggedIn,teacher,function(req,res){
   var id = req.params.id
   var pro = req.user
   var teacherId = req.user.uid
-  var companyId = req.user.companyId
-  TestX.find({quizId:id,companyId:companyId},function(err,docs){
+
+  TestX.find({quizId:id},function(err,docs){
     res.render('exam/resultUpdate',{ id:id,    listX:docs,pro:pro})
   })
 
@@ -5003,7 +5001,7 @@ var id = req.params.id
 var teacherId = req.user.uid
 var n = moment()
 var year = n.format('YYYY')
-  var companyId = req.user.companyId
+
   var m = moment(date)
 
  
@@ -5021,7 +5019,7 @@ var year = n.format('YYYY')
   console.log(startValue,endValue,'output')
 
 
-  TestX.find({quizId:id,companyId:companyId},function(err, docs){
+  TestX.find({quizId:id},function(err, docs){
 console.log(docs,'777')
     if(docs){
 
@@ -5048,9 +5046,9 @@ console.log(arr,'arr333')
 
 router.post('/calendarChart',isLoggedIn,teacher,function(req,res){
   var uid = req.user.uid
-  var companyId = req.user.companyId
+
   var arr = []
- Lesson.find({teacherId:uid,companyId:companyId},function(err,docs){
+ Lesson.find({teacherId:uid},function(err,docs){
    /* for(var i = 0;i<docs.length;i++){
       let subjectCode = docs[i].subjectCode
 
@@ -5133,8 +5131,8 @@ router.get('/viewClassWork2',isLoggedIn,teacher, (req, res) => {
 var uid = req.user.uid
 var term = req.user.term
 var year = req.user.year
-var companyId = req.user.companyId
-Exam.find({companyId:companyId,uid:uid, term:term, year:year},(err, docs) => {
+
+Exam.find({uid:uid, term:term, year:year},(err, docs) => {
 if (!err) {
    res.render("exam/examListX", {
       list:docs, pro:pro
@@ -5164,7 +5162,7 @@ router.post('/subBatch',isLoggedIn,teacher,  function(req,res){
   var grade = req.body.grade
   var id = req.user._id
  var icon = req.body.icon
- var companyId = req.user.companyId
+
   
   
   req.check('subject','Enter Subject').notEmpty();
@@ -5188,7 +5186,7 @@ router.post('/subBatch',isLoggedIn,teacher,  function(req,res){
   
   else {
   
-  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade,'companyId':companyId})
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
   .then(sub =>{
   
     if(sub){
@@ -5236,7 +5234,7 @@ router.post('/subBatchExam',isLoggedIn,teacher,  function(req,res){
   var grade = req.body.grade
   var id = req.user._id
  var icon = req.body.icon
-  var companyId = req.user.companyId
+  
   
   req.check('subject','Enter Subject').notEmpty();
   req.check('subjectCode','Enter Subject Code').notEmpty();
@@ -5259,7 +5257,7 @@ router.post('/subBatchExam',isLoggedIn,teacher,  function(req,res){
   
   else {
   
-  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade,'companyId':companyId})
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
   .then(sub =>{
   
     if(sub){
@@ -5307,7 +5305,7 @@ router.post('/assignmentBatch',isLoggedIn,teacher,  function(req,res){
   var grade = req.body.grade
   var id = req.user._id
  var icon = req.body.icon
- var companyId = req.user.companyId
+
   
   
   req.check('subject','Enter Subject').notEmpty();
@@ -5331,7 +5329,7 @@ router.post('/assignmentBatch',isLoggedIn,teacher,  function(req,res){
   
   else {
   
-  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade,'companyId':companyId})
+  TeacherSub.findOne({'subjectName':subject,'subjectCode':subjectCode,'grade':grade})
   .then(sub =>{
   
     if(sub){
@@ -5365,9 +5363,9 @@ router.get('/autocompleteSubX/',isLoggedIn,teacher, function(req, res, next) {
    
   var regex= new RegExp(req.query["term"],'i');
   var teacherName = req.user.fullname
-  var companyId = req.user.companyId
+
  
-  var uidFilter =TeacherSub.find({teacherName:teacherName,companyId:companyId, subjectCode:regex},{'subjectCode':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  var uidFilter =TeacherSub.find({teacherName:teacherName, subjectCode:regex},{'subjectCode':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
 
   
   uidFilter.exec(function(err,data){
@@ -5414,9 +5412,9 @@ if(!err){
 //this routes autopopulates teachers info from the id selected from automplet1
 router.post('/autoSubX',isLoggedIn,teacher,function(req,res){
   var code = req.body.code
-  var companyId = req.user.companyId
+ 
 
-TeacherSub.find({subjectCode:code,companyId:companyId},function(err,docs){
+TeacherSub.find({subjectCode:code},function(err,docs){
  if(docs == undefined){
    res.redirect('/dash')
  }else
@@ -5435,7 +5433,7 @@ router.get('/classWorkBatch',isLoggedIn,teacher,  function(req,res){
   var user = req.user.term
   var teacherId = req.user.uid
   var pro = req.user
-  var companyId = req.user.companyId
+ 
   var subject = req.user.subjects
   var subjectCode = req.user.subjectCode
   var grade = req.user.grade
@@ -5443,7 +5441,7 @@ router.get('/classWorkBatch',isLoggedIn,teacher,  function(req,res){
   
   
   
-  Class1.find({companyId:companyId}, function(err,docs){
+  Class1.find({}, function(err,docs){
     Topic.find({subjectCode:subjectCode},function(err,zoc){
   
    var arr2 = zoc
@@ -5471,7 +5469,7 @@ var term = req.body.term;
 var type = req.body.type
 var grade = req.body.grade
 var stdNum, grade;
-var companyId = req.user.companyId
+
 let arr = []
 let arr1 = []
 var teacher = req.user.fullname
@@ -5505,7 +5503,7 @@ var errors = req.validationErrors();
 
 if (errors) {
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -5520,7 +5518,7 @@ res.render('exam/batch',{errors:req.session.errors, arr1:arr1,pro:pro,subject:su
 
 else{
 
-Test.findOne({'companyId':companyId,'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,'topic':topic })
+Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,'topic':topic })
 .then(tes =>{
 if(tes){ 
 
@@ -5568,7 +5566,7 @@ test.type2 = 'offline'
 test.type3 = 'class'
 test.grade = req.body.grade;
 test.level = 'highschool';
-test.companyId = companyId
+
 test.status = 'null'
 test.timeLeft= 'null'
 test.examStatus = 'null'
@@ -5603,7 +5601,7 @@ console.log(trocs)
 
 })
 
-StudentSub.find({companyId:companyId,class1:class1, subjectCode:subjectCode},function(err,zoc){
+StudentSub.find({class1:class1, subjectCode:subjectCode},function(err,zoc){
   for(var i = 0; i<zoc.length;i++){
     var test = new TestX();
 test.uid = zoc[i].studentId;
@@ -5644,7 +5642,7 @@ test.deadline = 'null'
 test.size = 0
 test.topic = topic
 test.quizId = tesn._id
-test.companyId = companyId
+
 test.type2 = 'null'
 test.type3 = 'class'
 test.status3 = 'null'
@@ -5690,7 +5688,7 @@ router.get('/batchExam',isLoggedIn,teacher,  function(req,res){
   var user = req.user.term
   var teacherId = req.user.uid
   var pro = req.user
-  var companyId = req.user.companyId
+
   var subject = req.user.subjects
   var subjectCode = req.user.subjectCode
   var grade = req.user.grade
@@ -5698,7 +5696,7 @@ router.get('/batchExam',isLoggedIn,teacher,  function(req,res){
   
   
   
-  Class1.find({companyId:companyId}, function(err,docs){
+  Class1.find({}, function(err,docs){
     Topic.find({subjectCode:subjectCode},function(err,zoc){
   
    var arr2 = zoc
@@ -5726,7 +5724,7 @@ var term = req.body.term;
 var type = req.body.type
 var grade = req.body.grade
 var stdNum, grade;
-var companyId = req.user.companyId
+
 let arr = []
 let arr1 = []
 var teacher = req.user.fullname
@@ -5760,7 +5758,7 @@ var errors = req.validationErrors();
 
 if (errors) {
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -5775,7 +5773,7 @@ res.render('exam/batchExam',{errors:req.session.errors, arr1:arr1,pro:pro,subjec
 
 else{
 
-Test.findOne({'companyId':companyId,'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,'topic':topic })
+Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,'topic':topic })
 .then(tes =>{
 if(tes){ 
 
@@ -5822,7 +5820,7 @@ test.type2 = 'null'
 test.type3 = 'exam'
 test.grade = req.body.grade;
 test.level = 'highschool';
-test.companyId = companyId
+
 test.status = 'null'
 test.timeLeft= 'null'
 test.examStatus = 'null'
@@ -5856,7 +5854,7 @@ console.log(trocs)
 
 })
 
-StudentSub.find({companyId:companyId,class1:class1, subjectCode:subjectCode},function(err,zoc){
+StudentSub.find({class1:class1, subjectCode:subjectCode},function(err,zoc){
   for(var i = 0; i<zoc.length;i++){
     var test = new TestX();
 test.uid = zoc[i].studentId;
@@ -5897,7 +5895,7 @@ test.deadline = 'null'
 test.size = 0
 test.topic = topic
 test.quizId = tesn._id
-test.companyId = companyId
+
 test.type2 = 'null'
 test.type3 = 'exam'
 test.status3 = 'null'
@@ -5937,7 +5935,7 @@ res.redirect('/teacher/classWork')
 router.post('/grade/update/:id',isLoggedIn,teacher,function(req,res){
   var id = req.params.id
   var pro = req.user
-  var companyId = req.user.companyId
+
   var m = moment()
   var year = m.format('YYYY')
   var month = m.format('MMMM')
@@ -6020,11 +6018,11 @@ router.get('/examBatchX',isLoggedIn,teacher,  function(req,res){
   var user = req.user.term
   var teacherId = req.user.uid
   var pro = req.user
-  var companyId = req.user.companyId
+
   
   
   
-  Class1.find({companyId:companyId}, function(err,docs){
+  Class1.find({}, function(err,docs){
   var arr1 = docs;  
   
   res.render('exam/batchX',{ arr1:arr1, user:user, pro:pro})
@@ -6045,7 +6043,7 @@ var term = req.body.term;
 var type = req.body.type
 var grade = req.body.grade
 var stdNum, grade;
-var companyId = req.user.companyId
+
 let arr = []
 let arr1 = []
 var teacher = req.user.fullname
@@ -6075,7 +6073,7 @@ var errors = req.validationErrors();
 
 if (errors) {
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -6090,11 +6088,11 @@ res.render('exam/batch',{errors:req.session.errors, arr1:arr1,pro:pro})
 
 else{
 
-Test.findOne({'companyId':companyId,'date':date,'class1':class1,'subjectCode':subjectCode,'type':type })
+Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type })
 .then(tes =>{
 if(tes){ 
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -6134,7 +6132,7 @@ test.possibleMark = possibleMark
 test.type = type
 test.grade = req.body.grade;
 test.level = 'highschool';
-test.companyId = companyId
+
 test.status = 'null'
 test.timeLeft= 'null'
 test.examStatus = 'null'
@@ -6152,7 +6150,7 @@ test.duration ='null'
 test.save()
 .then(tesn =>{
 
-StudentSub.find({companyId:companyId,class1:class1, subjectCode:subjectCode},function(err,nocs){
+StudentSub.find({class1:class1, subjectCode:subjectCode},function(err,nocs){
 
 stdNum = nocs.length - 1;
 
@@ -6236,10 +6234,10 @@ res.redirect('/teacher/gradeX9')
 
 router.get('/autocomplete/',isLoggedIn, function(req, res, next) {
 var teacherId = req.user.uid
-var companyId = req.user.companyId
+
 var regex= new RegExp(req.query["term"],'i');
 
-var uidFilter =TeacherSub.find({companyId:companyId,subjectCode:regex, teacherId:teacherId},{'subjectCode':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+var uidFilter =TeacherSub.find({subjectCode:regex, teacherId:teacherId},{'subjectCode':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
 
 
 uidFilter.exec(function(err,data){
@@ -6292,9 +6290,9 @@ console.log('Result',result)
 router.post('/auto',isLoggedIn,function(req,res){
 var code = req.body.code
 var teacherId = req.user.uid
-var companyId = req.user.companyId
+
 console.log(code, 'code')
-TeacherSub.find({companyId:companyId,subjectCode:code, teacherId:teacherId},function(err,docs){
+TeacherSub.find({subjectCode:code, teacherId:teacherId},function(err,docs){
 if(docs == undefined){
 res.redirect('/teacher/auto')
 }else
@@ -6335,7 +6333,7 @@ router.get('/gradeX',isLoggedIn,teacher,  function(req,res){
 var id = req.user._id;
 var num = req.user.classLength;
 var x = req.user.studentNum
-var companyId = req.user.companyId
+
 var ocs
 var class1 = req.user.class1
 console.log(class1,'class')
@@ -6345,7 +6343,7 @@ if(num == 0){
 res.redirect('/teacher/examBatch')
 }else
 
-User.find({companyId:companyId,class1:class1, role:'student'},function(err,docs){
+User.find({class1:class1, role:'student'},function(err,docs){
 ocs= docs[x]
 res.render('exam/gradeX', {user:ocs,use:req.user, pro:pro})
 })
@@ -6358,7 +6356,7 @@ res.render('exam/gradeX', {user:ocs,use:req.user, pro:pro})
 router.post('/gradeX',isLoggedIn,teacher, function(req,res){
 var id = req.user._id;
 var date = req.body.date
-var companyId = req.user.companyId
+
 var uid = req.body.uid;
 var teacherId = req.user.uid
 var fullname = req.body.fullname;
@@ -6425,7 +6423,7 @@ test.possibleMark = possibleMark;
 test.type = type
 test.topic = topic
 test.quizId = 'null'
-test.companyId = companyId
+
 
 test.save()
 .then(tes =>{
@@ -6576,8 +6574,8 @@ router.get('/profile/',isLoggedIn,teacher,function(req,res){
 router.get('/tests',isLoggedIn,teacher, (req, res) => {
   var pro = req.user
 var uid= req.user.uid
-var companyId = req.user.companyId
-Test.find({companyId:companyId,teacherId:uid, type2:'online quiz'},(err, docs) => {
+
+Test.find({teacherId:uid, type2:'online quiz'},(err, docs) => {
 if (!err) {
    res.render("teacherExam/resultXX", {
       list:docs, pro:pro
@@ -6593,7 +6591,7 @@ if (!err) {
 router.get('/testsList',isLoggedIn,teacher, (req, res) => {
   var pro = req.user
 var uid= req.user._id
-var companyId = req.user.companyId
+
 Test.find({teacherId:uid, type2:'online quiz'},(err, docs) => {
 if (!err) {
    res.render("teacherExam/listTest", {
@@ -6608,8 +6606,8 @@ if (!err) {
 router.get('/results',isLoggedIn,teacher, (req, res) => {
   var pro = req.user
 var uid= req.user._id
-var companyId = req.user.companyId
-TestX.find({companyId:companyId,teacherId:uid, type:'Class Test'},(err, docs) => {
+
+TestX.find({teacherId:uid, type:'Class Test'},(err, docs) => {
 if (!err) {
    res.render("teacherExam/result", {
       list:docs, pro:pro
@@ -6626,8 +6624,8 @@ if (!err) {
 router.get('/examResults',isLoggedIn,teacher, (req, res) => {
 var uid= req.user.uid
    var pro = req.user
-   var companyId = req.user.companyId
-TestX.find({companyId:companyId,teacherId:uid, type:'Final Exam'},(err, docs) => {
+ 
+TestX.find({teacherId:uid, type:'Final Exam'},(err, docs) => {
 if (!err) {
    res.render("teacherExam/resultX", {
       list:docs, pro:pro
@@ -6646,10 +6644,10 @@ router.get('/termInfo',isLoggedIn,teacher, function(req,res){
   var pro = req.user
   var year = m.format('YYYY')
   var term = req.user.term
-  var companyId = req.user.companyId
+ 
 
 
-FeesUpdate.find({companyId:companyId,term:term, year:year},(err, docs) => {
+FeesUpdate.find({term:term, year:year},(err, docs) => {
     if (!err) {
         res.render("teachers/newTerm", {
            list:docs, pro:pro
@@ -6669,11 +6667,11 @@ router.get('/quizBatch',isLoggedIn,teacher,  function(req,res){
   var user = req.user.term
   var teacherId = req.user.uid
   var pro = req.user
-  var companyId = req.user.companyId
+
   
   
   
-  Class1.find({companyId:companyId}, function(err,docs){
+  Class1.find({}, function(err,docs){
   var arr1 = docs;  
   
   res.render('onlineQuiz/batchX',{ arr1:arr1, user:user, pro:pro})
@@ -6710,7 +6708,7 @@ var year = m.format('YYYY')
 var month = m.format('MMMM')
 var topic = req.body.topic
 var dateValue = m.valueOf()
-var companyId = req.user.companyId
+
 var photo = req.user.photo
 let newTime = m.add(duration,'minutes')
 var dateValue2 = moment(newTime).valueOf()//end time
@@ -6810,7 +6808,7 @@ test.time = time
 test.timeLeft = "null"
 test.filename = 'null'
 test.fileId = 'null'
-test.companyId = companyId
+
 
 
 
@@ -6859,7 +6857,7 @@ User.find({role:"student",class1:class1},function(err,docs){
     not.recRole = 'student'
     not.senderPhoto = photo
     not.numDate = numDate
-    not.companyId = companyId
+
    
 
 
@@ -7111,7 +7109,7 @@ var choice3 = req.body.choice3;
 var choice4 = req.body.choice4
 var answer = req.body.answer;
 var duration = req.user.quizDuration
-var companyId = req.user.companyId
+
 var fileId 
 var year = 2023
 var quizId = req.user.quizId
@@ -7199,7 +7197,7 @@ for(var i = 0;i<docs.length;i++){
   test.quizId= quizId
  test.quizDuration = duration
  test.questionNo= x
-  test.companyId = companyId
+
   test.idX=idX
   test.chunkSize = chunkSize
   test.uploadDate = uploadDate
@@ -7258,7 +7256,7 @@ if(tes.filename !== 'null'){
   tes.quizId= quizId
  tes.quizDuration = duration
  tes.questionNo= x
- tes.companyId = companyId
+
 
  tes.idX=idX
  tes.chunkSize = chunkSize
@@ -7523,9 +7521,9 @@ router.get('/notify',isLoggedIn,teacher, function(req,res){
 //topic
 
 router.get('/topics',isLoggedIn,teacher, function(req,res){
-  var companyId = req.user.companyId
+  
   var pro = req.user
-  Class1.find({companyId:companyId},function(err,loc){
+  Class1.find({},function(err,loc){
     res.render('teachers/gradeX',{arr:loc,pro:pro})
   })
 
@@ -7542,7 +7540,7 @@ router.post('/topics',isLoggedIn, function(req,res){
   var class1 = req.body.class1
   var topic = req.body.name
   var teacherId = req.user.uid
-  var companyId = req.user.companyId
+ 
 
   req.check('subject','Enter Subject').notEmpty();
   req.check('class1','Enter Class').notEmpty();
@@ -7582,7 +7580,7 @@ router.post('/topics',isLoggedIn, function(req,res){
   book.topic = topic
   book.status =  'null'
   book.year = year
-  book.companyId = companyId
+ 
 
 
       
@@ -7590,7 +7588,7 @@ router.post('/topics',isLoggedIn, function(req,res){
         book.save()
           .then(pro =>{
 
-            Topic2.find({subjectCode:subjectCode,teacherId:teacherId,status:'null',companyId:companyId},(err, docs) => {
+            Topic2.find({subjectCode:subjectCode,teacherId:teacherId,status:'null'},(err, docs) => {
               let size = docs.length - 1
               console.log(docs[size],'fff')
               res.send(docs[size])
@@ -7614,9 +7612,9 @@ router.post('/loadTopics',isLoggedIn, (req, res) => {
 var wformat = m2.format('L')
 var year = m2.format('YYYY')
   var code = req.user.code
-  var companyId = req.user.companyId
 
-  Topic2.find({code:code,status:'null',companyId:companyId, year:year},(err, docs) => {
+
+  Topic2.find({code:code,status:'null', year:year},(err, docs) => {
  
     res.send(docs)
             })
@@ -7626,7 +7624,7 @@ var year = m2.format('YYYY')
   router.post('/topic/update/:id',isLoggedIn,function(req,res){
     var id = req.params.id
     var pro = req.user
-    var companyId = req.user.companyId
+    
     var m = moment()
     var year = m.format('YYYY')
     var month = m.format('MMMM')
@@ -7669,7 +7667,7 @@ router.get('/saveTopics/:id',isLoggedIn, function(req,res){
  var receiver = req.user.fullname
  var code = req.params.id
  var uid = req.user._id
-  var companyId = req.user.companyId
+
 var m2 = moment()
 var wformat = m2.format('L')
 var year = m2.format('YYYY')
@@ -7714,7 +7712,7 @@ let idN = locs[i]._id
   book.grade = hoc.grade
   book.name = hoc.topic
   book.class1 = class1
-  book.companyId = companyId
+
   book.year = year 
 
       

@@ -64,7 +64,7 @@ code2:code2
     type: 'POST',
     url: "./dataX",
     success: function(data) {
-      window.location.href = "http://localhost:4000/compose"
+      window.location.href = "http://localhost:7000/compose"
       alert('Message Sent')
     }
   })

@@ -31,7 +31,7 @@ examLink:{type:String, required:true},
 examStatus:{type:String, required:true},
 timeLeft:{type:String, required:true},
 status:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

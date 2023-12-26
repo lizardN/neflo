@@ -29,7 +29,7 @@ month:{type:String, required:true},
 slide:{type:Number, required:true},
 style:{type:String, required:true},
 style2:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

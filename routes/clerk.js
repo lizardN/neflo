@@ -333,28 +333,28 @@ res.redirect('/clerk/stats')
 
 router.get('/stats',isLoggedIn, function(req,res){
     var students, teachers, paid, unpaid, depts, class1
-    var companyId = req.user.companyId
+ 
     var m = moment()
     var year = m.format('YYYY')
-  User.find({companyId:companyId,role:'student'},function(err,focs){
+  User.find({role:'student'},function(err,focs){
     students = focs.length
     
-  User.find({companyId:companyId,role:'teacher'},function(err,nocs){
+  User.find({role:'teacher'},function(err,nocs){
     teachers = nocs.length;
-    User.find({companyId:companyId,role:'student',status:'paid'},function(err,jocs){
+    User.find({role:'student',status:'paid'},function(err,jocs){
    paid = jocs.length;
   
-   User.find({companyId:companyId,role:'student',status:'owing'},function(err,klocs){
+   User.find({role:'student',status:'owing'},function(err,klocs){
      unpaid = klocs.length
 
-     Dept.find({companyId:companyId},function(err,pocs){
+     Dept.find({},function(err,pocs){
       depts = pocs.length;
      
-      Class1.find({companyId:companyId},function(err,locs){
+      Class1.find({},function(err,locs){
         class1 = locs.length
 
   
-     Stats.find({companyId:companyId,year:year},function(err,docs){
+     Stats.find({year:year},function(err,docs){
   
   if(docs == 0){
   
@@ -367,7 +367,7 @@ router.get('/stats',isLoggedIn, function(req,res){
   stat.depts = depts
   stat.class1 = class1
   stat.year = year
-  stat.companyId = companyId
+
   
   
   stat.save()
@@ -429,12 +429,12 @@ router.get('/stats',isLoggedIn, function(req,res){
     var arr1=[]
     var number1
     var totalStudents, students, passRate
-    var companyId = req.user.companyId
+   
   
   
-    Income.find({companyId:companyId,year:year},function(err,docs){
+    Income.find({year:year},function(err,docs){
   
-      Fees.find({companyId:companyId,term:term,year:year},function(err,hods){
+      Fees.find({term:term,year:year},function(err,hods){
   
   
       
@@ -451,7 +451,7 @@ router.get('/stats',isLoggedIn, function(req,res){
               inc.thirdTermIncome = 0
               inc.thirdTermExpense = 0
               inc.year = year
-              inc.companyId = companyId
+          
   
               inc.save()
       .then(incX =>{
@@ -462,10 +462,10 @@ router.get('/stats',isLoggedIn, function(req,res){
   
       }
       else
-      Income.find({companyId:companyId,year:year},function(err,docs){
+      Income.find({year:year},function(err,docs){
   
         var id3 = docs[0]._id
-      Fees.find({companyId:companyId,term:term,year:year},function(err,hods){
+      Fees.find({term:term,year:year},function(err,hods){
   
         for(var q = 0;q<hods.length; q++){
             
@@ -531,18 +531,18 @@ router.get('/stats',isLoggedIn, function(req,res){
     var fees
     var arr1=[]
     var number1
-    var companyId = req.user.companyId
+
   
-    Expenses.find({companyId:companyId,term:term,year:year},function(err,hods){
+    Expenses.find({term:term,year:year},function(err,hods){
   
       if(hods.length == 0){
   
         res.redirect('/clerk/dashX')
       }
   else
-  Income.find({companyId:companyId,year:year},function(err,docs){
+  Income.find({year:year},function(err,docs){
     var incX = docs[0]._id
-    Expenses.find({companyId:companyId,term:term,year:year},function(err,pods){
+    Expenses.find({term:term,year:year},function(err,pods){
     
     
   for(var q = 0;q<pods.length; q++){
@@ -599,12 +599,12 @@ router.get('/adminMonthInc', isLoggedIn,  function(req,res){
   var arr1=[]
   var number1
   var totalStudents, students, passRate
-  var companyId = req.user.companyId
+  
 
 
-  MonthIncome.find({companyId:companyId,year:year,month:month},function(err,docs){
+  MonthIncome.find({year:year,month:month},function(err,docs){
 
-    Fees.find({companyId:companyId,year:year,month:month},function(err,hods){
+    Fees.find({year:year,month:month},function(err,hods){
 
 
     
@@ -617,7 +617,7 @@ router.get('/adminMonthInc', isLoggedIn,  function(req,res){
             inc.amount = 0;
             inc.month = month;
             inc.year = year
-            inc.companyId = companyId
+        
 
             inc.save()
     .then(incX =>{
@@ -628,10 +628,10 @@ router.get('/adminMonthInc', isLoggedIn,  function(req,res){
 
     }
     else
-    MonthIncome.find({companyId:companyId,year:year,month:month},function(err,docs){
+    MonthIncome.find({year:year,month:month},function(err,docs){
 
       var id3 = docs[0]._id
-    Fees.find({companyId:companyId,year:year,month:month},function(err,hods){
+    Fees.find({year:year,month:month},function(err,hods){
 
       for(var q = 0;q<hods.length; q++){
           
@@ -683,12 +683,12 @@ router.get('/adminMonthExp', isLoggedIn,  function(req,res){
   var arr1=[]
   var number1
   var totalStudents, students, passRate
-  var companyId = req.user.companyId
 
 
-  MonthExpense.find({companyId:companyId,year:year,month:month},function(err,docs){
 
-    Expenses.find({companyId:companyId,year:year,month:month},function(err,hods){
+  MonthExpense.find({year:year,month:month},function(err,docs){
+
+    Expenses.find({year:year,month:month},function(err,hods){
 
 
     
@@ -701,7 +701,7 @@ router.get('/adminMonthExp', isLoggedIn,  function(req,res){
             exp.amount = 0;
             exp.month = month;
             exp.year = year
-            exp.companyId = companyId
+    
 
             exp.save()
     .then(incX =>{
@@ -712,10 +712,10 @@ router.get('/adminMonthExp', isLoggedIn,  function(req,res){
 
     }
     else
-    MonthExpense.find({companyId:companyId,year:year,month:month},function(err,docs){
+    MonthExpense.find({year:year,month:month},function(err,docs){
 
       var id3 = docs[0]._id
-    Expenses.find({companyId:companyId,year:year,month:month},function(err,hods){
+    Expenses.find({year:year,month:month},function(err,hods){
 
       for(var q = 0;q<hods.length; q++){
           
@@ -842,9 +842,9 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
      router.post('/statChart',isLoggedIn,function(req,res){
   var m = moment()
   var year = m.format('YYYY')
-  var companyId = req.user.companyId
 
-        Stats.find({companyId:companyId,year:year},function(err,docs){
+
+        Stats.find({year:year},function(err,docs){
           if(docs == undefined){
             res.redirect('/clerk/dash')
           }else
@@ -858,8 +858,8 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
       //calendar
   
       router.post('/calendarChart',isLoggedIn,function(req,res){
-        var companyId = req.user.companyId
-        Calendar.find({companyId:companyId},function(err,docs){
+    
+        Calendar.find({},function(err,docs){
           if(docs == undefined){
             res.redirect('/clerk/dash')
           }else
@@ -883,8 +883,8 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
         router.post('/statChart',isLoggedIn,function(req,res){
           var m = moment()
           var year = m.format('YYYY')
-        var companyId = req.user.companyId
-                Stats.find({companyId:companyId,year:year},function(err,docs){
+     
+                Stats.find({year:year},function(err,docs){
                   if(docs == undefined){
                     res.redirect('/dash')
                   }else
@@ -905,8 +905,8 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
         router.post('/incomeChart',isLoggedIn, function(req,res){
           var m = moment()
           var year = m.format('YYYY')
-           var companyId = req.user.companyId
-                Income.find({companyId:companyId,year:year},function(err,docs){
+      
+                Income.find({year:year},function(err,docs){
                   if(docs == undefined){
                     res.redirect('/dash')
                   }else
@@ -923,8 +923,8 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
       router.post('/feesChart',isLoggedIn, function(req,res){
           var m = moment()
           var year = m.format('YYYY')
-          var companyId = req.user.companyId
-                MonthIncome.find({companyId:companyId,year:year},function(err,docs){
+          
+                MonthIncome.find({year:year},function(err,docs){
                   if(docs == undefined){
                     res.redirect('/dash')
                   }else
@@ -942,8 +942,8 @@ User.find({companyId:companyId,role:"student"},function(err,docs){
       router.post('/expenseChart',isLoggedIn, function(req,res){
         var m = moment()
         var year = m.format('YYYY')
-        var companyId = req.user.companyId
-              MonthExpense.find({companyId:companyId,year:year},function(err,docs){
+       
+              MonthExpense.find({year:year},function(err,docs){
                 if(docs == undefined){
                   res.redirect('/dash')
                 }else
@@ -1934,8 +1934,8 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
       var m = moment()
       var year = m.format('YYYY')
       var term = req.user.term
-      var companyId = req.user.companyId
-            Income.find({companyId:companyId,year:year, term:term},function(err,docs){
+     
+            Income.find({year:year, term:term},function(err,docs){
               if(docs == undefined){
                 res.redirect('/clerk/dash')
               }else
@@ -1965,7 +1965,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   var receiptNumber = req.body.receiptNumber;
   var method = 'manual'
   var day = moment().toString()
-  var companyId = req.user.companyId
+
   console.log(studentId,'studentId')
   
     req.check('uid','Enter Student ID').notEmpty();
@@ -2004,13 +2004,13 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
         fees.method = method;
         fees.paymentId = 'null'
         fees.receiptNumber = receiptNumber;
-        fees.companyId = companyId
+ 
       
       
       
         fees.save()
           .then(fee =>{
-            User.find({companyId:companyId,uid:uid},function(err,docs){
+            User.find({uid:uid},function(err,docs){
   
              User.findByIdAndUpdate(xId,{$set:{studentId:studentId,amount:amount,receiptNumber:receiptNumber}},function(err,gocs){
             
@@ -2145,7 +2145,7 @@ console.log(e)
     var uid =req.user.studentId;
     var day = moment().toString();
     var amount = req.user.amount
-    var companyId = req.user.companyId
+    
     User.findById(uid,function(err,zocs){
   
       
@@ -2163,10 +2163,10 @@ console.log(e)
     //Autocomplete for student details when recording school fees
     router.get('/autocompleteX/',isLoggedIn, function(req, res, next) {
       var name,uid, surname
-    var companyId = req.user.companyId
+
         var regex= new RegExp(req.query["term"],'i');
        
-        var uidFilter =User.find({companyId:companyId,uid:regex, role:"student"},{'uid':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+        var uidFilter =User.find({uid:regex, role:"student"},{'uid':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
       
         
         uidFilter.exec(function(err,data){
@@ -2216,11 +2216,11 @@ console.log(e)
   //this route autopopulates info of the title selected from the autompleteX route
       router.post('/autoX',isLoggedIn,function(req,res){
           var uid = req.body.code
-          var companyId = req.user.companyId
+       
       
           
          
-          User.find({companyId:companyId,uid:uid},function(err,docs){
+          User.find({uid:uid},function(err,docs){
          if(docs == undefined){
            res.redirect('/clerk/addFees')
          }else
@@ -2259,7 +2259,7 @@ console.log(e)
     var year = m.format('YYYY')
    
    
-    var companyId = req.user.companyId
+   
     Fees.find(function(err,docs){
      
       res.render('clerk/filesFinance',{listX:docs,pro:pro})
@@ -2756,7 +2756,7 @@ router.get('/subsPoll',isLoggedIn, (req, res) => {
       var month = m.format('MMMM')
       var days = moment().toString()
       var voucherNumber = req.body.voucherNumber
-      var companyId = req.user.companyId
+
   
   
   
@@ -2802,7 +2802,7 @@ router.get('/subsPoll',isLoggedIn, (req, res) => {
      expenses.status = status;
      expenses.payment = payment;
      expenses.month = month;
-     expenses.companyId = companyId
+    
    
    
      expenses.save()
@@ -2825,8 +2825,8 @@ router.get('/subsPoll',isLoggedIn, (req, res) => {
   
   router.get('/expenseList',isLoggedIn, (req, res) => {
     var pro = req.user
-    var companyId = req.user.companyId
-    Expenses.find({companyId:companyId},(err, docs) => {
+
+    Expenses.find({},(err, docs) => {
         if (!err) {
             res.render("clerk/expenseRecord", {
                list:docs, pro:pro
@@ -2849,7 +2849,7 @@ router.get('/subsPoll',isLoggedIn, (req, res) => {
     var day = moment().toString()
     var days, endDate;
     var user = req.user.feesUpdate
-    var companyId = req.user.companyId
+
     if(user == 'null'){
     
 

@@ -13,7 +13,7 @@ year:{type:Number, required:true},
 companyId:{type:String, required:true},
 studentId:{type:String, required:true},
 uid:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

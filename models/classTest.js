@@ -44,7 +44,7 @@ var testSchema = new mongoose.Schema({
     status:{type:String, required:true},
     status2:{type:String, required:true},
     status3:{type:String, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 

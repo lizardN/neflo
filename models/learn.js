@@ -17,7 +17,7 @@ var learnSchema = new mongoose.Schema({
     year:{type:Number, required:true},
     teacherName:{type:String, required:true},
     teacherId:{type:String, required:true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
 
 
 

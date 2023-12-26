@@ -19,7 +19,7 @@ var voucherSchema = new Schema({
     dept:{type:String, required:true},
     bank:{type:String, required:true},
     accountNumber:{type:String, required:true},
-    companyId:{type:String,required:true},
+    companyId:{type:String},
     justification:{type:String, required:true},
     just_imagename:{type:String, required:true},
     proof:{type:String,required:true},

@@ -16,7 +16,7 @@ var schema = new Schema({
     archive: {type: String, required: true},
     read: {type: String, required: true},
     recepientId: {type: String, required: true},
-    companyId:{type:String, required:true},
+    companyId:{type:String},
   
 
  

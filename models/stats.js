@@ -11,7 +11,7 @@ unpaid:{type:Number, required:true},
 depts:{type:Number, required:true},
 class1:{type:Number, required:true},
 year:{type:Number, required:true},
-companyId:{type:String, required:true},
+companyId:{type:String},
 
 
 
