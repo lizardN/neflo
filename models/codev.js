@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var truckSchema = new Schema({
+var codeSchema = new Schema({
    
 
 
@@ -15,4 +15,4 @@ var truckSchema = new Schema({
 
 });
 
-module.exports = mongoose.model('CodeV', truckSchema);
+module.exports = mongoose.model('CodeV', codeSchema);
