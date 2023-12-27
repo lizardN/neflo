@@ -3,7 +3,7 @@ $.ajax({
     dataType: 'json',
     type: 'POST',
 	
-    url: "/records/loadClassesV",
+    url: "/records/loadSubV",
     success: function(data) {
     console.log(data)
 
@@ -13,7 +13,10 @@ $.ajax({
     var tr = document.createElement('tr');
 
     var td1 = tr.appendChild(document.createElement('td'));
+ 
     var td2 = tr.appendChild(document.createElement('td'));
+	var td3 = tr.appendChild(document.createElement('td'));
+	var td4 = tr.appendChild(document.createElement('td'));
 
     var link= tr.appendChild(document.createElement('td'));
     //td5.appendChild(document.createElement('a'));
@@ -21,8 +24,11 @@ $.ajax({
 
 td2.classList.add('text-end', 'pe-1')
 
+td3.classList.add('text-end', 'pe-0')
+td4.classList.add('text-end', 'pe-0')
+
 link.classList.add('text-end','pe-0')
-link.setAttribute("href", "/records/classBatchDelete/"+data[i]._id)
+link.setAttribute("href", "/records/subBatchDelete/"+data[i]._id)
 link.className = "text-end";
 
 /*let link = document.createTextNode("Delete")
@@ -30,15 +36,18 @@ link.className = "text-end";
 td5.appendChild(link);*/
 
 
-    td1.innerHTML = data[i].grade;
-    td2.innerHTML = data[i].class1;
+td1.innerHTML = data[i].name;
+td2.innerHTML = data[i].code;
+td3.innerHTML = data[i].grade;
+td4.innerHTML = data[i].icon;
    
-    let link2 = "/records/classBatchDelete/"+data[i]._id
+   
+    let link2 = "/records/subBatchDelete/"+data[i]._id
 
     //td5.innerHTML = "Delete"
     var linkText = 'Delete'
    // link.appendChild(linkText);
-link.href="/records/classBatchDelete/"+data[i]._id
+link.href="/records/subBatchDelete/"+data[i]._id
     //td5.innerText = 'Delete'
     link.innerHTML='<a href="'+link2+'">'+linkText+'</a>'
 
@@ -116,7 +125,7 @@ $.ajax({
                 
             },
             type: 'POST',
-            url: "/records/classesV/update/"+td1.id,
+            url: "/records/subV/update/"+td1.id,
 
 
   success: function(data) {
@@ -213,22 +222,29 @@ this.firstElementChild.select();
 
 
 
-function addClass()
+function addSubject()
 {
 
 
  
     var grade = document.sample.grade.value;
-    var class1=document.sample.class1.value;
+   
     var code=document.sample.code.value;
+    
+    var code2=document.sample.code2.value;
+    var name=document.sample.name.value;
+    
+    var dept=document.sample.dept.value;
+    
+    var icon=document.sample.icon.value;
 
-    console.log(grade,class1,code,'th')
+    console.log(grade,code,'th')
 	$.ajax({
    
     dataType: 'json',
     type: 'POST',
-	data:{grade:grade,class1:class1,code:code },
-    url: "/records/classesV",
+	data:{grade:grade,code:code,code2:code2,name:name,dept:dept,icon:icon },
+    url: "/records/subject",
     success: function(data) {
     console.log(data,'enlighted')
   
@@ -238,29 +254,39 @@ function addClass()
     var tr = document.createElement('tr');
 
     var td1 = tr.appendChild(document.createElement('td'));
+     
     var td2 = tr.appendChild(document.createElement('td'));
+	var td3 = tr.appendChild(document.createElement('td'));
+	var td4 = tr.appendChild(document.createElement('td'));
+    
 
     var link= tr.appendChild(document.createElement('td'));
     td1.id =data._id
     
-td2.classList.add('text-end', 'pe-1')
 td1.classList.add('text-end', 'pe-0')
+td2.classList.add('text-end', 'pe-1')
+td3.classList.add('text-end', 'pe-0')
+td4.classList.add('text-end', 'pe-0')
+
 link.classList.add('text-end','pe-0')
-link.setAttribute("href", "/records/classBatchDelete")
+link.setAttribute("href", "/records/subBatchDelete")
 link.className = "text-end";
 
 
 
 
-    td1.innerHTML = data.grade;
-    td2.innerHTML = data.class1;
+    td1.innerHTML = data.name;
+    td2.innerHTML = data.code;
+    td3.innerHTML = data.grade;
+    td4.innerHTML = data.icon;
+  
 
-    let link2 = "/records/classBatchDelete/"+data._id
+    let link2 = "/records/subBatchDelete/"+data._id
 
     //td5.innerHTML = "Delete"
     var linkText = 'Delete'
     // link.appendChild(linkText);
-    link.href="/records/classBatchDelete/"+data._id
+    link.href="/records/subBatchDelete/"+data._id
     //td5.innerText = 'Delete'
     link.innerHTML='<a href="'+link2+'">'+linkText+'</a>'
 
@@ -331,7 +357,7 @@ $.ajax({
                 
             },
             type: 'POST',
-            url: "/records/classesV/update/"+td1.id,
+            url: "/records/subV/update/"+td1.id,
 
 
   success: function(data) {

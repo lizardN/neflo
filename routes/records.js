@@ -6,6 +6,10 @@ const User =require('../models/user')
 const Class1 =require('../models/class');
 const ClassV =require('../models/classV');
 const CodeV =require('../models/codev');
+const CodeSub =require('../models/codeSub');
+const SubV =require('../models/subV');
+const CodeLevel =require('../models/codeLevel');
+const LevelV =require('../models/levelV');
 const Subject =require('../models/subject');
 const Fees =require('../models/fees');
 const Report = require('../models/reports');
@@ -856,8 +860,45 @@ User.findByIdAndUpdate(id,{$set:{levelX:levelX}},function(err,jocs){
     }
   
   })
-  res.redirect('/records/idUp')
+  res.redirect('/records/classUpdate')
 })
+
+
+
+router.get('/classUpdate',isLoggedIn,records,function(req,res){
+  Class1.find(function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let class1 = docs[i].class1
+      let id = docs[i]._id
+      User.find({class1:class1},function(err,nocs){
+for(var c = 0; nocs.length;c++){
+  if(c == 0){
+    console.log(id,'cc')
+    Class1.findByIdAndUpdate(id,{$set:{pic1:nocs[c].photo}},function(err,locs){
+
+    })
+  }else if(c == 1){
+    console.log(id,'kk')
+    Class1.findByIdAndUpdate(id,{$set:{pic2:nocs[c].photo}},function(err,locs){
+
+    })
+  }else if(c == 2){
+    console.log(id,'yy')
+    Class1.findByIdAndUpdate(id,{$set:{pic3:nocs[c].photo}},function(err,locs){
+
+    })
+  }
+}
+      })
+    }
+    res.redirect('/records/idUp')
+  })
+})
+
+
+
+
+
 
 
 
@@ -3638,7 +3679,7 @@ var pro = req.user
   }
   else{
     
-      Level.findOne({'grade':grade, 'companyId':companyId})
+      Level.findOne({'grade':grade})
       .then(clax =>{
           if(clax){ 
 
@@ -3718,7 +3759,7 @@ if(focs[i].grade>focs[x].grade){
 
 
 
-
+/*
 router.get('/classUpdate',isLoggedIn,records,function(req,res){
   Class1.find(function(err,docs){
     for(var i = 0;i<docs.length;i++){
@@ -3748,7 +3789,7 @@ for(var c = 0; c<3;c++){
   })
 })
 
-
+*/
 
 
 
@@ -3883,6 +3924,375 @@ res.render('records/classStudents',{listX:docs,pro:pro})
 
   
 })
+//////////////////////level
+
+//////////////////////
+
+router.get('/levelBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('admin/levelBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+  router.post('/levelBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+    var code = req.body.code
+    var date = req.body.date
+    var time  = req.body.time
+    var m2 = moment()
+    var mformat = m2.format('L')
+    var pro = req.user
+
+    
+    
+
+    req.check('code','Enter  Code').notEmpty();
+    req.check('date','Enter Date').notEmpty();
+    req.check('time','Enter Time').notEmpty();
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+      res.render('admin/levelBatch',{ errors:req.session.errors,pro:pro})
+
+      
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+  res.redirect('/records/levelBatch');
+    
+    }
+    
+    else 
+    
+    CodeLevel.findOne({'code':code})
+    .then(grower =>{
+    if(grower){
+
+      req.flash('danger', 'Code already in use');
+ 
+      res.redirect('/records/levelBatch');
+    }else{
+
+      var truck = new CodeLevel()
+      truck.code = code
+      truck.time = time
+      truck.mformat = mformat
+
+      truck.save()
+          .then(pro =>{
+
+      User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
+          
+        
+      })
+res.redirect('/records/levelV')
+
+    })
+
+    }
+    
+    })
+    
+    
+    })
+  
+
+
+
+
+
+
+
+//////////////////// add classes X
+
+router.get('/levelV',isLoggedIn, function(req,res){
+
+  var pro = req.user
+  var code = req.user.paymentId
+  if(code == 'null'){
+    res.redirect('/records/classBatch')
+  }else
+  /*var successMsg = req.flash('success')[0];
+  res.render('admin/stock2',{pro:pro,successMsg: successMsg, noMessages: !successMsg,code:code})*/
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+ res.render('admin/level',{pro:pro,code:code,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+    
+  
+
+  })
+  
+router.post('/levelV',isLoggedIn, function(req,res){
+  var m = moment()
+  var pro = req.user
+  var year = m.format('YYYY')
+
+  var grade = req.body.grade
+ 
+  var code = req.body.code
+  var status = "null"
+  console.log(grade,code,'squarebob')
+  req.check('grade','Enter Grade').notEmpty();
+
+ 
+ 
+  
+
+  
+  
+  var errors = req.validationErrors();
+   
+  if (errors) {
+
+    req.session.errors = errors;
+    req.session.success = false;
+   // res.render('product/stock',{ errors:req.session.errors,pro:pro})
+   req.flash('success', req.session.errors[0].msg);
+       
+        
+   res.redirect('/records/levelV');
+  
+  }
+  else
+
+ {
+
+  LevelV.findOne({'grade':grade,'status':status})
+  .then(hoc=>{
+
+    if(!hoc){
+  var book = new LevelV();
+
+  book.grade = grade
+  book.code = code
+ 
+  book.status = 'null'
+
+
+
+
+      
+       
+        book.save()
+          .then(pro =>{
+
+           LevelV.find({grade:grade,code:code,status:'null'},(err, docs) => {
+              let size = docs.length - 1
+              console.log(docs[size],'fff')
+              res.send(docs[size])
+                      })
+        })
+       
+      
+      }
+    }) 
+
+      }
+})
+
+
+
+
+
+router.post('/loadLevelV',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+  var code = req.user.paymentId
+
+
+ LevelV.find({code:code,status:'null'},(err, docs) => {
+ 
+    res.send(docs)
+            })
+
+  }); 
+
+  router.post('/levelV/update/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'emblem')
+    var pro = req.user
+  
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var grade = req.body.code
+    LevelV.findById(id,function(err,doc){
+    
+    
+    
+     
+ LevelV.findByIdAndUpdate(id,{$set:{grade:grade}},function(err,doc){
+  
+   })     
+        
+    
+    
+    
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+
+
+
+
+router.get('/saveLevelV/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+ var receiver = req.user.fullname
+ var code = req.params.id
+ var uid = req.user._id
+
+var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+var dateValue = m2.valueOf()
+var date = m2.toString()
+var numDate = m2.valueOf()
+var month = m2.format('MMMM')
+
+
+//var mformat = m.format("L")
+
+
+
+LevelV.find({code:code},function(err,locs){
+
+for(var i=0;i<locs.length;i++){
+
+let grade = locs[i].grade
+
+
+
+let idN = locs[i]._id
+
+
+  LevelV.findByIdAndUpdate(idN,{$set:{status:'saved'}},function(err,pocs){
+
+  })
+  
+
+  
+
+  Level.findOne({'grade':grade})
+  .then(hoc=>{
+
+    if(!hoc){
+      var clas = new Level();
+    
+      clas.levelX = "null";
+     
+      clas.grade = grade;
+  
+    
+
+      
+       
+      clas.save()
+          .then(pro =>{
+
+            User.findByIdAndUpdate(uid,{$set:{paymentId:'null'}},function(err,doc){
+
+    
+              Level.find({},function(err,focs){
+                for(var i=0; i<focs.length;i++){
+                
+                  for(var x = 0;x<focs.length;x++){
+                
+                if(focs[i].grade>focs[x].grade){
+                  let id =focs[x]._id
+                  Level.findByIdAndUpdate(focs[i]._id,{$set:{levelX:'last'}},function(err,pocs){
+                
+                    Level.findByIdAndUpdate(id,{$set:{levelX:'normal'}},function(err,locs){
+                
+                     
+                
+                    })
+                   
+                
+                  })
+                
+                
+                
+                }
+                    
+                
+                  }
+                }
+                
+                
+                })
+
+
+
+
+            })
+
+
+               /*  req.session.message = {
+              type:'success',
+              message:'Product added'
+            }  
+            res.render('product/stock',{message:req.session.message,pro:pro});*/
+          
+        
+        })
+
+       /* req.flash('success', 'Stock Received Successfully');
+        res.redirect('/rec/addStock')*/
+      }  /* else{
+        req.flash('danger', 'Product Does Not Exist');
+      
+        res.redirect('/rec/addStock');
+      }*/
+    }) 
+
+     
+}
+
+
+
+req.flash('success', 'Classes Successfully Added');
+res.redirect('/records/levelBatch')
+}) 
+})
+
+
+router.get('/levelBatchDelete/:id',isLoggedIn, (req, res) => {
+  LevelV.findByIdAndRemove(req.params.id, (err, doc) => {
+    if (!err) {
+        res.redirect('/records/levelV');
+    }
+    else { console.log('Error in deleting stock :' + err); }
+  });
+  });
+
+
 //////////////////////
 
 router.get('/classBatch',isLoggedIn,  function(req,res){
@@ -4044,7 +4454,7 @@ router.post('/classesV',isLoggedIn, function(req,res){
         book.save()
           .then(pro =>{
 
-            ClassV.find({class1:class1,grade:grade},(err, docs) => {
+            ClassV.find({class1:class1,grade:grade,code:code},(err, docs) => {
               let size = docs.length - 1
               console.log(docs[size],'fff')
               res.send(docs[size])
@@ -4079,6 +4489,7 @@ var year = m2.format('YYYY')
 
   router.post('/classesV/update/:id',isLoggedIn,function(req,res){
     var id = req.params.id
+    console.log(id,'emblem')
     var pro = req.user
   
     var m = moment()
@@ -4087,7 +4498,7 @@ var year = m2.format('YYYY')
     var dateValue = m.valueOf()
     var mformat = m.format("L")
     var date = m.toString()
-    var topic = req.body.code
+    var class1 = req.body.code
     ClassV.findById(id,function(err,doc){
     
     
@@ -4155,7 +4566,7 @@ let idN = locs[i]._id
 
   
 
-  Class1.findOne({'class1':code})
+  Class1.findOne({'class1':class1})
   .then(hoc=>{
 
     if(!hoc){
@@ -4181,7 +4592,9 @@ let idN = locs[i]._id
       clas.save()
           .then(pro =>{
 
-            
+            User.findByIdAndUpdate(uid,{$set:{paymentId:'null'}},function(err,doc){
+
+            })
 
 console.log(i,'ccc')
                /*  req.session.message = {
@@ -4212,6 +4625,15 @@ res.redirect('/records/classesV')
 }) 
 })
 
+
+router.get('/classBatchDelete/:id',isLoggedIn, (req, res) => {
+  ClassV.findByIdAndRemove(req.params.id, (err, doc) => {
+    if (!err) {
+        res.redirect('/records/classesV');
+    }
+    else { console.log('Error in deleting stock :' + err); }
+  });
+  });
 
 //add teachers
 router.get('/addTeacher',isLoggedIn,records,  function(req,res){
@@ -4769,11 +5191,11 @@ else
                
               
                   
-                req.session.message = {
+              /*  req.session.message = {
                   type:'success',
                   message:'Account Registered'
                 }  
-                res.render('imports/teacherX',{message:req.session.message});
+                res.render('imports/teacherX',{message:req.session.message});*/
               })
 
             })
@@ -5083,7 +5505,7 @@ router.post('/dept',isLoggedIn,  function(req,res){
     }
     else{
       
-        Dept.findOne({'companyId':companyId,'name':name})
+        Dept.findOne({'name':name})
         .then(dept =>{
             if(dept){ 
   
@@ -5243,16 +5665,121 @@ router.get('/emailResponse',isLoggedIn,function(req,res){
 })
 
 
+
+
+
+
+//////////////////////
+
+router.get('/subVBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('admin/subBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+  router.post('/subVBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+    var code = req.body.code
+    var date = req.body.date
+    var time  = req.body.time
+    var m2 = moment()
+    var mformat = m2.format('L')
+    var pro = req.user
+
+    
+    
+
+    req.check('code','Enter  Code').notEmpty();
+    req.check('date','Enter Date').notEmpty();
+    req.check('time','Enter Time').notEmpty();
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+     
+
+      
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+  res.redirect('/records/subVBatch');
+    
+    }
+    
+    else 
+    
+    CodeSub.findOne({'code':code})
+    .then(grower =>{
+    if(grower){
+
+      req.flash('danger', 'Code already in use');
+ 
+      res.redirect('/records/subVBatch');
+    }else{
+
+      var truck = new CodeSub()
+      truck.code = code
+      truck.time = time
+      truck.mformat = mformat
+
+      truck.save()
+          .then(pro =>{
+
+      User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
+          
+        
+      })
+res.redirect('/records/subject')
+
+    })
+
+    }
+    
+    })
+    
+    
+    })
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  //add subjects
  router.get('/subject',isLoggedIn,records, function(req,res){
   var pro = req.user
-  
+  var code = req.user.paymentId
+  if(code == 'null'){
+    res.redirect('/records/subVBatch')
+  }
   Dept.find({},function(err,docs){
     var arr1 = docs;
     if(docs.length == 0){
       res.redirect('/records/dept')
     }else
-  res.render('subject/add',{arr1:arr1,pro:pro})
+    var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('subject/add',{arr1:arr1,code:code,pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
 
   })
 })
@@ -5263,7 +5790,8 @@ router.post('/subject',isLoggedIn,records,  function(req,res){
   var grade = req.body.grade;
   var dept = req.body.dept
   var code = req.body.code;
-  
+  var code2 = req.body.code2;
+  var status = "null"
   var icon = req.body.icon
  
       req.check('name','Enter Name Of Subject').notEmpty();
@@ -5278,47 +5806,43 @@ router.post('/subject',isLoggedIn,records,  function(req,res){
       
         req.session.errors = errors;
         req.session.success = false;
-        res.render('subject/add',{ errors:req.session.errors,pro:pro})
+        req.flash('danger', req.session.errors[0].msg);
+       
+        
+        res.redirect('/records/subject');
       
     }
     else{
       
-        Subject.findOne({'name':name, 'grade':grade})
+        SubV.findOne({'name':name, 'grade':grade, 'code':code,'status':status})
         .then(subject =>{
             if(subject){ 
-              Dept.find({},function(err,docs){
-                var arr1 = docs;
-           req.session.message = {
-            type:'errors',
-             message:'Subject already exists'
-           }     
-              res.render('subject/add', {
-                 message:req.session.message ,arr1:arr1,pro:pro
-              })
-            })
+              req.flash('danger', 'Subject already exists');
+       
+        
+              res.redirect('/records/subject');
             }else
     
-      var sub = new Subject();
+      var sub = new SubV();
     
       sub.name = name;
        sub.grade = grade;
        sub.dept = dept
       sub.code = code;
+      sub.code2 = code2
       sub.icon = icon
+      sub.status = status
     
    
     
     
       sub.save()
         .then(sub =>{
-          Dept.find({companyId:companyId},function(err,docs){
-            var arr1 = docs;
-          req.session.message = {
-            type:'success',
-            message:'Subject added'
-          }  
-          res.render('subject/add',{message:req.session.message, arr1:arr1,pro:pro});
-        })
+          SubV.find({grade:grade,code:code,status:'null'},(err, docs) => {
+            let size = docs.length - 1
+            console.log(docs[size],'fff')
+            res.send(docs[size])
+                    })
     
       })
     
@@ -5330,6 +5854,185 @@ router.post('/subject',isLoggedIn,records,  function(req,res){
     
     
 })
+
+
+
+router.post('/loadSubV',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+  var code = req.user.paymentId
+
+
+ SubV.find({code2:code,status:'null'},(err, docs) => {
+ 
+    res.send(docs)
+            })
+
+  }); 
+
+  router.post('/subV/update/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'emblem')
+    var pro = req.user
+  
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var code = req.body.code
+    SubV.findById(id,function(err,doc){
+    
+    
+    
+     
+ SubV.findByIdAndUpdate(id,{$set:{code:code}},function(err,doc){
+  
+   })     
+        
+    
+    
+    
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+
+
+
+
+router.get('/saveSubV/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+
+ var code2 = req.params.id
+ var uid = req.user._id
+
+var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+var dateValue = m2.valueOf()
+var date = m2.toString()
+var numDate = m2.valueOf()
+var month = m2.format('MMMM')
+
+
+//var mformat = m.format("L")
+
+
+
+SubV.find({code2:code2},function(err,locs){
+
+for(var i=0;i<locs.length;i++){
+
+let code = locs[i].code
+let name = locs[i].name
+let grade = locs[i].grade
+let icon = locs[i].icon
+let dept = locs[i].dept
+
+
+
+let idN = locs[i]._id
+
+
+  SubV.findByIdAndUpdate(idN,{$set:{status:'saved'}},function(err,pocs){
+
+  })
+  
+
+  
+
+  Subject.findOne({'code':code})
+  .then(hoc=>{
+
+    if(!hoc){
+      var sub = new Subject();
+    
+      sub.name = name;
+       sub.grade = grade;
+       sub.dept = dept
+      sub.code = code;
+      
+      sub.icon = icon
+    
+    
+
+      
+       
+      sub.save()
+          .then(pro =>{
+
+            User.findByIdAndUpdate(uid,{$set:{paymentId:'null'}},function(err,doc){
+
+    
+           
+
+
+
+
+            })
+
+
+               /*  req.session.message = {
+              type:'success',
+              message:'Product added'
+            }  
+            res.render('product/stock',{message:req.session.message,pro:pro});*/
+          
+        
+        })
+
+       /* req.flash('success', 'Stock Received Successfully');
+        res.redirect('/rec/addStock')*/
+      }  /* else{
+        req.flash('danger', 'Product Does Not Exist');
+      
+        res.redirect('/rec/addStock');
+      }*/
+    }) 
+
+     
+}
+
+
+
+req.flash('success', 'Classes Successfully Added');
+res.redirect('/records/subject')
+}) 
+})
+
+
+router.get('/subBatchDelete/:id',isLoggedIn, (req, res) => {
+  SubV.findByIdAndRemove(req.params.id, (err, doc) => {
+    if (!err) {
+        res.redirect('/records/subject');
+    }
+    else { console.log('Error in deleting stock :' + err); }
+  });
+  });
+
+
+
+
+
+
+
+
+
+
 
 
 router.get('/subjectList',isLoggedIn,records, (req, res) => {
