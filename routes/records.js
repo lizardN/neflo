@@ -6,7 +6,8 @@ const User =require('../models/user')
 const Class1 =require('../models/class');
 const ClassV =require('../models/classV');
 const CodeV =require('../models/codev');
-const CodeSub =require('../models/codeSub');
+const AlloCode =require('../models/alloCode');
+const AlloSub =require('../models/alloSub');
 const SubV =require('../models/subV');
 const CodeLevel =require('../models/codeLevel');
 const LevelV =require('../models/levelV');
@@ -3653,7 +3654,7 @@ fs.readFile(originalFile, 'utf8', function (err, data) {
         })
       
  //adding student grades/levels
- router.get('/addlevel',isLoggedIn,records, function(req,res){
+ /*router.get('/addlevel',isLoggedIn,records, function(req,res){
   var pro = req.user
   res.render('students/levels',{pro:pro})
 })
@@ -3754,7 +3755,7 @@ if(focs[i].grade>focs[x].grade){
   
   })
 
-
+*/
 
 
 
@@ -3795,6 +3796,7 @@ for(var c = 0; c<3;c++){
 
 
    //adding student classes
+   /*
    router.get('/addClass',isLoggedIn,records, function(req,res){
     var pro = req.user
     var arr=[]
@@ -3891,7 +3893,7 @@ for(var c = 0; c<3;c++){
     
     })
   
-  
+  */
   
   
   
@@ -3996,7 +3998,7 @@ router.get('/levelBatch',isLoggedIn,  function(req,res){
           
         
       })
-res.redirect('/records/levelV')
+res.redirect('/records/addLevel')
 
     })
 
@@ -4016,12 +4018,12 @@ res.redirect('/records/levelV')
 
 //////////////////// add classes X
 
-router.get('/levelV',isLoggedIn, function(req,res){
+router.get('/addLevel',isLoggedIn, function(req,res){
 
   var pro = req.user
   var code = req.user.paymentId
   if(code == 'null'){
-    res.redirect('/records/classBatch')
+    res.redirect('/records/levelBatch')
   }else
   /*var successMsg = req.flash('success')[0];
   res.render('admin/stock2',{pro:pro,successMsg: successMsg, noMessages: !successMsg,code:code})*/
@@ -4033,7 +4035,7 @@ router.get('/levelV',isLoggedIn, function(req,res){
 
   })
   
-router.post('/levelV',isLoggedIn, function(req,res){
+router.post('/addLevel',isLoggedIn, function(req,res){
   var m = moment()
   var pro = req.user
   var year = m.format('YYYY')
@@ -4363,7 +4365,7 @@ router.get('/classBatch',isLoggedIn,  function(req,res){
           
         
       })
-res.redirect('/records/classesV')
+res.redirect('/records/addClass')
 
     })
 
@@ -4383,7 +4385,7 @@ res.redirect('/records/classesV')
 
 //////////////////// add classes X
 
-router.get('/classesV',isLoggedIn, function(req,res){
+router.get('/addClass',isLoggedIn, function(req,res){
 
   var pro = req.user
   var code = req.user.paymentId
@@ -4400,7 +4402,7 @@ router.get('/classesV',isLoggedIn, function(req,res){
 
   })
   
-router.post('/classesV',isLoggedIn, function(req,res){
+router.post('/addClass',isLoggedIn, function(req,res){
   var m = moment()
   var pro = req.user
   var year = m.format('YYYY')
@@ -6225,6 +6227,92 @@ else
     })
   
     
+/////////////alloBatch
+
+router.get('/alloBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('admin/alloBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+  router.post('/alloBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+    var code = req.body.code
+    var date = req.body.date
+    var time  = req.body.time
+    var m2 = moment()
+    var mformat = m2.format('L')
+    var pro = req.user
+
+    
+    
+
+    req.check('code','Enter  Code').notEmpty();
+    req.check('date','Enter Date').notEmpty();
+    req.check('time','Enter Time').notEmpty();
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+      res.render('admin/classBatch',{ errors:req.session.errors,pro:pro})
+
+      
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+  res.redirect('/records/alloBatch');
+    
+    }
+    
+    else 
+    
+    AlloCode.findOne({'code':code})
+    .then(grower =>{
+    if(grower){
+
+      req.flash('danger', 'Code already in use');
+ 
+      res.redirect('/records/alloBatch');
+    }else{
+
+      var truck = new AlloCode()
+      truck.code = code
+      truck.time = time
+      truck.mformat = mformat
+
+      truck.save()
+          .then(pro =>{
+
+      User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
+          
+        
+      })
+res.redirect('/records/teacherSubject')
+
+    })
+
+    }
+    
+    })
+    
+    
+    })
+  
+
+
+
+
+
 
 
 
@@ -6233,15 +6321,20 @@ else
   
     router.get('/teacherSubject',isLoggedIn,records, function(req,res){
       var pro = req.user
-     
+      var code = req.user.paymentId
+      if(code == 'null'){
+        res.redirect('/records/alloBatch')
+      }else
+      var errorMsg = req.flash('danger')[0];
+      var successMsg = req.flash('success')[0];
       Class1.find({},function(err,docs){
-        Subject.find({},function(err,locs){
+      
         var arr1 = docs;
-        var arr = locs
-      res.render('teachers/subjects',{arr1:arr1, arr:arr,pro:pro})
+
+      res.render('teachers/subjects',{arr1:arr1,code:code, arr:arr,pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
         })
       })
-    })
+   
     
     
     
@@ -6250,12 +6343,15 @@ else
   
     var teacherId, subjectCode, grade, dept, id;
     var teacherName = req.body.teacherName;
-    teacherId = req.body.uid;
-    
+    teacherId = req.body.teacherId;
+    var class1 = req.body.class1
     var subjectName = req.body.subjectName;
-    var icon = req.body.iconXX;
-    var photo = req.body.photoXX;
-    console.log(icon,photo,'whats peasy')
+    var icon = req.body.icon;
+    subjectCode = req.body.subjectCode
+    grade = req.body.grade
+    var code= req.body.code
+    var status = "null"
+    console.log(icon,'whats peasy')
     var arr, arr1
     console.log(teacherName)
     
@@ -6274,24 +6370,24 @@ else
      if (errors) {
      
     
-        Class1.find({},function(err,docs){
-        Subject.find({},function(err,locs){
-        arr1 = docs;
-        arr = locs
+       
           req.session.errors = errors;
           req.session.success = false;
-          res.render('teachers/subjects',{ errors:req.session.errors,arr:arr,arr1:arr1,pro:pro})
-        })
-      })
-      
+          //res.render('teachers/subjects',{ errors:req.session.errors,arr:arr,arr1:arr1,pro:pro})
+       
+          req.flash('danger', req.session.errors[0].msg);
+       
+        
+          res.redirect('/records/teacherSubject');
+
       }
     else
-    TeacherSub.findOne({'teacherName':teacherName,  'subjectName':subjectName})
+ AlloSub.findOne({'teacherName':teacherName,  'subjectName':subjectName,"status":status,"subjectCode":subjectCode,"class1":class1,"code":code})
     .then(clax =>{
         if(clax){ 
        
           
-          Class1.find({},function(err,docs){
+         /* Class1.find({},function(err,docs){
             Subject.find({},function(err,locs){
             arr1 = docs;
             arr = locs
@@ -6302,27 +6398,171 @@ else
             }   
           res.render('teachers/subjects',{message:req.session.message, arr:arr, arr1:arr1,pro:pro});
             })
-          })
+          })*/
+
+          req.flash('danger', 'Subject already allocated');
+ 
+      res.redirect('/records/teacherSubject');
           
         }
         else
     
+    var teacher = new AlloSub();
+    teacher.teacherName = teacherName;
+    teacher.teacherId = teacherId;
+    teacher.subjectCode = subjectCode;
+    teacher.subjectName = subjectName;
+    teacher.grade = grade;
+  teacher.code = code
+    teacher.class1 = class1
+    teacher.icon = icon
+    teacher.status = status
+ 
+    
+    teacher.save()
+    .then(teach =>{
+                         
+      AlloSub.find({code:code,status:"null"},(err, docs) => {
+        let size = docs.length - 1
+        console.log(docs[size],'fff')
+        res.send(docs[size])
+                })
+    
+    })
+    
+    
+    
+    
+    
+    })
+    
+    })
+    
+    //////mafia
+    
+  
+router.post('/loadAlloSub',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+  var code = req.user.paymentId
+
+
+  AlloSub.find({code:code,status:'null'},(err, docs) => {
+ 
+    res.send(docs)
+            })
+
+  }); 
+
+  router.post('/alloSub/update/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'emblem')
+    var pro = req.user
+  
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var class1 = req.body.code
+    AlloSub.findById(id,function(err,doc){
+    
+    
+    
+     
+      AlloSub.findByIdAndUpdate(id,{$set:{class1:class1}},function(err,doc){
+  
+   })     
+        
+    
+    
+    
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+
+
+
+
+router.get('/saveAlloSub/:id',isLoggedIn, function(req,res){
+  var pro = req.user
+ var receiver = req.user.fullname
+ var code = req.params.id
+ var uid = req.user._id
+
+var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+var dateValue = m2.valueOf()
+var date = m2.toString()
+var numDate = m2.valueOf()
+var month = m2.format('MMMM')
+
+
+//var mformat = m.format("L")
+
+
+
+AlloSub.find({code:code},function(err,locs){
+
+for(var i=0;i<locs.length;i++){
+
+let grade = locs[i].grade
+let class1 = locs[i].class1
+let subjectName = locs[i].subjectName
+let subjectCode = locs[i].subjectCode
+let icon = locs[i].icon
+let teacherName = locs[i].teacherName
+let teacherId = locs[i].teacherId
+
+
+let idN = locs[i]._id
+
+
+
+
+  
+
+  TeacherSub.findOne({'subjectCode':subjectCode,'class1':class1})
+  .then(hoc=>{
+
+    if(!hoc){
+     
     var teacher = new TeacherSub();
     teacher.teacherName = teacherName;
     teacher.teacherId = teacherId;
-    teacher.subjectCode = 'null';
+    teacher.subjectCode = subjectCode
     teacher.subjectName = subjectName;
-    teacher.grade = 0;
-    teacher.photo = photo
+    teacher.grade = grade;
+   
+    teacher.class1 = class1
     teacher.icon = icon
     
-    teacher.dept ='null';
+    
     
     teacher.save()
     .then(teach =>{
                          
     id = teach._id;
+    User.findByIdAndUpdate(uid,{$set:{paymentId:'null'}},function(err,doc){
+
+    })
     
+    /*
     Subject.find({name:subjectName,},function(err,docs){
     subjectCode=docs[0].code;
     grade = docs[0].grade;
@@ -6335,37 +6575,43 @@ else
     
     
     })
-    
-    Class1.find({},function(err,docs){
-      Subject.find({},function(err,locs){
-      arr1 = docs;
-      arr = locs
-    
-    req.session.message = {
-      type:'success',
-      message:'Subject allocated'
-    }  
-    res.render('teachers/subjects',{message:req.session.message, arr:arr, arr1:arr1,pro:pro});
-      })
+    })*/
+    AlloSub.findByIdAndUpdate(idN,{$set:{status:'saved'}},function(err,pocs){
+
     })
     
-    
+        
+
     })
-    
-    
-    })
-    
-    
-    
-    
-    
-    })
-    
-    })
-    
-    
-    
-  
+
+       /* req.flash('success', 'Stock Received Successfully');
+        res.redirect('/rec/addStock')*/
+      }  /* else{
+        req.flash('danger', 'Product Does Not Exist');
+      
+        res.redirect('/rec/addStock');
+      }*/
+    }) 
+
+     
+}
+
+
+req.flash('success', 'Classes Successfully Added');
+res.redirect('/records/teacherSubject')
+}) 
+})
+
+
+router.get('/alloBatchDelete/:id',isLoggedIn, (req, res) => {
+  ClassV.findByIdAndRemove(req.params.id, (err, doc) => {
+    if (!err) {
+        res.redirect('/records/classesV');
+    }
+    else { console.log('Error in deleting stock :' + err); }
+  });
+  });
+
   
   //autocomplete teacherName & uid
    

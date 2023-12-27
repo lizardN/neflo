@@ -3,7 +3,7 @@ $.ajax({
     dataType: 'json',
     type: 'POST',
 	
-    url: "/records/loadLevelV",
+    url: "/records/loadAlloSub",
     success: function(data) {
     console.log(data)
 
@@ -13,16 +13,25 @@ $.ajax({
     var tr = document.createElement('tr');
 
     var td1 = tr.appendChild(document.createElement('td'));
-   
+ 
+    var td2 = tr.appendChild(document.createElement('td'));
+	var td3 = tr.appendChild(document.createElement('td'));
+    var td4 = tr.appendChild(document.createElement('td'));
+    var td5 = tr.appendChild(document.createElement('td'));
+    var td6 = tr.appendChild(document.createElement('td'));
 
     var link= tr.appendChild(document.createElement('td'));
     //td5.appendChild(document.createElement('a'));
     td1.id =data[i]._id
 
-td1.classList.add('text-end', 'pe-1')
+td2.classList.add('text-end', 'pe-0')
 
+td3.classList.add('text-end', 'pe-0')
+td4.classList.add('text-end', 'pe-0')
+td5.classList.add('text-end', 'pe-1')
+td6.classList.add('text-end', 'pe-0')
 link.classList.add('text-end','pe-0')
-link.setAttribute("href", "/records/levelBatchDelete/"+data[i]._id)
+link.setAttribute("href", "/records/alloBatchDelete/"+data[i]._id)
 link.className = "text-end";
 
 /*let link = document.createTextNode("Delete")
@@ -30,15 +39,20 @@ link.className = "text-end";
 td5.appendChild(link);*/
 
 
-    td1.innerHTML = data[i].grade;
+td1.innerHTML = data[i].subjectName;
+td2.innerHTML = data[i].subjectCode;
+td3.innerHTML = data[i].grade;
+td4.innerHTML = data[i].icon;
+td5.innerHTML = data[i].class1;
+td6.innerHTML = data[i].teacherName;
    
    
-    let link2 = "/records/levelBatchDelete/"+data[i]._id
+    let link2 = "/records/alloBatchDelete/"+data[i]._id
 
     //td5.innerHTML = "Delete"
     var linkText = 'Delete'
    // link.appendChild(linkText);
-link.href="/records/levelBatchDelete/"+data[i]._id
+link.href="/records/alloBatchDelete/"+data[i]._id
     //td5.innerText = 'Delete'
     link.innerHTML='<a href="'+link2+'">'+linkText+'</a>'
 
@@ -116,7 +130,7 @@ $.ajax({
                 
             },
             type: 'POST',
-            url: "/records/levelV/update/"+td1.id,
+            url: "/records/alloSub/update/"+td1.id,
 
 
   success: function(data) {
@@ -213,22 +227,31 @@ this.firstElementChild.select();
 
 
 
-function addLevel()
+function addSubject()
 {
 
 
  
     var grade = document.sample.grade.value;
    
+    var subjectCode=document.sample.subjectCode.value;
+    
     var code=document.sample.code.value;
+    var subjectName=document.sample.subjectName.value;
+    
+   var teacherId = document.sample.uid.value; 
+  var teacherName =  document.sample.teacherName.value;
+    var class1=document.sample.class1.value;
+    
+    var icon=document.sample.iconXX.value;
 
-    console.log(grade,code,'th')
+    
 	$.ajax({
    
     dataType: 'json',
     type: 'POST',
-	data:{grade:grade,code:code },
-    url: "/records/addLevel",
+	data:{grade:grade,teacherId:teacherId,teacherName:teacherName,subjectCode:subjectCode,code:code,subjectName:subjectName,icon:icon,class1:class1 },
+    url: "/records/teacherSubject",
     success: function(data) {
     console.log(data,'enlighted')
   
@@ -238,29 +261,44 @@ function addLevel()
     var tr = document.createElement('tr');
 
     var td1 = tr.appendChild(document.createElement('td'));
+     
+    var td2 = tr.appendChild(document.createElement('td'));
+	var td3 = tr.appendChild(document.createElement('td'));
+    var td4 = tr.appendChild(document.createElement('td'));
+    var td5 = tr.appendChild(document.createElement('td'));
+    var td6 = tr.appendChild(document.createElement('td'));
     
 
     var link= tr.appendChild(document.createElement('td'));
     td1.id =data._id
     
-td1.classList.add('text-end', 'pe-1')
-
+td1.classList.add('text-end', 'pe-0')
+td2.classList.add('text-end', 'pe-0')
+td3.classList.add('text-end', 'pe-0')
+td4.classList.add('text-end', 'pe-0')
+td5.classList.add('text-end', 'pe-1')
+td6.classList.add('text-end', 'pe-0')
 link.classList.add('text-end','pe-0')
-link.setAttribute("href", "/records/levelBatchDelete")
+link.setAttribute("href", "/records/subBatchDelete")
 link.className = "text-end";
 
 
 
 
-    td1.innerHTML = data.grade;
+    td1.innerHTML = data.subjectName;
+    td2.innerHTML = data.subjectCode;
+    td3.innerHTML = data.grade;
+    td4.innerHTML = data.icon;
+    td5.innerHTML = data.class1;
+    td6.innerHTML = data.teacherName;
   
 
-    let link2 = "/records/levelBatchDelete/"+data._id
+    let link2 = "/records/alloBatchDelete/"+data._id
 
     //td5.innerHTML = "Delete"
     var linkText = 'Delete'
     // link.appendChild(linkText);
-    link.href="/records/levelBatchDelete/"+data._id
+    link.href="/records/alloBatchDelete/"+data._id
     //td5.innerText = 'Delete'
     link.innerHTML='<a href="'+link2+'">'+linkText+'</a>'
 
@@ -331,7 +369,7 @@ $.ajax({
                 
             },
             type: 'POST',
-            url: "/records/levelV/update/"+td1.id,
+            url: "/records/alloSub/update/"+td1.id,
 
 
   success: function(data) {

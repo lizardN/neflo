@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-var teacherSubSchema = new mongoose.Schema({
+var alloSubSchema = new mongoose.Schema({
 
 
 teacherName:{type:String, required:true},
@@ -13,6 +13,8 @@ dept:{type:String},
 icon:{type:String, required:true},
 class1:{type:String, required:true},
 photo:{type:String},
+code:{type:String, required:true},
+status:{type:String, required:true},
 companyId:{type:String},
 
 
@@ -22,4 +24,4 @@ companyId:{type:String},
 
 })
 
-module.exports = mongoose.model('TeacherSubject', teacherSubSchema);
+module.exports = mongoose.model('AlloSubject', alloSubSchema);

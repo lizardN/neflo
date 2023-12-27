@@ -1322,12 +1322,12 @@
 								<!--begin::Page title-->
 								<div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
 									<!--begin::Title-->
-									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1"> Register New Students
+									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">
 									<!--begin::Separator-->
 									<span class="h-20px border-gray-200 border-start ms-3 mx-2"></span>
 									<!--end::Separator-->
 									<!--begin::Description-->
-								
+									<small class="text-muted fs-7 fw-bold my-1 ms-1"></small>
 									<!--end::Description--></h1>
 									<!--end::Title-->
 								</div>
@@ -1340,7 +1340,7 @@
 									<!--begin::Secondary button-->
 									<!--end::Secondary button-->
 									<!--begin::Primary button-->
-									<a href="/records/studentList" class="btn btn-sm btn-primary"  data-bs-target="#kt_modal_create_app">View Students</a>
+									<!--<a href="/records/teacherSubList" class="btn btn-sm btn-primary"  data-bs-target="#kt_modal_create_app">View Subjects</a>
 									<!--end::Primary button-->
 								</div>
 								<!--end::Actions-->
@@ -1370,14 +1370,26 @@
 													<!--begin::Svg Icon | path: icons/duotune/communication/com005.svg-->
 													
 													<!--end::Svg Icon-->
-													<h2>{{title}}</h2>
+													<h2>Enter Batch Code</h2>
 												</div>
 												<!--end::Card title-->
 											</div>
 											<!--end::Card header-->
 											<!--begin::Card body-->
-											<div class="card-body pt-5">
-												<!--begin::Form-->
+										<div class="card-body pt-5">
+<div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
+        <div id="success" class="alert alert-success" {{#if noMessages}}hidden{{/if}}>
+            {{ successMsg }}
+     
+        </div>
+    </div>
+						
+		<div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
+        <div id="danger" class="alert alert-danger" {{#if noMessages2}}hidden{{/if}}>
+            {{ errorMsg }}
+     
+        </div>
+    </div>										<!--begin::Form-->
 												               	{{# if success }}
     <section class="success">
         <h2>Successful Validation!</h2>
@@ -1398,278 +1410,29 @@
             <strong>{{message.intro}}</strong>{{message.message}}
         </div>
         {{/if}}
-												<form id="kt_ecommerce_settings_general_form" class="form" method="post" action="/records/addStudent" enctype="multipart/form-data" autocomplete="off">
+												<form id="kt_ecommerce_settings_general_form" class="form" method="post" action="/records/alloBatch">
 													<!--begin::Input group-->
 													<div class="mb-7">
 														<!--begin::Label-->
-														<label class="fs-6 fw-bold mb-3">
-															<span>Upload Photo</span>
-															<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title="Allowed file types: png, jpg, jpeg."></i>
-														</label>
+												
 														<!--end::Label-->
 														<!--begin::Image input wrapper-->
-														<div class="mt-1">
-															<!--begin::Image input-->
-															<div class="image-input image-input-outline" data-kt-image-input="true" style="background-image: url('assets/media/svg/avatars/blank.svg')">
-																<!--begin::Preview existing avatar-->
-																<div class="image-input-wrapper w-100px h-100px" style="background-image: url('assets/media/svg/avatars/blank.svg')"></div>
-																<!--end::Preview existing avatar-->
-																<!--begin::Edit-->
-																<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
-																	<i class="bi bi-pencil-fill fs-7"></i>
-																	<!--begin::Inputs-->
-																	<input type="file" name="file" accept=".png, .jpg, .jpeg"  {{readonly}} />
-																	<input type="hidden" name="avatar_remove" />
-																	<!--end::Inputs-->
-																</label>
-																<!--end::Edit-->
-																<!--begin::Cancel-->
-																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar">
-																	<i class="bi bi-x fs-2"></i>
-																</span>
-																<!--end::Cancel-->
-																<!--begin::Remove-->
-																<span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar">
-																	<i class="bi bi-x fs-2"></i>
-																</span>
-																<!--end::Remove-->
-															</div>
-															<!--end::Image input-->
-														</div>
-														<!--end::Image input wrapper-->
-													</div>
-													<!--end::Input group-->
-												
-																<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Student ID</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="text" class="form-control form-control-solid" name="uid" id="uid" value="{{uid1}}"  {{readonly}} />
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span>Name</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="text" class="form-control form-control-solid" name="name" id="name" value=""  {{readonly}} />
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-													</div>
-													<!--end::Row-->
-													<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Surname</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="text" class="form-control form-control-solid" name="surname" id="surname" value=""  {{readonly}} />
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span>Address</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="text" class="form-control form-control-solid" name="address" value=""  {{readonly}} />
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-													</div>
-													<!--end::Row-->
-													<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span>Gender</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-															<div class="w-100">
-																	<!--begin::Select2-->
-																	<select class="form-select form-select-solid" name="gender"  {{readonly}} >
-																		<option></option>
-																		<option value="male" >Male</option>
-																		<option value="female" >Female</option>
-																	
-																		
-																	</select>
-																	<!--end::Select2-->
-																</div>
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
 														
+													<!--end::Input group-->
+																<!--begin::Row-->
+											<div class="row row-cols-1 row-cols-sm-3 rol-cols-md-3 row-cols-lg-3">
 														<!--begin::Col-->
 														<div class="col">
 															<!--begin::Input group-->
 															<div class="fv-row mb-7">
 																<!--begin::Label-->
 																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">DOB</span>
-																</label>
-																<!--end::Label-->
-																<input type="date" class="form-control form-control-solid" name="dob" id="dob" value=""  {{readonly}} />
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-													</div>
-													<!--end::Row-->
-                                         
-
-   								<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Class</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip"></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<select id="class1" name="class1"  class="form-select form-select-solid fw-bolder"  {{readonly}}>
-																	
-																	   {{#each arr1}}
-                                                               <option value="{{this.class1}}">{{this.class1}}</option>
-                                                                     {{/each}}
-																	
-																</select>
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-														<!--begin::Col-->
-															<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Grade</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip"></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<select id="grade" name="grade"  class="form-select form-select-solid fw-bolder"  {{readonly}}>
-																	
-																	   {{#each arr}}
-                                                               <option value="{{this.grade}}">{{this.grade}}</option>
-                                                                     {{/each}}
-																	
-																</select>
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-													</div>
-													<!--end::Row-->
-
-
-  
-                                                    								<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Phone</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" title=""></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="text" class="form-control form-control-solid" name="mobile" value=""  {{readonly}} />
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span>Email</span>
+																	<span class="required">Batch Code</span>
 																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
 																</label>
 																<!--end::Label-->
 																<!--begin::Input-->
-																<input type="email" class="form-control form-control-solid" name="email" id="email" value=""   {{readonly}}/>
-																<!--end::Input-->
-															</div>
-															<!--end::Input group-->
-														</div>
-														<!--end::Col-->
-													</div>
-													<!--end::Row-->
-
-                                                    								<!--begin::Row-->
-													<div class="row row-cols-1 row-cols-sm-2 rol-cols-md-1 row-cols-lg-2">
-														<!--begin::Col-->
-														<div class="col">
-															<!--begin::Input group-->
-															<div class="fv-row mb-7">
-																<!--begin::Label-->
-																<label class="fs-6 fw-bold form-label mt-3">
-																	<span class="required">Password</span>
-																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip"></i>
-																</label>
-																<!--end::Label-->
-																<!--begin::Input-->
-																<input type="password" class="form-control form-control-solid" name="password" id="password" value=""  {{readonly}} />
+																<input type="text" class="form-control form-control-solid" name="code" id="code" value="" />
 																<!--end::Input-->
 															</div>
 															<!--end::Input group-->
@@ -1681,20 +1444,38 @@
 															<div class="fv-row mb-7">
 																<!--begin::Label-->
 																<label class="fs-6 fw-bold form-label mt-3">
-																	<span>Confirm Password</span>
+																	<span>Date</span>
 																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
 																</label>
 																<!--end::Label-->
 																<!--begin::Input-->
-																<input type="password" class="form-control form-control-solid" name="confirmPassword" id="confirmPassword" value=""  {{readonly}} />
+																<input type="date" class="form-control form-control-solid" name="date" id="date"   />
 																<!--end::Input-->
 															</div>
 															<!--end::Input group-->
 														</div>
 														<!--end::Col-->
+
+																<div class="col">
+															<!--begin::Input group-->
+															<div class="fv-row mb-7">
+																<!--begin::Label-->
+																<label class="fs-6 fw-bold form-label mt-3">
+																	<span>Time</span>
+																	<i class="fas fa-exclamation-circle ms-1 fs-7" data-bs-toggle="tooltip" ></i>
+																</label>
+																<!--end::Label-->
+																<!--begin::Input-->
+																<input type="time" class="form-control form-control-solid" name="time" id="time"   />
+																<!--end::Input-->
+															</div>
+															<!--end::Input group-->
+														</div>
 													</div>
 													<!--end::Row-->
-													<!--begin::Input group-->
+													<!--begin::Row-->
+													
+   											<!--begin::Input group-->
 												
 													<!--end::Input group-->
 													<!--begin::Separator-->
@@ -1703,11 +1484,10 @@
 													<!--begin::Action buttons-->
 													<div class="d-flex justify-content-end">
 														<!--begin::Button-->
-														 <button  class="btn btn-light me-3" ><a href="/records/idEdit" >Change ID Sequence</a></button>
-														<!--<button type="reset" data-kt-contacts-type="cancel" class="btn btn-light me-3">Cancel</button>
+														<button type="reset" data-kt-contacts-type="cancel" class="btn btn-light me-3">Cancel</button>
 														<!--end::Button-->
 														<!--begin::Button-->
-														<button id="submit" type="submit" class="btn btn-primary">
+														<button type="submit" class="btn btn-primary">
 															<span class="indicator-label">Save</span>
 															<span class="indicator-progress">Please wait...
 															<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
@@ -1753,3 +1533,6 @@
 		<script src="assets/js/custom/utilities/modals/upgrade-plan.js"></script>
 		<script src="assets/js/custom/utilities/modals/create-app.js"></script>
 		<script src="assets/js/custom/utilities/modals/users-search.js"></script>
+
+
+

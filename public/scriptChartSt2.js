@@ -228,7 +228,7 @@ function addClass()
     dataType: 'json',
     type: 'POST',
 	data:{grade:grade,class1:class1,code:code },
-    url: "/records/classesV",
+    url: "/records/addClass",
     success: function(data) {
     console.log(data,'enlighted')
   

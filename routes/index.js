@@ -1890,7 +1890,7 @@ router.get('/idUp',isLoggedIn,function(req,res){
 
 router.get('/classCheck',isLoggedIn,adminX,function(req,res){
   
-  Class1.find({companyId:companyId},function(err,docs){
+  Class1.find({},function(err,docs){
 
 
     for(var i= 0;i<docs.length;i++){
