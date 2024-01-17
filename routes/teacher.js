@@ -1034,9 +1034,9 @@ element.percentage =numX
       
 
       
-var companyId = req.user.companyId
 
-Test.find({companyId:companyId},function(err,docs){
+
+Test.find({},function(err,docs){
   console.log(docs.length,'length')
   for(var i = 0; i<docs.length;i++){
   let quizId = docs[i]._id
