@@ -8,6 +8,7 @@ const ClassV =require('../models/classV');
 const CodeV =require('../models/codev');
 const AlloCode =require('../models/alloCode');
 const AlloSub =require('../models/alloSub');
+const CodeSub =require('../models/CodeSub');
 const SubV =require('../models/subV');
 const CodeLevel =require('../models/codeLevel');
 const LevelV =require('../models/levelV');
@@ -1131,7 +1132,7 @@ std.year9 = 0;
 std.year10 = 0;
 std.count = 0;
 std.startYear = 0;
-std.companyId = companyId
+
 
 std.save()
 .then(std=>{
@@ -2714,6 +2715,9 @@ router.post('/addStudent',isLoggedIn,records,upload.single('file'),function(req,
                       user.quizBatch = 0
                       user.quizId = 'null'
                       user.testId = 'null'
+                      user.industry = 'null'
+                      user.text = password
+                      user.parentId = 'null'
                       user.save()
                         .then(user =>{
                           const CLIENT_URL = 'http://' + req.headers.host;
@@ -2812,7 +2816,7 @@ router.post('/addStudent',isLoggedIn,records,upload.single('file'),function(req,
     var title
     var readonly 
  
-    if(actualCount < count ){
+    /*if(actualCount < count ){*/
       Class1.find({},function(err,docs){
         title = "Import Students"
         readonly = ""
@@ -2824,9 +2828,10 @@ router.post('/addStudent',isLoggedIn,records,upload.single('file'),function(req,
           })
         
         
-    }else
+   /* }*/
+    /*else
 
-  res.redirect('/records/importX')
+  res.redirect('/records/importX')*/
       
    
    
@@ -2836,7 +2841,7 @@ router.post('/addStudent',isLoggedIn,records,upload.single('file'),function(req,
   
   router.get('/importX',isLoggedIn,records,function(req,res){
     var pro = req.user
-    res.render('imports/studentX',{pro:pro})
+    res.render('imports/students',{pro:pro})
   })
   
 
@@ -3075,7 +3080,9 @@ user.quizNo = 0
 user.quizBatch = 0
 user.quizId = 'null'
 user.testId = 'null'
-
+user.industry = 'null'
+user.text = password
+user.parentId = 'null'
 user.save()
   .then(user =>{
    
@@ -3232,6 +3239,8 @@ user.save()
                         user.quizId= 'null'
                         user.testId='null'
                         user.icon = 'null'
+                        user.industry = 'null'
+                        user.text = password
                         user.save()
                           .then(user =>{
                            
@@ -4437,7 +4446,7 @@ router.post('/addClass',isLoggedIn, function(req,res){
 
  {
 
-  ClassV.findOne({'class1':class1})
+  ClassV.findOne({'class1':class1,'code':code})
   .then(hoc=>{
 
     if(!hoc){
@@ -4623,7 +4632,7 @@ console.log(i,'ccc')
 
 
 req.flash('success', 'Classes Successfully Added');
-res.redirect('/records/classesV')
+res.redirect('/records/addClass')
 }) 
 })
 
@@ -4837,6 +4846,8 @@ router.post('/addTeacher',isLoggedIn,records, function(req,res){
                   user.quizBatch = 0
                   user.quizId = 'null'
                   user.testId = 'null'
+                  user.industry = 'null'
+                  user.text = password
                   user.password = user.encryptPassword(password)
 
                   
@@ -4945,30 +4956,27 @@ router.post('/addTeacher',isLoggedIn,records, function(req,res){
    var errorMsg = req.flash('danger')[0];
    var successMsg = req.flash('success')[0];
    var uid = prefix+idNum
-   if(actualCount < count){
+  /* if(actualCount < count){*/
     title = "Import Teachers"
     readonly = ""
-    Dept.find({},function(err,docs){
-      var arr1 = docs;
-  
-    if(docs.length == 0){
-     res.redirect('/records/dept')
-   }
+   
+    // res.redirect('/records/dept')
+   
   res.render('imports/teacher',{pro:pro,title:title,readonly:readonly,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
 
     })
-  }else
+  /*else
 
- res.redirect('/records/importTeacherX')
-  })
-  
-  
-  
+ res.redirect('/records/importTeacherX')*/
 
+  
+  
+  
+/*
 router.get('/importTeacherX',isLoggedIn,function(req,res){
   var pro = req.user
   res.render('imports/teacherX',{pro:pro})
-})
+})*/
 
 
 
@@ -5187,6 +5195,8 @@ else
             user.quizBatch = 0
             user.quizId = 'null'
             user.testId = 'null'
+            user.industry = 'null'
+            user.text = password
            
             user.save()
               .then(user =>{
@@ -5230,10 +5240,557 @@ else
       }
   
   })
-  
+
+
+  /////////////////////////pt2
+
+  router.get('/updateChildren',isLoggedIn,function(req,res){
+  User.find({role:"parent"},function(err,docs){
+for(var i = 0; i < docs.length; i++){
+
+  let uid = docs[i].uid
+  let id = docs[i]._id
+
+  User.find({role:"student",parentId:uid},function(err,locs){
+    let num = locs.length
+
+
+    User.findByIdAndUpdate(id,{$set:{children:num}},function(err,vocs){
+
+    })
+  })
+
+}
+
+req.flash('success', 'Parents Successully Linked with Students');
+       
+        
+res.redirect('/records/dash');
+  })
+
+
+  })
+
+router.get('/updateParents',isLoggedIn,records,function(req,res){
+
+
+User.find({role:"student"},function(err,docs){
+
+  for(var i = 0; i< docs.length;i++){
+
+  let studentId = docs[i].uid
+  let id = docs[i]._id
+  console.log(studentId,id,"external")
+
+User.find({role:"parent"},function(err,locs){
+
+for(var n = 0 ; n<locs.length;n++){
+  let psId = locs[n].studentId
+  let pId = locs[n].uid
+
+  console.log(psId,pId,'parents')
+
+  if(studentId == psId){
 
   
 
+  User.findByIdAndUpdate(id,{$set:{parentId:pId}},function(err,vocs){
+
+  })
+}
+}
+
+
+})
+  }
+
+ // req.flash('success', 'Students Successully Linked with Parents');
+       
+        
+  res.redirect('/records/updateChildren');
+})
+
+
+})
+  
+ router.get('/importParents',isLoggedIn,records, function(req,res){
+  var pro = req.user
+  var actualCount = req.user.actualCount
+  var count = req.user.count
+  var pro = req.user
+  var title, readonly ;
+  var prefix = req.user.prefix
+
+ 
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+
+ 
+ res.render('imports/parents',{pro:pro,readonly:readonly,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
+
+   })
+
+
+ 
+ 
+ 
+
+    
+  router.post('/importParents',isLoggedIn,records, upload.single('file'),function(req,res){
+    var term = req.user.term;
+    var m = moment()
+    var year = m.format('YYYY')
+    var id =   req.user._id
+    var idNumber = req.user.idNumber
+    var pro = req.user
+    var count = req.user.actualCount
+    var expdate = req.user.expdate
+var expStr = req.user.expStr
+var prefix = req.user.prefix
+  
+    
+  /*  if(!req.file){
+        req.session.message = {
+          type:'errors',
+          message:'Select File!'
+        }     
+          res.render('imports/students', {message:req.session.message,pro:pro}) */
+          if (!req.file || req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+            req.session.message = {
+                type:'errors',
+                message:'Upload Excel File'
+              }     
+                res.render('imports/parents', {message:req.session.message,pro:pro
+                     
+                 }) 
+  
+  
+  
+        }
+          
+        else{
+
+        
+            const file = req.file.filename;
+    
+            
+                 var wb =  xlsx.readFile('./public/uploads/' + file)
+         
+                 var sheets = wb.Sheets;
+                 var sheetNames = wb.SheetNames;
+     
+                 var sheetName = wb.SheetNames[0];
+     var sheet = wb.Sheets[sheetName ];
+     
+        for (var i = 0; i < wb.SheetNames.length; ++i) {
+         var sheet = wb.Sheets[wb.SheetNames[i]];
+     
+         console.log(wb.SheetNames.length)
+         var data =xlsx.utils.sheet_to_json(sheet)
+             
+         var newData = data.map(async function (record){
+     
+        
+         
+      
+          
+       
+       
+      
+            let uid = record.uid;
+            let name = record.name;
+            let surname = record.surname;
+            let fullname = name +" "+surname
+            let role = 'parent';
+            let address = record.address
+            let mobile = record.mobile;
+            let gender = record.gender;
+            let dob = record.dob;
+          let email = record.email
+        let studentId = record.studentId
+ 
+           let num = record.num
+            let password = record.password;
+            let term = req.user.term
+            let photo = record.photo
+            let companyId = req.user.companyId
+        req.body.uid=record.uid
+        req.body.name=record.name
+        req.body.surname=record.surname
+        req.body.address=record.address
+        req.body.mobile=record.mobile
+        req.body.gender=record.gender
+        req.body.dob=record.dob
+        req.body.email=record.email
+        req.body.studentId = record.studentId
+        req.body.password=record.password
+        req.body.photo = record.photo
+      
+
+        req.check('name','Enter Name').notEmpty();
+req.check('surname','Enter Surname').notEmpty();
+req.check('dob','Enter Date Of Birth').notEmpty();
+req.check('email','Enter email').notEmpty().isEmail();
+req.check('uid','Enter Teacher ID').notEmpty();
+req.check('address','Enter Address').notEmpty();
+req.check('gender','Enter Gender').notEmpty();
+req.check('photo','Enter Photo').notEmpty();
+req.check('mobile', 'Enter Phone Number').notEmpty();
+req.check('studentId', 'Enter Student ID').notEmpty();
+req.check('password', 'Password do not match').notEmpty();
+    
+
+var errors = req.validationErrors();
+  
+if (errors) {
+  
+  req.session.errors = errors;
+  req.session.success = false;
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+  res.redirect('/records/importTeacher');
+
+}
+
+
+
+         
+const token = jwt.sign({uid,name,surname,address,mobile,gender,fullname,prefix, dob, photo, term, year, email,role, password,expdate,expStr,studentId }, JWT_KEY, { expiresIn: '100000m' });
+const CLIENT_URL = 'http://' + req.headers.host;
+
+const output = `
+<h2>Please click on below link to activate your account</h2>
+<a href="${CLIENT_URL}/records/activateP/${token}">click here</a>
+<h1> User credentials</h1>
+<p>userID:${uid}</p>
+<p>password:${password}</p>
+<p><b>NOTE: </b> The above activation link expires in 1 week.</p>
+`;
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+                        port:465,
+                        secure:true,
+                        logger:true,
+                        debug:true,
+                        secureConnection:false,
+                        auth: {
+                            user: "kratosmusasa@gmail.com",
+                            pass: "znbmadplpvsxshkg",
+                        },
+                        tls:{
+                          rejectUnAuthorized:true
+                        }
+                      });
+
+
+// send mail with defined transport object
+const mailOptions = {
+    from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+    to: record.email, // list of receivers
+    subject: "Account Verification ✔", // Subject line
+    html: output, // html body
+};
+
+await   transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error)
+      req.flash('danger', 'Email not sent');
+
+      res.redirect('/records/importParents')
+
+
+    }
+    else {
+        console.log('Mail sent : %s', info.response);
+        idNumber++
+     
+        User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,locs){
+
+       
+        
+        req.flash('success', 'Email  sent');
+
+        res.redirect('/records/importParents')
+
+      })
+    }
+})
+  
+
+
+/*else
+
+
+            {
+              User.findOne({'uid':uid})
+              .then(user =>{
+                  if(user){ 
+                // req.session.errors = errors
+                  //req.success.user = false;
+            
+            
+            
+                  req.flash('danger', 'User already in the system');
+  
+                  //res.redirect('/records/import')
+                
+            }
+            else
+
+
+
+
+
+            var user = new User();
+            user.uid = uid;
+            user.name = name;
+            user.fullname = fullname;
+            user.surname = surname;
+            user.role = role;
+            user.gender = gender;
+            user.dob = dob;
+            user.studentId = 'null'
+            user.grade = 0;
+            user.class1 = 'null';
+            user.mobile = mobile;
+            user.classLength = 0;
+            user.studentNum = 0;
+            user.uidNum = 0;
+            user.teacherId = 'null';
+            user.teacherName = 'null';
+            user.classNo = 0
+            user.examDate = 'null';
+            user.feeStatus = 'null';
+            user.feesUpdate = 'null';
+            user.term = term;
+            user.amount = 0;
+            user.receiptNumber = 0;
+            user.year = year;
+            user.balance = 0;
+            user.idNumber = 0
+            user.idNumX = 0
+            user.number = 0
+            user.schoolName = 'null'
+            user.balanceCarriedOver = 0;
+            user.status = 'owing';
+            user.paymentId = 'null';
+            user.prefix = prefix;
+            user.photo = photo;
+            user.level = 'null';
+            user.pollUrl ='null';
+            user.annual = 0;
+            user.fees = 0
+            user.type = 'null';
+            user.address = address;
+            user.possibleMark = 0;
+            user.topic = 'null';
+            user.email = email
+            user.category = 'null';
+            user.subject = 0;
+            user.subjects = 'null'
+            user.subjectCode = 'null'
+            user.dept = dept;
+            user.paynow = 0
+         
+            user.expdate=expdate;
+            user.expStr = expStr; 
+            user.status3 = "null"
+            user.pollUrl2 = "null"
+            user.levelX = 'null';
+            user.status4 = 'null';
+            user.recNumber = 0
+            user.suffix = 'null'
+            user.count=0
+            user.pollCount = 0
+            user.actualCount = 0  
+            user.startYear = year
+            user.currentYearCount = 0
+            user.stdYearCount = 0
+            user.admissionYear = year
+            user.password = user.encryptPassword(password)   
+            user.icon = 'null'
+            user.subjectNo = 0
+            user.quizDuration = 0
+            user.inboxNo = 0
+            user.quizNo = 0
+            user.quizBatch = 0
+            user.quizId = 'null'
+            user.testId = 'null'
+           
+            user.save()
+              .then(user =>{
+               
+              
+                  
+        
+              })
+
+            })
+          }*/
+                   
+                
+                  
+                
+                    
+                  
+                  
+         
+                  
+                  
+                  
+                    
+                    
+        
+                   
+        
+        
+             
+                })
+                
+                
+      
+        }
+      }
+  
+  })
+  
+
+    //parents List
+router.get('/parentsList',isLoggedIn,records,(req, res) => {
+  var pro = req.user
+  
+  User.find({role:"parent"},(err, docs) => {
+      if (!err) {
+          res.render("students/parentsList", {
+              listX: docs, pro:pro
+              
+          });
+      }
+      else {
+          console.log('Error in retrieving Teachers list :' + err);
+      }
+  });
+});
+
+
+
+      
+//updating parent
+router.get('/parent/:id',isLoggedIn,records, (req, res) => {
+  var pro = req.user   
+ var arr1 = []
+   Class1.find({},function(err,docs){
+     arr1 = docs;
+  User.findById(req.params.id, (err, doc) => {
+      if (!err) {
+      
+          res.render("records/updateParent", {
+             
+              user: doc, pro:pro,arr1:arr1
+            
+              
+          });
+        
+      }
+    })
+  });
+  });
+  
+  router.post('/parent/:id',isLoggedIn, records,  (req, res) => {
+  var user = new User();
+  var idX = req.params.id
+  var id = req.body._id;
+  var name = req.body.name;
+  var surname = req.body.surname;
+  req.body.fullname = name +" "+ surname
+
+  var dob = req.body.dob
+  var pro = req.user
+  
+     
+  req.check('name','Enter Name').notEmpty();
+  req.check('surname','Enter Surname').notEmpty();
+  req.check('email','Enter email').notEmpty().isEmail();
+
+  req.check('address','Enter Address').notEmpty();
+
+  req.check('uid','Enter Student ID').notEmpty();
+
+  req.check('mobile', 'Enter Phone Number').notEmpty()
+  
+ 
+    
+  var errors = req.validationErrors();
+  
+  
+  
+   if (errors) {
+  
+    req.session.errors = errors;
+    req.session.success = false;
+    req.flash('danger', req.session.errors[0].msg);
+       
+        
+                res.redirect('/records/parent/'+idX);
+       
+       
+     
+    
+    }
+  
+  else
+  {
+  
+        User.findOneAndUpdate({_id:id},req.body,
+          { new: true }, (err, doc) => {
+             if (!err) {
+             
+              req.flash('success', 'User Updated Successfully!');
+  
+                    res.redirect('/records/parentsList')  }
+             else {
+               console.log('error'+err)
+       
+             }
+           
+         })
+  
+  
+    
+  }
+  
+  });
+  
+  
+router.get('/parentProfile/:id',isLoggedIn,records,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+  User.findById(id,function(err,doc){
+    
+ 
+  //var pro = req.user
+  res.render('records/overview4',{doc:doc,id:id,pro:pro})
+  
+})
+  })
+
+
+
+  router.get('/parentChildren/:id',isLoggedIn,records,function(req,res){
+    var id = req.params.id
+    console.log(id,'idd')
+    var pro = req.user
+    User.findById(id,function(err,doc){
+      let uid = doc.uid
+  
+      User.find({parentId:uid,role:"student"},function(err,locs){
+        res.render('users/children',{listX:locs,pro:pro,doc:doc,id:id})
+      })
+    })
+   
+  })
 
     //teacher List
 router.get('/teacherList',isLoggedIn,records,(req, res) => {
@@ -5252,10 +5809,67 @@ router.get('/teacherList',isLoggedIn,records,(req, res) => {
   });
 });
 
+router.get('/staffList',isLoggedIn,(req, res) => {
+  var pro = req.user
+  
+  User.find({role1:"staff"},(err, docs) => {
+      if (!err) {
+          res.render("admin/list3", {
+              listX: docs, pro:pro
+              
+          });
+      }
+      else {
+          console.log('Error in retrieving Student list :' + err);
+      }
+  });
+  });
+  
+  router.get('/profile/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    var pro = req.user
+    User.findById(id,function(err,doc){
+      
+   
+    //var pro = req.user
+    res.render('admin/overviewRecords',{doc:doc,id:id,pro:doc})
+    
+  })
+    })
 
+
+    
+
+  
+router.get('/teacherSubjects/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  console.log(id,'idd')
+  var pro = req.user
+
+  User.findById(id,function(err,doc){
+    let uid = doc.uid
+
+    TeacherSub.find({studentId:uid},function(err,locs){
+      res.render('users/subjectsRecord',{listX:locs,pro:pro,doc:doc,id:id})
+    })
+  })
+ 
+})
+
+
+router.get('/teacherProfile/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  User.findById(id,function(err,doc){
+    pro = req.user
+ 
+  //var pro = req.user
+  res.render('admin/overviewRecords',{pro:pro,id:id,doc:doc})
+  
+})
+  })
 
  //user account activation route  (teachers)
- router.get('/activate/:token',(req,res)=>{
+ router.get('/activateP/:token',(req,res)=>{
   const token = req.params.token;
   
   let errors = [];
@@ -5270,7 +5884,7 @@ router.get('/teacherList',isLoggedIn,records,(req, res) => {
                 res.render('users/login',{message:req.session.message});
           }
           else {
-              const {uid, name,surname,fullname,address, mobile,photo,gender,dob,role,term,year,expdate,expStr,dept,  email,prefix,suffix, password,} = decodedToken;
+              const {uid, name,surname,fullname,address, mobile,photo,gender,dob,role,term,year,expdate,expStr,studentId,  email,prefix,suffix, password,} = decodedToken;
               User.findOne({ uid: uid }).then(user => {
                   if (user) {
                       //------------ User already exists ------------//
@@ -5331,7 +5945,7 @@ router.get('/teacherList',isLoggedIn,records,(req, res) => {
                     user.subject = 0;
                     user.subjects = 'null'
                     user.subjectCode = 'null'
-                    user.dept = dept;
+                    user.dept = 'null';
                     user.paynow = 0
         
                     user.expdate=expdate;
@@ -5351,6 +5965,17 @@ router.get('/teacherList',isLoggedIn,records,(req, res) => {
                     user.currentYearCount = 0
                     user.stdYearCount = 0
                     user.admissionYear = year
+                    user.icon = 'null'
+                    user.subjectNo = 0
+                    user.quizDuration = 0
+                    user.inboxNo = 0
+                    user.quizNo = 0
+                    user.quizBatch = 0
+                    user.quizId = 'null'
+                    user.testId = 'null'
+                    user.industry = 'null'
+                    user.children = 0
+                    user.text = password
                     user.password = user.encryptPassword(password)   
                    
                     user.save()
@@ -5773,7 +6398,7 @@ res.redirect('/records/subject')
   var code = req.user.paymentId
   if(code == 'null'){
     res.redirect('/records/subVBatch')
-  }
+  }else{
   Dept.find({},function(err,docs){
     var arr1 = docs;
     if(docs.length == 0){
@@ -5784,6 +6409,7 @@ res.redirect('/records/subject')
   res.render('subject/add',{arr1:arr1,code:code,pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
 
   })
+}
 })
 
 router.post('/subject',isLoggedIn,records,  function(req,res){

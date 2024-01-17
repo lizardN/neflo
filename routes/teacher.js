@@ -844,7 +844,7 @@ element.percentage =numX
                  pass.term = term
                  pass.type = 'Class Test'
                  pass.year = year
-                 pass.companyId = companyId
+             
      
                  pass.save()
          .then(pas =>{
@@ -1193,7 +1193,7 @@ let numPasses = tocs.length
         console.log(subjectCode,term,'outa here')
         
         
-          TestX.find({year:year,subjectCode:subjectCode,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
           
@@ -1259,7 +1259,7 @@ let numPasses = tocs.length
           console.log(subjectCode,class1,term,'outa here')
           
           
-            TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+            TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
               if(docs){
 
              
@@ -1632,7 +1632,7 @@ let numPasses = tocs.length
         
         
         
-          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class',companyId:companyId},function(err,docs) {
+          TestX.find({year:year,subjectCode:subjectCode,class1:class1,term:term,type3:'class'},function(err,docs) {
             if(docs){
 
             
@@ -2139,7 +2139,7 @@ router.post('/dashChartA1',isLoggedIn,teacher,function(req,res){
     if(locs){
       let subjectCode = locs[0].subjectCode
       let term = req.user.term
-    StudentSub.find({subjectCode:subjectCode,companyId:companyId},function(err,noc){
+    StudentSub.find({subjectCode:subjectCode},function(err,noc){
       if(noc){
         let studentId = noc[0].studentId
      

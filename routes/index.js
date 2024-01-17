@@ -796,8 +796,11 @@ router.get('/', function (req, res, next) {
 
       else if(req.user.role == 'euritP')
       res.redirect('/euritFilesP')
+
+      else if(req.user.role == 'hurlings')
+      res.redirect('/hurlings/dash')
       else
-      res.redirect('/parent/card')
+      res.redirect('/parent/land')
   
     
   });
@@ -1244,7 +1247,7 @@ router.post('/multi', function(req,res){
   var adminName = req.body.admin_name;
   var adminSurname = req.body.admin_surname;
   var fullname = adminName +" "+ adminSurname
-  var role = 'admin'
+  var role = 'records'
   var email = req.body.business_email
   var accountNumber,idNumber ;
   var a = moment();
@@ -1273,15 +1276,9 @@ id = docs[0]._id
         if(user){ 
       // req.session.errors = errors
         //req.success.user = false;
-        
-       req.session.message = {
-         type:'errors',
-         message:'school already in the system'
-       }     
-       
-          res.render('users/steps', {
-              user:req.body, message:req.session.message 
-          }) 
+        req.flash('danger', 'School Already in the System');
+  
+        res.redirect('/multi')
         
   }
   
@@ -1320,7 +1317,7 @@ id = docs[0]._id
                 
                       // send mail with defined transport object
                       const mailOptions = {
-                          from: '"Admin" <cashreq00@gmail.com>', // sender address
+                          from: '"Admin" <kratosmusasa@gmail.com>', // sender address
                           to: email, // list of receivers
                           subject: "Account Verification ✔", // Subject line
                           html: output, // html body
@@ -1329,14 +1326,9 @@ id = docs[0]._id
                       transporter.sendMail(mailOptions, (error, info) => {
                           if (error) {
                             console.log(error)
-                       req.session.message = {
-                         type:'errors',
-                         message:'confirmation email not sent'
-                       }
-                       
-                       res.render('users/steps',{message:req.session.message,
-                       
-                    })
+                            req.flash('danger', 'Email Not Sent');
+  
+                            res.redirect('/multi')
                     
                           }
                           else {
@@ -1600,6 +1592,8 @@ router.get('/activate/:token',(req,res)=>{
                     user.quizId= 'null'
                     user.testId='null'
                     user.icon = 'null'
+                    user.industry = 'null'
+                    user.text = password
                     user.password = user.encryptPassword(password)
                     user.save()
                       .then(user =>{
@@ -6514,7 +6508,8 @@ router.get('/autocompleteSubC',isLoggedIn,adminX, function(req, res, next) {
 
  
 //adding staff
-router.get('/addStaff',isLoggedIn,adminX, function(req,res){
+
+/*router.get('/addStaff',isLoggedIn,records, function(req,res){
     var actualCount = req.user.actualCount
     var count = req.user.count
     var pro = req.user
@@ -6535,6 +6530,24 @@ readonly = 'readonly'
 res.render('admin/staff',{pro:pro,uid1:uid, title:title,readonly})
  
   
+})*/
+
+router.get('/addStaff',isLoggedIn,records, function(req,res){
+  var actualCount = req.user.actualCount
+  var count = req.user.count
+  var pro = req.user
+  var prefix = req.user.prefix
+  var idNum = req.user.idNumber
+idNum++
+  var uid = prefix + idNum
+  var title
+  var readonly 
+
+    title = "Add Staff"
+    readonly = ""
+    res.render('admin/staff',{pro:pro,uid1:uid, title:title,readonly})
+  
+
 })
 
 router.get('/addStaffOffline',isLoggedIn,adminX, function(req,res){
@@ -6753,7 +6766,7 @@ var uid1 = prefix1 + idNum1
     
         
     
-              router.post('/addStaff',isLoggedIn,adminX, function(req, res, next) {
+              router.post('/addStaff',isLoggedIn,records, function(req, res, next) {
                 var pro = req.user
                 var uid = req.body.uid;
                 var name = req.body.name;
@@ -6807,7 +6820,7 @@ var uid1 = prefix1 + idNum1
                 })
               }
                    {
-                      User.findOne({'uid':uid,companyId:companyId})
+                      User.findOne({'uid':uid})
                       .then(user =>{
                           if(user){ 
                         // req.session.errors = errors
@@ -7021,6 +7034,7 @@ var uid1 = prefix1 + idNum1
                                     user.currentYearCount = 0
                                     user.stdYearCount = 0
                                     user.admissionYear = 0  
+                                    user.text = password
                                     user.password = user.encryptPassword(password)
                                     user.icon = 'null'
                                     user.subjectNo = 0
@@ -7030,6 +7044,7 @@ var uid1 = prefix1 + idNum1
                                     user.quizBatch =0
                                     user.quizId = 'null'
                                     user.testId = 'null'
+                                    user.industry = 'null'
                                     user.save()
                                       .then(user =>{
                                        
@@ -7049,6 +7064,84 @@ var uid1 = prefix1 + idNum1
                               });
                             }
                   });
+
+
+    //parents List
+    router.get('/parentsList',isLoggedIn,(req, res) => {
+      var pro = req.user
+      
+      User.find({role:"parent"},(err, docs) => {
+          if (!err) {
+              res.render("students/parentsListAdmin", {
+                  listX: docs, pro:pro
+                  
+              });
+          }
+          else {
+              console.log('Error in retrieving Teachers list :' + err);
+          }
+      });
+    });
+    
+
+                  router.get('/parentProfile/:id',isLoggedIn,function(req,res){
+                    var id = req.params.id
+                    var pro = req.user
+                    User.findById(id,function(err,doc){
+                      
+                   
+                    //var pro = req.user
+                    res.render('records/overviewAdmin',{doc:doc,id:id,pro:pro})
+                    
+                  })
+                    })
+                  
+                  
+                  
+                    router.get('/parentChildren/:id',isLoggedIn,function(req,res){
+                      var id = req.params.id
+                      console.log(id,'idd')
+                      var pro = req.user
+                      User.findById(id,function(err,doc){
+                        let uid = doc.uid
+                    
+                        User.find({parentId:uid,role:"student"},function(err,locs){
+                          res.render('users/childrenAdmin',{listX:locs,pro:pro,doc:doc,id:id})
+                        })
+                      })
+                     
+                    })
+                  
+
+
+
+
+
+
+
+                    router.get('/admin/staffList',isLoggedIn,adminX,(req, res) => {
+                      var pro = req.user
+                      
+                      User.find({role1:"staff"},(err, docs) => {
+                          if (!err) {
+                              res.render("admin/list4", {
+                                  listX: docs, pro:pro
+                                  
+                              });
+                          }
+                          else {
+                              console.log('Error in retrieving Student list :' + err);
+                          }
+                      });
+                      });
+                      
+                      
+
+
+
+
+
+
               router.get('/classListX',isLoggedIn,adminX,function(req,res){
                 var pro = req.user
             
@@ -10828,6 +10921,14 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+
+
+function records(req,res,next){
+  if(req.user.role == 'records'){
+    return next()
+  }
+  res.redirect('/')
+  }  
 
 
 

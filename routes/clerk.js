@@ -373,7 +373,7 @@ router.get('/stats',isLoggedIn, function(req,res){
   stat.save()
   .then(sta =>{
   
-    res.redirect('/clerk/dashInc')
+    //res.redirect('/clerk/dashInc')
   
   })
   }

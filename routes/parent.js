@@ -157,6 +157,90 @@ router.get('/pass',isLoggedIn,parent, (req, res) => {
   
   
   })
+
+  router.get('/land',isLoggedIn,function(req,res){
+ var userId = req.user.uid
+ var children = req.user.children
+
+ if(children >= 1){
+   res.redirect('/parent/card')
+ }else{
+
+ 
+  User.find({parentId:userId,role:"student"},function(err,docs){
+  res.render('parents/steps3',{arr:docs})
+
+  })
+}
+})      
+
+
+
+router.post('/land',isLoggedIn,  function(req,res){
+  var studentId = req.body.studentId;
+ 
+  var id = req.user._id
+
+  
+  
+  
+  req.check('studentId','Enter Student ID').notEmpty();
+ 
+  
+  
+  
+  var errors = req.validationErrors();
+  
+  if (errors) {
+  req.session.errors = errors;
+  req.session.success = false;
+  res.render('product/steps3',{ errors:req.session.errors})
+  
+  }
+  
+  else 
+  
+  User.findOne({'uid':studentId})
+  .then(grower =>{
+  
+  if(grower){
+  
+  
+   
+          User.findByIdAndUpdate(id,{$set:{studentId:studentId}}, function(err,coc){
+        
+         
+  })
+  
+  }
+  res.redirect('/parent/card')
+  
+  
+  })
+  
+  
+  })
+  
+
+    
+  router.post('/fill',function(req,res){
+
+    
+        var studentId = req.body.value
+        var userId = req.user._id
+    User.find({uid:studentId},function(err,docs){
+      console.log(docs,'data')
+    
+        if(docs == undefined){
+            res.redirect('/')
+           }else
+          
+             res.send(docs)
+    
+    })
+    
+    })
+    
   
   
 
@@ -882,6 +966,8 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
         
     StudentSub.find({studentId:uid},function(err,atc){
 
+
+
       for(var j = 0; j<atc.length; j++){
         let subjectCode = atc[j].subjectCode
         let subjectName = atc[j].subjectName
@@ -930,6 +1016,7 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
                  pass.term = term
                  pass.type = 'Class Test';
                  pass.year = year
+                 pass.icon = 'null'
                 
      
                  pass.save()
@@ -963,6 +1050,7 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
                    
                  })
                }
+
                else
      
              var  idX  = docs[0]._id
@@ -1034,7 +1122,7 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
             res.redirect('/parent/subRateX')
           })
              
-             
+         
      
        })
     
@@ -1107,6 +1195,7 @@ router.get('/passRateX',isLoggedIn,parent,function(req,res){
                    pass.term = term
                    pass.type = 'Final Exam';
                    pass.year = year
+                   pass.icon = "null"
                
        
                    pass.save()
@@ -2159,7 +2248,6 @@ router.get('/analytics',isLoggedIn,parent,function(req,res){
                  TestX.find({uid:uid,type2:'online assignment',submissionStatus:'pending'},function(err,docs){
                     res.render('parents/assgt',{listX:docs,pro:pro})
                   })
-                
                 })
 
                 router.get('/onlineQuiz',isLoggedIn,parent,function(req,res){
@@ -2397,7 +2485,7 @@ else{
                       
                       
                      // Format relative time using negative value (-1).
-                
+                       
                        
                      })
                     }

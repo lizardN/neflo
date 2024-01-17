@@ -28,12 +28,12 @@ var indexRoute= require('./routes/index')
  var clerkRoute = require('./routes/clerk')
  var parentRoute = require('./routes/parent')
  var packageRoute = require('./routes/payment')
-
+ var hurlingRoute = require('./routes/hurlings')
 
 
 
 var app = express();
-const mongoURI =process.env.MONGO_URL|| 'mongodb://0.0.0.0:27017/avonDB'
+const mongoURI =process.env.MONGO_URL|| 'mongodb://0.0.0.0:27017/smsDB'
 const conn = mongoose.createConnection(mongoURI);
 
 // Init gfs
@@ -44,7 +44,7 @@ conn.once('open', () => {
   gfs = Grid(conn.db, mongoose.mongo);  
   gfs.collection('uploads');
 });
-mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/avonDB',{
+mongoose.connect(process.env.MONGO_URL ||'mongodb://0.0.0.0:27017/smsDB',{
   useUnifiedTopology: true ,
   
 } )
@@ -91,6 +91,7 @@ app.use('/package',packageRoute)
  app.use('/student',studentRoute)
 app.use('/teacher', teacherRoute);
 app.use('/parent', parentRoute);
+app.use('/hurlings', hurlingRoute);
 app.use('/', indexRoute);
 
 
