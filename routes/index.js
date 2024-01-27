@@ -4186,6 +4186,30 @@ router.get('/stEurit',function(req,res){
 router.get('/about',function(req,res){
   res.render('eurit/about')
 })
+
+router.get('/alumni',function(req,res){
+  res.render('eurit/alumni')
+})
+
+router.get('/career',function(req,res){
+  res.render('eurit/career')
+})
+
+
+router.get('/parentLounge',function(req,res){
+  res.render('eurit/parentLounge')
+})
+
+
+router.get('/policies',function(req,res){
+  res.render('eurit/policies')
+})
+router.get('/scholarships',function(req,res){
+  res.render('eurit/scholarship')
+})
+
+
+
 router.get('/open',function(req,res){
   res.render('eurit/openDay')
 })
@@ -4301,8 +4325,8 @@ router.get('/primary',function(req,res){
 router.get('/ecd',function(req,res){
   res.render('eurit/ecd')
 })
-router.get('/comm',function(req,res){
-  res.render('eurit/comm')
+router.get('/community',function(req,res){
+  res.render('eurit/community')
 })
 
 router.get('/enroll',function(req,res){
