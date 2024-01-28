@@ -5522,7 +5522,7 @@ Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,
 .then(tes =>{
 if(tes){ 
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -5964,7 +5964,7 @@ router.post('/grade/update/:id',isLoggedIn,teacher,function(req,res){
       
   
   
-    Grade.find({companyId:companyId},function(err,qocs){
+    Grade.find({},function(err,qocs){
 
       for(var i = 0; i<qocs.length; i++){
       let symbol = qocs[i].symbol
