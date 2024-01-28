@@ -757,28 +757,28 @@ res.redirect('/records/dash')
 
 router.get('/stats',isLoggedIn,records, function(req,res){
     var students, teachers, paid, unpaid, depts, class1
-    var companyId = req.user.companyId
+   
     var m = moment()
     var year = m.format('YYYY')
-  User.find({companyId:companyId,role:'student'},function(err,nocs){
+  User.find({,role:'student'},function(err,nocs){
     students = nocs.length
     
-  User.find({companyId:companyId,role:'teacher'},function(err,nocs){
+  User.find({role:'teacher'},function(err,nocs){
     teachers = nocs.length;
-    User.find({companyId:companyId,role:'student',status:'paid'},function(err,rocs){
+    User.find({role:'student',status:'paid'},function(err,rocs){
    paid = rocs.length;
   
-   User.find({companyId:companyId,role:'student',status:'owing'},function(err,locs){
+   User.find({role:'student',status:'owing'},function(err,locs){
      unpaid =locs.length
 
-     Dept.find({companyId:companyId},function(err,jocs){
+     Dept.find({},function(err,jocs){
       depts = jocs.length;
      
-      Class1.find({companyId:companyId},function(err,klocs){
+      Class1.find({},function(err,klocs){
         class1 = klocs.length
 
   
-     Stats.find({companyId:companyId,year:year},function(err,docs){
+     Stats.find({year:year},function(err,docs){
   
   if(docs == 0){
   
@@ -791,7 +791,6 @@ router.get('/stats',isLoggedIn,records, function(req,res){
   stat.depts = depts
   stat.class1 = class1
   stat.year = year
-  stat.companyId = companyId
   
   
   stat.save()
@@ -1397,7 +1396,7 @@ if(currCount == 0){
             res.redirect('/dash')
           }else 
       
-             res.send(docs[0])
+             res.send(docs)
          
           
            })
