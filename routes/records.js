@@ -1395,9 +1395,9 @@ if(currCount == 0){
         Stats.find({year:year},function(err,docs){
           if(docs == undefined){
             res.redirect('/dash')
-          }else
+          }else 
       
-             res.send(docs)
+             res.send(docs[0])
          
           
            })
