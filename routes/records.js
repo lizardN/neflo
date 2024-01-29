@@ -760,7 +760,7 @@ router.get('/stats',isLoggedIn,records, function(req,res){
    
     var m = moment()
     var year = m.format('YYYY')
-  User.find({,role:'student'},function(err,nocs){
+  User.find({role:'student'},function(err,nocs){
     students = nocs.length
     
   User.find({role:'teacher'},function(err,nocs){
