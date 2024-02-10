@@ -1328,10 +1328,9 @@
 							<div id="kt_toolbar_container" class="container-fluid d-flex flex-stack">
 								<!--begin::Page title-->
 								<div data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', 'lg': '#kt_toolbar_container'}" class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
-									<!--begin::Title--
-									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Products Report</h1>
+									<!--begin::Title-->
+									<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Exam Marks</h1>
 									<!--end::Title-->
-																		<h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">Exam Marks</h1>
 									<!--begin::Separator-->
 									<span class="h-20px border-gray-300 border-start mx-4"></span>
 									<!--end::Separator-->
@@ -1339,7 +1338,7 @@
 									<ul class="breadcrumb breadcrumb-separatorless fw-bold fs-7 my-1">
 										<!--begin::Item-->
 										<li class="breadcrumb-item text-muted">
-											<a href="/teacher/dashX" class="text-muted text-hover-primary">Home</a>
+											<a href="/teacher/dash" class="text-muted text-hover-primary">Home</a>
 										</li>
 										<!--end::Item-->
 										<!--begin::Item-->
@@ -1380,9 +1379,7 @@
 							<div id="kt_content_container" class="container-xxl">
 								<!--begin::Products-->
 								<div class="card card-flush">
-										<div class="card-body">
-										<!--begin::Table header-->
-										<div class="d-flex flex-stack">
+									<div class="d-flex flex-stack">
 											<!--begin::Folder path-->
 											<div class="badge badge-lg badge-light-primary">
 												<div class="d-flex align-items-center flex-wrap">
@@ -1421,16 +1418,16 @@
 													</svg>
 												</span>
 												<!--end::Svg Icon-->
-												<a href="/teacher/typeFolderExam/{{studentSubId}}">Exam</a>
+												<a href="/teacher/typeFolderExam/{{studentSubId}}">Exams</a>
 
-												
-													<span class="svg-icon svg-icon-2 svg-icon-primary mx-1">
+
+												<span class="svg-icon svg-icon-2 svg-icon-primary mx-1">
 													<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
 														<path d="M12.6343 12.5657L8.45001 16.75C8.0358 17.1642 8.0358 17.8358 8.45001 18.25C8.86423 18.6642 9.5358 18.6642 9.95001 18.25L15.4929 12.7071C15.8834 12.3166 15.8834 11.6834 15.4929 11.2929L9.95001 5.75C9.5358 5.33579 8.86423 5.33579 8.45001 5.75C8.0358 6.16421 8.0358 6.83579 8.45001 7.25L12.6343 11.4343C12.9467 11.7467 12.9467 12.2533 12.6343 12.5657Z" fill="black" />
 													</svg>
 												</span>
 												<!--end::Svg Icon-->
-												<a href="/teacher/examFile/{{id}}">Exam Marks</a>
+												<a href="/teacher/examFile/{{id}}">Exam File</a>
 	</div>
 											</div>
 											<!--end::Folder path-->
@@ -1439,10 +1436,14 @@
 											<!--end::Folder Stats-->
 										</div>
 									<!--begin::Card header-->
-									<form action="/teacher/examFile/{{id}}" method="POST">
+									<form action="/teacher/classWork/" method="POST">
+									
 									<div class="card-header align-items-center py-5 gap-2 gap-md-5">
 										<!--begin::Card title-->
+										
 										<div class="card-title">
+
+											
 											<!--begin::Search-->
 											<div class="d-flex align-items-center position-relative my-1">
 												<!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
@@ -1453,7 +1454,7 @@
 													</svg>
 												</span>
 												<!--end::Svg Icon-->
-												<input type="text" data-kt-ecommerce-order-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Report" />
+												<input type="text" data-kt-ecommerce-order-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Student" />
 											</div>
 											<!--end::Search-->
 											<!--begin::Export buttons-->
@@ -1464,10 +1465,10 @@
 										<!--begin::Card toolbar-->
 										
 										<div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-											<!--begin::Daterangepicker-->
+											<!--begin::Daterangepicker--
 											
 											<input class="form-control form-control-solid w-100 mw-250px" placeholder="Pick date range" name="date" id="kt_ecommerce_report_sales_daterangepicker" />
-											<!--end::Daterangepicker-->
+											<!--end::Daterangepicker--
 													<button class="btn btn-primary" type="submit">Filter</button>
 												
 											<!--begin::Export dropdown-->
@@ -1519,20 +1520,23 @@
 											<thead>
 												<!--begin::Table row-->
 												<tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
-													<th class="min-w-45px">Student</th>
-													<th class="text-end min-w-45px">Class</th>
-														
-													<th class="text-end min-w-45px">Type</th>
-													<th class="text-end min-w-45px">Topic</th>
-													<th class="text-end min-w-45px">Subject</th>
-													<th class="text-end min-w-45px"> Mark</th>
-													<th class="text-end min-w-45px">Possible Mark</th>
-														
-													<th class="text-end min-w-45px">%</th>
-													<th class="text-end min-w-45px">Symbol</th>
-													<th class="text-end min-w-45px">Result</th>
-													<th class="text-end min-w-45px">Date</th>
-											
+													<th class="min-w-50px">Name</th>
+													<th class="text-end min-w-50px">Class</th>
+														<th class="text-end min-w-50px">Type</th>
+													
+												
+													<th class="text-end min-w-50px">Date</th>
+													<th class="text-end min-w-50px">Mark</th>
+													<th class="text-end min-w-50px">Comments</th>	
+													
+													<th class="text-end min-w-50px">Possible Mark</th>
+													<th class="text-end min-w-50px">%</th>
+													<th class="text-end min-w-50px">Symbol</th>
+														<th class="text-end min-w-50px">Result</th>
+															<th class="text-end min-w-50px">Term</th>
+																<th class="text-end min-w-50px">Year</th>
+												
+										
 											
 												</tr>
 												<!--end::Table row-->
@@ -1551,7 +1555,7 @@
 															<div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
 																<a >
 																	<div class="symbol-label">
-																		<img src="{{this.icon}}" alt="{{this.fullname}}" class="w-100" />
+																		<img src="uploads/{{this.photo}}" alt="{{this.fullname}}" class="w-100" />
 																	</div>
 																</a>
 															</div>
@@ -1571,25 +1575,24 @@
 											<td class="text-end pe-0">	<div class="badge badge-light-danger">{{this.type}}</div>
 														</td>
 													<!--end::Products sold=-->
-														<td class="text-end pe-0">{{this.topic}}</td>
-													<!--begin::Tax=-->
-													<td class="text-end pe-0">{{this.subject}}</td>
-													<!--end::Tax=-->
-													<td class="text-end pe-1" id="{{this._id}}" >{{this.mark}}</td>
-													<!--begin::Total=-->
-													<td class="text-end pe-0">{{this.possibleMark}}</td>
-
-													
-
-													<td class="text-end pe-0">{{this.percentage}}</td>
-														<td class="text-end pe-0">{{this.symbol}}</td>
-														<td class="text-end pe-0">{{this.result}}</td>
-														<td class="text-end pe-0">{{this.date}}</td>
 														
+													<!--begin::Tax=-->
+											
+													<!--end::Tax=-->
+													<td class="text-end pe-0">{{this.date}}</td>
+													<!--begin::Total=-->
+													<td class="text-end pe-1"  id="{{this._id}}">{{this.mark}}</td>
+													<td class="text-end pe-2"  id="{{this._id}}">{{this.comments}}</td>
+
+														<td class="text-end pe-0">{{this.possibleMark}}</td>
+		<td class="text-end pe-0">{{this.percentage}}</td>
+													<td class="text-end pe-0">{{this.symbol}}</td>
+														<td class="text-end pe-0">{{this.result}}</td>
+															<td class="text-end pe-0">{{this.term}}</td>
+																<td class="text-end pe-0">{{this.year}}</td>
 
 
-														<!--begin::Action=-->
-													
+															
 													<!--end::Total=-->
 												</tr>
 												<!--end::Table row-->
@@ -1611,12 +1614,14 @@
 					</div>
 					<!--end::Content-->
 					<!--begin::Footer-->
-					    
+								  
+    
 <script>
  
 
     var table = document.getElementById('kt_ecommerce_report_sales_table')
-    var cells = table.getElementsByClassName("text-end pe-1")
+    var cells = table.getElementsByClassName('text-end pe-1')
+
     for(var i = 0; i< cells.length; i++){
     cells[i].onclick = function(){
    console.log(i,'this')
@@ -1748,7 +1753,159 @@ else{*/
 
 
 </script>
-					
+
+
+   
+<script>
+ 
+
+    var table = document.getElementById('kt_ecommerce_report_sales_table')
+    var cells = table.getElementsByClassName('text-end pe-2')
+
+    for(var i = 0; i< cells.length; i++){
+    cells[i].onclick = function(){
+   console.log(i,'this')
+    if(this.hasAttribute('data-clicked')){
+		
+        return;
+    }
+
+    this.setAttribute('data-clicked', 'yes')
+    this.setAttribute('data-text', this.innerHTML)
+   
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text')
+    input.value = this.innerHTML
+    input.style.width = this.offsetWidth - (this.clientLeft * 2) + 'px';
+    input.style.height = this.offsetHeight - (this.clientTop * 2) + "px";
+    input.style.border = '0px';
+    input.style.fontFamily ="inherit";
+    input.style.fontSize ="inherit";
+    input.style.textAlign = "inherit";
+    input.style.backgroundColor = 'LightGoldenRodYellow';
+
+    input.onblur = function(){
+	
+        var td = input.parentElement;
+			console.log(td.id,'td')
+        var orig_text = input.parentElement.getAttribute('data-text');
+        var current_text = this.value;
+
+	/*	 let reg = /\d+\.*\d
+
+  let result = current_text.match(reg)
+  let currentMark = Number(result)
+
+
+  
+
+  let resultX = orig_text.match(reg)
+  let originalMark = Number(resultX)
+
+  console.log(currentMark,originalMark,'mark')*/
+
+  /*if(originalMark < currentMark){*/
+
+
+
+        if(orig_text != current_text ){
+            //there are changes
+            //save into db using ajax
+			console.log(current_text,'current_text')
+	$.ajax({
+      dataType: 'json',
+                data: {
+                    code: current_text,
+                    
+                },
+                type: 'POST',
+                url: "./teacher/comment/update/"+td.id,
+	
+
+      success: function(data) {
+     
+/* if(data.stockUpdate == 'yes'){
+	 alert('Stock cant be updated')
+
+	 console.log(td.id,'id2')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+ }
+else{*/
+	console.log(td.id,'id2')
+	console.log(td,'coalition')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = current_text
+            //cells[5].textContent =  data.percentage
+            td.style.cssText = 'padding: 5px';
+/*}*/
+        
+      
+    	}
+
+
+  });
+			console.log(td.id,'id2')
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = current_text
+
+            td.style.cssText = 'padding: 5px';
+			
+            console.log(orig_text + 'is change to ' + current_text)
+		
+        } else{
+            td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+            console.log('No changes made')
+		
+        }
+
+ /* }else{
+
+  
+  alert('error')
+
+	   td.removeAttribute('data-clicked')
+            td.removeAttribute('data-text')
+            td.innerHTML = orig_text
+            td.style.cssText = 'padding: 5px';
+            console.log('No changes made')
+
+  }*/
+    }
+	
+    this.innerHTML = ''
+    this.style.cssText = 'padding: 0px';
+    this.append(input);
+    this.firstElementChild.select();
+
+}
+    }
+
+
+	
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<!--end::Modal - Invite Friend-->
 		<!--end::Modals-->
 		<!--begin::Javascript-->

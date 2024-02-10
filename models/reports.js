@@ -9,6 +9,7 @@ month:{type:String, required:true},
 filename:{type:String, required:true},
 year:{type:String, required:true},
 date:{type:String, required:true},
+type:{type:String, required:true},
 
 
 

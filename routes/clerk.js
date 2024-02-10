@@ -2107,11 +2107,12 @@ const page = await browser.newPage()
 
 
 
-const content = await compile('receipt',docs)
+const content = await compile('receipt3',docs)
 
 
 
 await page.setContent(content)
+await page.addStyleTag({ path: './public/hurlings/feesReceipt.css'});
 //create a pdf document
 
 await page.pdf({
@@ -2150,7 +2151,7 @@ console.log(e)
   
       
          
-         res.render('accounts/receipt', {
+         res.render('accounts/receipt3', {
            date:day,uid:uid,user:zocs, clerk:req.user.fullname, amount:amount})
      
     })

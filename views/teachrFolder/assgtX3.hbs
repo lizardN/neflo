@@ -1514,7 +1514,7 @@
 												<tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
 													<th class="min-w-50px">Subject</th>
 													<th class="text-end min-w-50px">Class</th>
-														<th class="text-end min-w-50px">Topic</th>
+													
 													<th class="text-end min-w-50px">Type</th>
 													<th class="text-end min-w-50px">Highest Mark</th>
 													<th class="text-end min-w-50px">Lowest Mark</th>
@@ -1539,7 +1539,7 @@
 														<div class="d-flex align-items-center">
 															<!--begin:: Avatar -->
 															<div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
-																<a >
+																<a  href="/teacher/examFile/{{this._id}}">
 																	<div class="symbol-label">
 																		<img src="{{this.icon}}" alt="{{this.subjectCode}}" class="w-100" />
 																	</div>
@@ -1548,7 +1548,7 @@
 															<!--end::Avatar-->
 															<div class="ms-5">
 																<!--begin::Title-->
-																<a  class="text-gray-800 text-hover-primary fs-5 fw-bolder">{{this.subject}}</a>
+																<a href="/teacher/examFile/{{this._id}}" class="text-gray-800 text-hover-primary fs-5 fw-bolder">{{this.subject}}</a>
 																<!--end::Title-->
 															</div>
 														</div>
@@ -1558,8 +1558,7 @@
 													<td class="text-end pe-0">{{this.class1}}</td>
 													<!--end::No Orders=-->
 													<!--begin::Products sold=-->
-											<td class="text-end pe-0">	<div class="badge badge-light-danger">{{this.topic}}</div>
-														</td>
+											
 													<!--end::Products sold=-->
 														<td class="text-end pe-0">{{this.type}}</td>
 													<!--begin::Tax=-->

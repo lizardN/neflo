@@ -10,6 +10,8 @@ const Assignment =require('../models/assignment')
 const Class1 =require('../models/class');
 const Subject =require('../models/subject');
 const Fees =require('../models/fees');
+const Attendance = require('../models/attendance');
+const AttendanceReg = require('../models/attendanceRegister');
 const Test =require('../models/classTest');
 const TestX =require('../models/classTestX');
 const Lesson =require('../models/lesson');
@@ -4918,7 +4920,7 @@ router.get('/viewClassWork',isLoggedIn,teacher,function(req,res){
 
   var n = moment()
 var year = n.format('YYYY')
-  Test.find({teacherId:teacherId,year:year,term},function(err,docs){
+  Test.find({teacherId:teacherId,year:year,term,type:"Class Test"},function(err,docs){
     res.render('exam/list',{     listX:docs,pro:pro})
   })
 
@@ -5271,7 +5273,7 @@ router.post('/subBatchExam',isLoggedIn,teacher,  function(req,res){
     res.redirect('/teacher/batchExam')
   }else{
     console.log('ma1')
-    req.flash('success', 'Subject Does Not Exist!');
+    req.flash('danger', 'Subject Does Not Exist!');
    
     
     res.redirect('/teacher/subBatchExam');
@@ -5677,6 +5679,7 @@ res.redirect('/teacher/classWork')
 
 
 })
+///////
 
 
 
@@ -5724,7 +5727,7 @@ var term = req.body.term;
 var type = req.body.type
 var grade = req.body.grade
 var stdNum, grade;
-
+console.log(date,'tikuhwina')
 let arr = []
 let arr1 = []
 var teacher = req.user.fullname
@@ -5777,7 +5780,7 @@ Test.findOne({'date':date,'class1':class1,'subjectCode':subjectCode,'type':type,
 .then(tes =>{
 if(tes){ 
 
-TeacherSub.find({companyId:companyId,teacherId:teacherId},function(err,docs){
+TeacherSub.find({teacherId:teacherId},function(err,docs){
 
 for(var i = 0;i<docs.length;i++){
 arr1.push(docs[i].class1);
@@ -5792,11 +5795,12 @@ res.render('exam/batchExam', {
 })
 
 
-}else
+}else{
+
 
 
 var test = Test();
-test.date = date;
+
 test.subject = subject;
 test.subjectCode = subjectCode;
 test.class1 = class1;
@@ -5820,7 +5824,8 @@ test.type2 = 'null'
 test.type3 = 'exam'
 test.grade = req.body.grade;
 test.level = 'highschool';
-
+test.filename = "null"
+test.fileId = "null"
 test.status = 'null'
 test.timeLeft= 'null'
 test.examStatus = 'null'
@@ -5839,6 +5844,7 @@ test.dateValue2= 0
 test.icon = icon
 test.displayFormat = displayFormat
 test.question = 'null'
+test.date = date;
 
 
 test.save()
@@ -5872,6 +5878,7 @@ test.displayFormat = 'null'
 test.mformat = mformat
 test.mformatD = 0
 test.question = 0;
+test.comments = "null"
 test.assignmentId = 'null'
 test.filename = 'null'
 test.mformatS = 'null'
@@ -5908,6 +5915,7 @@ test.save()
   }
 })
 
+
 //notifications
 
 
@@ -5915,12 +5923,12 @@ test.save()
 
 
 
-res.redirect('/teacher/classWork')
+res.redirect('/teacher/examMarks')
 
 
 
 })
-
+}
 
 })
 
@@ -6009,6 +6017,714 @@ router.post('/grade/update/:id',isLoggedIn,teacher,function(req,res){
   res.send(doc)
 })
   })
+
+
+
+///exam results
+
+
+// role teacher 
+router.get('/examMarks',isLoggedIn,teacher,function(req,res){
+  var id = req.user.testId
+  var pro = req.user
+ 
+  TestX.find({quizId:id},function(err,docs){
+    res.render('exam/finalExamUpdate',{     listX:docs,pro:pro})
+  })
+
+})
+
+
+
+router.post('/examMarks/',isLoggedIn,teacher,function(req,res){
+  var pro =req.user
+  var id = req.user.testId
+  var date = req.body.date
+  var arr = []
+  var term = req.user.term
+var teacherId = req.user.uid
+var n = moment()
+var year = n.format('YYYY')
+
+  var m = moment(date)
+
+ 
+
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+  TestX.find({quizId:id},function(err,docs){
+console.log(docs,'777')
+    if(docs){
+
+
+    for(var i = 0;i<docs.length;i++){
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+console.log(arr,'arr333')
+      }
+    }
+  }
+      
+    console.log(arr,'arr')
+        res.render("exam/finalExamUpdate", {
+          listX:arr,pro:pro,
+          
+        });
+    
+});
+    
+  })
+
+
+
+  router.post('/comment/update/:id',isLoggedIn,teacher,function(req,res){
+    var id = req.params.id
+    var pro = req.user
+  
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var comments = req.body.code
+    TestX.findById(id,function(err,doc){
+      //let possibleMark = doc.possibleMark
+    
+     // if(doc.stockUpdate == "no"){
+    
+    
+     /* let reg = /\d+\.*\d*/ /*g;
+    
+      let result = quan.match(reg)
+      let currentMark = Number(result)
+      var percentageX = currentMark / possibleMark
+      var percentageXX = percentageX * 100
+      let percentage = Math.round(percentageXX)
+      percentage.toFixed(2)*/
+     
+   TestX.findByIdAndUpdate(id,{$set:{comments:comments}},function(err,doc){
+  
+   })     
+        
+    
+    
+     
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+/////attendance register
+
+router.get('/attendanceBatch',isLoggedIn,teacher,  function(req,res){
+  var arr = []
+  var arr1 = []
+  var user = req.user.term
+  var teacherId = req.user.uid
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  var subject = req.user.subjects
+  var subjectCode = req.user.subjectCode
+  var grade = req.user.grade
+
+  
+  
+  
+  Class1.find({}, function(err,docs){
+    Topic.find({subjectCode:subjectCode},function(err,zoc){
+  
+   var arr2 = zoc
+  var arr1 = docs;  
+  
+  res.render('attendance/batchAtt',{ arr1:arr1,arr2:arr2, user:user, pro:pro, subject:subject,subjectCode:subjectCode, grade:grade,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  
+  })
+  })
+  
+  })
+
+
+
+
+router.post('/attendanceBatch',isLoggedIn,teacher,  function(req,res){
+  var pro = req.user
+var class1 = req.body.class1;
+var subject = req.body.subject;
+var subjectCode = req.body.subjectCode;
+var date = req.body.date;
+var id = req.user._id;
+var teacherId = req.user.uid
+var term = req.body.term;
+var type = req.body.type
+var grade = req.body.grade
+var stdNum, grade;
+console.log(date,'tikuhwina')
+let arr = []
+let arr1 = []
+var teacher = req.user.fullname
+var m = moment(date)
+var day = m.format('DDDD')
+var year = m.format('YYYY')
+var month = m.format('MMMM')
+var numDate = m.valueOf()
+var mformat = m.format("L")
+
+var time = req.body.time
+var icon = req.user.icon
+
+var displayFormat = m.format('MMMM Do YYYY')
+
+
+/*
+Class1.find({class1:classX},function(err,docs){
+//grade = docs[0].grade
+console.log(docs,'horror')
+
+})
+*/
+
+req.check('class1','Enter Class').notEmpty();
+req.check('subject','Enter Subject').notEmpty();
+
+req.check('date','Enter Date').notEmpty();
+
+
+var errors = req.validationErrors();
+
+if (errors) {
+
+TeacherSub.find({teacherId:teacherId},function(err,docs){
+
+for(var i = 0;i<docs.length;i++){
+arr1.push(docs[i].class1);
+}
+req.session.errors = errors;
+req.session.success = false
+/*res.render('attendance/batchAtt',{errors:req.session.errors, arr1:arr1,pro:pro,subject:subject,subjectCode:subjectCode,grade:grade})*/
+
+req.flash('danger', req.session.errors[0].msg);
+       
+        
+res.redirect('/teacher/attendanceBatch');
+})
+
+
+}
+
+else{
+
+Attendance.findOne({'date':date,'time':time,'class1':class1,'subjectCode':subjectCode,'type':type,})
+.then(tes =>{
+if(tes){ 
+
+TeacherSub.find({teacherId:teacherId},function(err,docs){
+
+for(var i = 0;i<docs.length;i++){
+arr1.push(docs[i].class1);
+}
+/*req.session.message = {
+type:'errors',
+message:'Test Exists'
+}     */
+/*res.render('attendance/batchAtt', {
+ message:req.session.message, arr1:arr1,pro:pro})*/
+ req.flash('danger', 'Register already marked');
+  
+ res.redirect('/teacher/attendanceBatch') 
+
+})
+
+
+}else{
+
+
+
+var test = Attendance();
+
+test.subject = subject;
+test.subjectCode = subjectCode;
+test.class1 = class1;
+test.year = year;
+test.name = date +" "+class1;
+test.month  = month;
+test.numDate = numDate
+test.teacher = teacher;
+test.term = term;
+test.day = day
+test.time = time;
+test.color = 'null';
+test.style = 'null';
+test.type = type
+test.grade = req.body.grade;
+test.status = 'null'
+test.regId = 'null'
+test.mformat = mformat
+test.teacherId = teacherId
+test.teacherName = teacher
+
+test.icon = icon
+
+test.date = date;
+
+
+test.save()
+.then(tesn =>{
+
+
+
+User.findByIdAndUpdate(id,{$set:{regId:tesn._id}}, function(err,trocs){
+
+console.log(trocs)
+
+Attendance.findByIdAndUpdate(tesn._id,{$set:{regId:tesn._id}},function(err,jocs){
+
+})
+
+})
+
+StudentSub.find({class1:class1, subjectCode:subjectCode},function(err,zoc){
+  for(var i = 0; i<zoc.length;i++){
+    var test = new AttendanceReg();
+test.uid = zoc[i].studentId;
+test.fullname = zoc[i].studentName;
+test.grade = grade;
+test.day = day;
+test.class1 = class1;
+test.date = date
+test.time = time;
+test.teacher = req.user.fullname;
+test.teacherId = teacherId;
+test.status = 'Present'
+test.mformat = mformat
+test.comments = "null"
+test.year = year
+test.month = month
+test.term = term
+test.regId= tesn._id
+test.subject = subject
+test.subjectCode = subjectCode
+test.type = type
+test.color = 'null'
+test.style = 'null'
+test.icon = icon
+
+
+
+
+test.photo = zoc[i].photo
+test.save()
+.then(tes =>{
+
+})
+  }
+})
+
+
+//notifications
+
+
+
+
+
+
+res.redirect('/teacher/attReg')
+
+
+
+})
+}
+
+})
+
+
+
+}
+
+
+})
+
+
+
+///mark reg
+// role teacher 
+router.get('/attReg',isLoggedIn,teacher,function(req,res){
+  var id = req.user.regId
+  var pro = req.user
+ 
+  AttendanceReg.find({regId:id},function(err,docs){
+    res.render('attendance/regUpdate',{     listX:docs,pro:pro})
+  })
+
+})
+
+
+
+router.post('/attReg/',isLoggedIn,teacher,function(req,res){
+  var pro =req.user
+  var id = req.user.testId
+  var date = req.body.date
+  var arr = []
+  var term = req.user.term
+var teacherId = req.user.uid
+var n = moment()
+var year = n.format('YYYY')
+
+  var m = moment(date)
+
+ 
+
+  console.log(date.split('-')[0])
+  var startDate = date.split('-')[0]
+  var endDate = date.split('-')[1]
+   var startValueA = moment(startDate)
+   var startValueB=startValueA.subtract(1,"days");
+   var startValue = moment(startValueB).valueOf()
+
+   var endValueA = moment(endDate)
+   var endValueB = endValueA.add(1,"days");
+   var endValue= moment(endValueB).valueOf()
+  console.log(startValue,endValue,'output')
+
+  AttendanceReg.find({regId:id},function(err,docs){
+console.log(docs,'777')
+    if(docs){
+
+
+    for(var i = 0;i<docs.length;i++){
+      let sdate = docs[i].dateValue
+      if(sdate >= startValue && sdate <= endValue){
+arr.push(docs[i])
+console.log(arr,'arr333')
+      }
+    }
+  }
+      
+    console.log(arr,'arr')
+        res.render("attendance/regUpdate", {
+          listX:arr,pro:pro,
+          
+        });
+    
+});
+    
+  })
+
+
+//absent comments
+
+router.post('/comment/updateAtt/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+
+  var m = moment()
+  var year = m.format('YYYY')
+  var month = m.format('MMMM')
+  var dateValue = m.valueOf()
+  var mformat = m.format("L")
+  var date = m.toString()
+  var comments = req.body.code
+  AttendanceReg.findById(id,function(err,doc){
+   
+   
+    AttendanceReg.findByIdAndUpdate(id,{$set:{comments:comments}},function(err,doc){
+
+ })     
+      
+
+  res.send(doc)
+})
+  })
+
+
+  router.get('/late/:id',isLoggedIn, (req, res) => {
+    var id
+ AttendanceReg.findByIdAndUpdate(req.params.id,{$set:{status:'Late'}},function(err,docs){
+id = docs[0].regId
+
+res.redirect('/teacher/viewLessonFile/'+id)
+ })
+
+    })
+  
+  router.get('/absent/:id',isLoggedIn, (req, res) => {
+    var id 
+ AttendanceReg.findByIdAndUpdate(req.params.id,{$set:{status:'Absent'}},function(err,docs){
+   console.log(docs,'docs')
+  id = docs.regId
+
+  console.log(id,'regId')
+  res.redirect('/teacher/viewLessonFile/'+id)
+ })
+
+    })
+
+///reg folder
+
+router.get('/folderReg',isLoggedIn,function(req,res){
+  var pro = req.user
+  var id = req.user._id
+  var arr = []
+  User.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let uid = doc.uid
+    let teacherName = doc.fullname
+    TeacherSub.find({teacherId:uid},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.subjectName == docs[i].subjectName)){
+                console.log('true')
+               arr.find(value => value.subjectName == docs[i].subjectName).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('teachrFolderReg/folders2',{listX:arr,pro:pro,id:id,})
+
+    })
+  }
+  })
+
+})
+
+
+
+
+
+router.get('/classFolderReg/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var arr = []
+  TeacherSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let subjectCode = doc.subjectCode
+    let uid = doc.teacherId
+    let subject = doc.subjectName
+    let teacherName = doc.teacherName
+    User.find({uid:uid},function(err,ocs){
+
+    
+    let id2 = ocs[0]._id
+    StudentSub.find({subjectCode:subjectCode},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.class1 == docs[i].class1)){
+                console.log('true')
+               arr.find(value => value.class1 == docs[i].class1).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('teachrFolderReg/fileClass2',{listX:arr,pro:pro,id:id,id2:id2,subject:subject})
+
+    })
+  })
+}
+  })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.get('/typeFolderReg/:id',isLoggedIn,teacher,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
+    res.render('teachrFolderReg/fileAssgt2',{id:id,pro:pro,id2:id2,id3:id3,subject:subject,class1:class1})
+  })
+})
+  })
+}
+})
+})
+
+
+router.get('/typeFolderClassReg/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var term = req.user.term
+  var year = 2023
+  var pro = req.user
+  StudentSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let class1 = doc.class1
+    let studentSubId = doc._id
+    let subjectCode = doc.subjectCode
+    let subjectName = doc.subjectName
+    TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+      let teacherId =poc[0].teacherId
+      let teacherSubId = poc[0]._id
+      let teacherName = poc[0].teacherName
+      User.find({uid:teacherId},function(err,zocs){
+        let userId = zocs[0]._id
+        let class1 = zocs[0].class1
+     
+ 
+  
+ 
+    Attendance.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Register'},function(err,locs){
+      
+      res.render('teachrFolderReg/assgtX1',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
+        subjectName:subjectName,class1:class1})
+    })
+  })
+
+  
+})
+}
+})
+  
+  })
+  
+
+///view lesson
+
+router.get('/viewLessonFile/:id',isLoggedIn,teacher,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+Attendance.findById(id,function(err,loc){
+  if(loc){
+
+
+  let teacherId = loc.teacherId
+  let teacherName = loc.teacherName
+  let subjectCode = loc.subjectCode
+let subject = loc.subject
+
+  console.log(teacherId,'teacherId')
+User.find({uid:teacherId},function(err,cok){
+ let user = cok[0]._id
+  
+ User.findById(user,function(err,doc){
+let uid = doc.uid
+let userId = doc._id
+let class1 = doc.class1
+TeacherSub.find({teacherId:uid,subjectCode:subjectCode},function(err,locs){
+ let teacherSubId = locs[0]._id
+
+ StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
+   let studentSubId = tocs[0]._id
+   AttendanceReg.find({regId:id},function(err,docs){
+
+
+res.render('teachrFolderReg/assgtList',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+class1:class1})
+  })
+})
+})
+})
+})
+}
+})
+})
+
+
+
+  router.get('/typeFolderExamReg/:id',isLoggedIn,teacher,function(req,res){
+    var id = req.params.id
+    var term = req.user.term
+    var year = 2023
+    var pro = req.user
+    StudentSub.findById(id,function(err,doc){
+         if(doc){
+  
+        
+      let studentSubId = doc._id
+      let subjectCode = doc.subjectCode
+      let subject = doc.subjectName
+      TeacherSub.find({subjectCode:subjectCode},function(err,poc){
+        let teacherId =poc[0].teacherId
+        let teacherSubId = poc[0]._id
+        User.find({uid:teacherId},function(err,zocs){
+          let userId = zocs[0]._id
+          let class1 = zocs[0].class1
+          let teacherName = zocs[0].fullname
+      
+      Attendance.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam Register'},function(err,locs){
+        
+        res.render('teachrFolderReg/assgtX2',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+          class1:class1,teacherName:teacherName,subject:subject,id:id
+        })
+      })
+    
+    })
+    
+  })
+  }
+  })
+    
+    })
+  
+  
+
 
 
 //exam
@@ -8264,7 +8980,8 @@ console.log(arr,'arr333')
 router.get('/typeFolderExam/:id',isLoggedIn,teacher,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var n = moment()
+  var year = n.format('YYYY')
   var pro = req.user
   StudentSub.findById(id,function(err,doc){
     if(doc){
@@ -8284,7 +9001,7 @@ router.get('/typeFolderExam/:id',isLoggedIn,teacher,function(req,res){
 
   
    
-    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,locs){
+    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,locs){
       
       res.render('teachrFolder/assgtX3',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
       teacherName:teacherName,class1:class1,subject:subject,id:id})
@@ -8339,7 +9056,7 @@ router.get('/typeFolderExam/:id',isLoggedIn,teacher,function(req,res){
             let class1 = zocs[0].class1
             let teacherName = zocs[0].fullname
         
-        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,docs){
+        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,docs){
   console.log(docs,'777')
       if(docs){
   

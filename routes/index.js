@@ -4178,7 +4178,9 @@ process.exit()*/
 
 
 })
-
+router.get('/receipt2',function(req,res){
+  res.render('accounts/receipt3')
+})
 
 router.get('/stEurit',function(req,res){
   res.render('eurit/index')

@@ -73,6 +73,8 @@ const methodOverride = require('method-override');
 
 const arr = {}
 const arr2 = {}
+const arrE ={}
+const arrE2 ={}
 
 
 var storageX = multer.diskStorage({
@@ -247,7 +249,7 @@ for(var i = 0;i<hocs.length;i++){
 let uid = hocs[i].uid
 
 arr[uid].map(function(element){
-  console.log(element.percentage, element.size,'para')
+  //console.log(element.percentage, element.size,'para')
  element.percentage  = element.percentage / element.size
 // console.log(element.mark,'mark')
  let num = Math.round(element.percentage)
@@ -362,17 +364,22 @@ const page = await browser.newPage()
 
 
 
- const content = await compile('report3',arr[uid])
+ //const content = await compile('report3',arr[uid])
+ const content = await compile('reportX',arr[uid])
 
 //console.log(arr[uid],'tamama')
-
- await page.setContent(content)
+await page.setContent(content, { waitUntil: 'networkidle2'});
+ //await page.setContent(content)
 //create a pdf document
+
+await page.setContent(content, { waitUntil: 'networkidle0'});
 //console.log(await page.pdf(),'7777')
 await page.pdf({
   //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
   path:(`./reports/${year}/${month}/${uid}`+'.pdf'),
   format:"A4",
+  width:'24cm',
+height:'5cm',
   printBackground:true
 })
 
@@ -385,6 +392,7 @@ repo.month = month;
 repo.filename = uid+'.pdf';
 repo.year = year;
 repo.date = mformat
+repo.type = "Class"
 repo.save().then(poll =>{
   console.log("Done creating pdf",uid)
 })
@@ -644,8 +652,13 @@ const page = await browser.newPage()
 
 
 
-const content = await compile('report4',arr2[subjectCode])
+const content = await compile('reportX2',arr2[subjectCode])
 
+await page.setContent(content, { waitUntil: 'networkidle2'});
+ //await page.setContent(content)
+//create a pdf document
+
+await page.setContent(content, { waitUntil: 'networkidle0'});
 //console.log(arr[uid],'tamama')
 
 await page.setContent(content)
@@ -654,6 +667,7 @@ await page.setContent(content)
 await page.pdf({
   path:(`./reports2/${year}/${month}/${subjectCode}`+'.pdf'),
 format:"A4",
+preferCSSPageSize: true,
 printBackground:true
 })
 var repo = new Report2();
@@ -670,18 +684,18 @@ console.log("Done creating pdf",subjectCode)
 
 /*await browser.close()
 
-process.exit()*/
+process.exit()
 req.flash('success', 'Reports Generated Successfully!');
   
-res.redirect('/records/dash')
+res.redirect('/records/dash')*/
 
 }catch(e) {
 
-console.log(e)
+/*console.log(e)
 
 req.flash('danger', 'Reports Generation Failed!');
   
-res.redirect('/records/dash')
+res.redirect('/records/dash')*/
 }
 
 }) ()
@@ -755,6 +769,562 @@ res.redirect('/records/dash')
  
  })
 
+ //EOT Reports
+
+ User.find({role:'student'},function(err,docs){
+  for(var i=0;i<docs.length;i++){
+    let uid = docs[i].uid
+     arrE[uid]=[]
+  }
+})
+
+console.log('vvx')
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+console.log(month,'mmmmm')
+//var term = req.user.term
+User.find({role:"student"},function(err,docs){
+
+for(var i = 0; i<docs.length;i++){
+
+//console.log(docs[i].uid,'ccc')
+let uid = docs[i].uid
+//let uid = "SZ125"
+
+
+//TestX.find({year:year,uid:uid},function(err,vocs) {
+  TestX.find({year:year,uid:uid,type:"Final Exam"}).lean().then(vocs=>{
+
+  
+for(var x = 0;x<vocs.length;x++){
+  //size = docs.length
+  let subject = vocs[x].subject
+   
+   if( arrE[uid].length > 0 && arrE[uid].find(value => value.subject == subject) ){
+ 
+         arrE[uid].find(value => value.subject == subject).percentage += vocs[x].percentage;
+         arrE[uid].find(value => value.subject == subject).size++;
+         //console.log(arr,'arrX')
+        }
+        
+         
+        
+        
+        else{
+          arrE[uid].push(vocs[x])
+          // console.log(arr,'push')
+          
+            //element.size = 0
+            /*if(arr[uid].find(value => value.subject == subject)){*/
+       
+             
+                   arrE[uid].find(value => value.subject == subject).size++;
+
+
+     
+            /*}*/
+          //  console.log(arr,'ll'+uid)
+            //element.size = element.size + 1
+              
+          } 
+
+
+         /* arr[uid].forEach((element,index)=>{
+            if(element.size > 0) {
+              //console.log(element,'element')
+            
+              //element.percentage  = element.percentage / element.size
+
+              console.log(element.percentage, element.size,'drumless')
+              let num = Math.round(element.percentage)
+  num.toFixed(2)
+  element.percentage =num
+
+
+            }
+        
+          })*/
+
+         
+
+}
+        })
+        }
+      })
+
+/*})*/
+
+router.get('/weightExam',function(req,res){
+User.find({role:"student"},function(err,hocs){
+for(var i = 0;i<hocs.length;i++){
+
+let uid = hocs[i].uid
+
+arrE[uid].map(function(element){
+  //console.log(element.percentage, element.size,'para')
+ element.percentage  = element.percentage / element.size
+// console.log(element.mark,'mark')
+ let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+  for(var i = 0; i<qocs.length; i++){
+  let symbol = qocs[i].symbol
+  let from = qocs[i].from
+  let to = qocs[i].to
+  
+  if(element.percentage >= from && element.percentage <= to ){
+  
+  element.symbol = symbol
+  
+  
+  
+  }
+  }
+  
+  
+  })
+  
+  if(element.percentage >= 50){
+  
+  
+  element.result = 'pass'
+  }else
+  
+ element.result = 'fail'
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+})
+}
+res.redirect('/records/genPdf3Exam')
+})
+
+})
+////////////
+
+router.get('/genPdf3Exam',isLoggedIn,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var mformat = m.format('L')
+/*console.log(arr,'iiii')*/
+
+User.find({role:"student"},function(err,docs){
+  for(var i = 0; i< docs.length;i++){
+
+  
+  let uid = docs[i].uid
+
+
+const compile = async function (templateName, arrE){
+  const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+  const html = await fs.readFile(filePath, 'utf8')
+
+  return hbs.compile(html)(arrE)
+ 
+};
+
+
+
+
+ (async function(){
+
+try{
+//const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({
+  headless: true,
+  args: [
+    "--disable-setuid-sandbox",
+    "--no-sandbox",
+    "--single-process",
+    "--no-zygote",
+  ],
+  executablePath:
+    process.env.NODE_ENV === "production"
+      ? process.env.PUPPETEER_EXECUTABLE_PATH
+      : puppeteer.executablePath(),
+});
+
+const page = await browser.newPage()
+
+
+
+ const content = await compile('reportExam',arrE[uid])
+
+ await page.setContent(content, { waitUntil: 'networkidle2'});
+ //await page.setContent(content)
+//create a pdf document
+
+await page.setContent(content, { waitUntil: 'networkidle0'});
+
+ await page.setContent(content)
+//create a pdf document
+//console.log(await page.pdf(),'7777')
+await page.pdf({
+  //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+  path:(`./reportsExam/${year}/${month}/${uid}`+'.pdf'),
+  format:"A4",
+  width:'24cm',
+  height:'5cm',
+  printBackground:true
+})
+
+
+
+var repo = new Report();
+ 
+repo.uid = uid;
+repo.month = month;
+repo.filename = uid+'.pdf';
+repo.year = year;
+repo.date = mformat
+repo.type = 'Final Exam'
+repo.save().then(poll =>{
+  console.log("Done creating pdf",uid)
+})
+
+
+/*await browser.close()
+
+process.exit()*/
+
+
+
+}catch(e) {
+
+  console.log(e)
+
+
+}
+
+}) ()
+
+}
+res.redirect('/records/weightXExam')
+})
+
+
+
+})
+
+
+/////teacher
+
+
+Subject.find(function(err,docs){
+  for(var i=0;i<docs.length;i++){
+    let subjectCode = docs[i].code
+    arrE2[subjectCode]=[]
+  }
+
+})
+
+
+
+
+
+
+
+//var term = req.user.term
+Subject.find(function(err,zocs){
+for(var z = 0; z<zocs.length;z++){
+  let subjectCodeX = zocs[z].code
+
+  StudentSub.find({subjectCode:subjectCodeX},function(err,tocs){
+    for(var q = 0;q<tocs.length;q++){
+      let uid = tocs[q].studentId
+   
+
+
+
+
+      TestX.find({year:year,uid:uid,type:"Final Exam"}).lean().then(vocs=>{
+for(var x = 0;x<vocs.length;x++){
+//size = docs.length
+let subjectCode = vocs[x].subjectCode
+let subject = vocs[x].subject
+
+ 
+ if( arrE2[subjectCode].length > 0 && arrE2[subjectCode].find(value => value.subjectCode == subjectCode)  && arrE2[subjectCode].find(value => value.uid == uid)  ){
+
+       arrE2[subjectCode].find(value => value.uid == uid).percentage += vocs[x].percentage;
+       arrE2[subjectCode].find(value => value.uid == uid).size++;
+       //console.log(arr,'arrX')
+      }
+      
+       
+      
+      
+      else{
+        arrE2[subjectCode].push(vocs[x])
+        // console.log(arr,'push')
+        
+          //element.size = 0
+          /*if(arr[uid].find(value => value.subject == subject)){*/
+     
+           
+                 arrE2[subjectCode].find(value => value.uid == uid).size++;
+
+
+   
+          /*}*/
+        //  console.log(arr,'ll'+uid)
+          //element.size = element.size + 1
+            
+        } 
+
+
+       /* arr[uid].forEach((element,index)=>{
+          if(element.size > 0) {
+            //console.log(element,'element')
+          
+            //element.percentage  = element.percentage / element.size
+
+            console.log(element.percentage, element.size,'drumless')
+            let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+          }
+      
+        })*/
+
+       
+
+
+      }
+    })
+
+  }
+})
+}
+
+})
+
+
+
+router.get('/weightXExam',function(req,res){
+
+Subject.find(function(err,docs){
+if(docs){
+for(var x = 0;x<docs.length;x++){
+  let subjectCode = docs[x].code
+
+
+
+
+
+arrE2[subjectCode].map(function(element){
+//console.log(element.percentage, element.size,'para')
+element.percentage  = element.percentage / element.size
+// console.log(element.mark,'mark')
+let num = Math.round(element.percentage)
+num.toFixed(2)
+element.percentage =num
+
+
+
+Grade.find({},function(err,qocs){
+
+for(var i = 0; i<qocs.length; i++){
+let symbol = qocs[i].symbol
+let from = qocs[i].from
+let to = qocs[i].to
+
+if(element.percentage >= from && element.percentage <= to ){
+
+element.symbol = symbol
+
+
+
+}
+}
+
+
+})
+
+if(element.percentage >= 50){
+
+
+element.result = 'pass'
+}else
+
+element.result = 'fail'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+})
+
+
+}
+}
+res.redirect('/records/genPdf33Exam')
+})
+
+})
+
+//
+
+
+router.get('/genPdf33Exam',isLoggedIn,function(req,res){
+  
+var m = moment()
+var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  
+ // console.log(arr,'arr')
+/*console.log(arr,'iiii')*/
+
+Subject.find(function(err,docs){
+for(var i = 0; i< docs.length;i++){
+
+
+let subjectCode = docs[i].code
+
+
+const compile = async function (templateName, arrE2){
+const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+
+const html = await fs.readFile(filePath, 'utf8')
+
+return hbs.compile(html)(arrE2)
+
+};
+
+
+
+
+(async function(){
+
+try{
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+
+const page = await browser.newPage()
+
+
+
+const content = await compile('reportExam2',arrE2[subjectCode])
+
+//console.log(arr[uid],'tamama')
+await page.setContent(content, { waitUntil: 'networkidle2'});
+ //await page.setContent(content)
+//create a pdf document
+
+await page.setContent(content, { waitUntil: 'networkidle0'});
+
+await page.setContent(content)
+//create a pdf document
+
+await page.pdf({
+  path:(`./reportsExam2/${year}/${month}/${subjectCode}`+'.pdf'),
+format:"A4",
+width:'24cm',
+height:'5cm',
+  printBackground:true
+})
+var repo = new Report2();
+
+repo.subjectCode = subjectCode;
+repo.month = month;
+repo.filename = subjectCode+'.pdf';
+repo.year = year;
+repo.date = mformat
+repo.save().then(poll =>{
+console.log("Done creating pdf",subjectCode)
+})
+
+
+/*await browser.close()
+
+process.exit()
+req.flash('success', 'Reports Generated Successfully!');
+  
+res.redirect('/records/dash')*/
+
+}catch(e) {
+
+console.log(e)
+/*
+req.flash('danger', 'Reports Generation Failed!');
+  
+res.redirect('/records/dash')*/
+}
+
+}) ()
+
+}
+})
+
+
+
+})
+
+
+
+
 router.get('/stats',isLoggedIn,records, function(req,res){
     var students, teachers, paid, unpaid, depts, class1
    
@@ -805,7 +1375,7 @@ router.get('/stats',isLoggedIn,records, function(req,res){
  
 
   var id = docs[0]._id
-  console.log(students,'students',teachers,'teachers',class1,'class1',depts,'depts', paid,'paid',unpaid,'unpaid')
+  //console.log(students,'students',teachers,'teachers',class1,'class1',depts,'depts', paid,'paid',unpaid,'unpaid')
   Stats.findByIdAndUpdate(id,{$set:{students:students, teachers:teachers,paid:paid, unpaid:unpaid, class1:class1, depts:depts}},function(err,tocs){
 
 
@@ -852,7 +1422,7 @@ router.get('/gradeUpdate',isLoggedIn,records,function(req,res){
      console.log(grade,'grade')
      Level.find({grade:grade},function(err,tocs){
        let levelX = tocs[0].levelX
-       console.log('levelX',levelX)
+      // console.log('levelX',levelX)
 User.findByIdAndUpdate(id,{$set:{levelX:levelX}},function(err,jocs){
 
 })
@@ -1327,7 +1897,7 @@ if(currCount == 0){
     
     
       User.find({role:'student'},function(err,docs) {
-        console.log(docs,'docs')
+        //console.log(docs,'docs')
         for(var i = 0;i<docs.length;i++){
     size = docs.length
        
@@ -1347,7 +1917,7 @@ if(currCount == 0){
         
         }
      
-        console.log(arr,'ndamama')
+ 
        res.send(arr)
       })
   
@@ -1376,7 +1946,7 @@ if(currCount == 0){
     
     
       Class1.find(function(err,docs) {
-        console.log(docs,'docs iwe')
+        //console.log(docs,'docs iwe')
       
      
         //console.log(arr,'arr')

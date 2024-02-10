@@ -21,6 +21,7 @@ var userSchema = new mongoose.Schema({
     possibleMark:{type:Number, required:true},
     studentId:{type:String, required:true},
     parentId:{type:String},
+    regId:{type:String},
     teacherName:{type:String, required:true},
     teacherId:{type:String, required:true},
     examDate:{type:String, required:true},
