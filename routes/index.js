@@ -7381,7 +7381,7 @@ let teacherName = hocs[0].teacherName
  User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
 
 
-  Report2.find({subjectCode:subjectCode,year:year},function(er,hocs){
+  Report2.find({subjectCode:subjectCode,year:year,type:"Monthly Assessment"},function(er,hocs){
     res.render('admin/filesMonthly',{listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
   })
 
@@ -7392,6 +7392,38 @@ let teacherName = hocs[0].teacherName
 })
 })
 
+
+
+
+router.get('/termlyReports/:id',isLoggedIn,adminX,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+  Report2.find({subjectCode:subjectCode,year:year,type:"Final Exam"},function(er,hocs){
+    res.render('admin/filesTermly',{listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+
+})
+})
+  })
+}
+})
+})
 
 
 router.get('/downloadMonthlyReport/:id',isLoggedIn,adminX,function(req,res){
@@ -7408,6 +7440,20 @@ router.get('/downloadMonthlyReport/:id',isLoggedIn,adminX,function(req,res){
 
 })
 
+
+router.get('/downloadTermlyReport/:id',isLoggedIn,adminX,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report2.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reportsExam2/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
 
 
 router.get('/teacherMarks/:id',isLoggedIn,adminX,function(req,res){
@@ -7441,8 +7487,11 @@ let teacherName = hocs[0].teacherName
 router.get('/teacherClassTest/:id',isLoggedIn,adminX,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   var pro = req.user
+  const arr=[]
 
   StudentSub.findById(id,function(err,doc){
     if(doc){
@@ -7464,8 +7513,12 @@ router.get('/teacherClassTest/:id',isLoggedIn,adminX,function(req,res){
   
  
     Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Test'},function(err,locs){
+      for(var i = locs.length - 1; i>=0; i--){
       
-      res.render('admin/assgtX1',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
+        arr.push(locs[i])
+      }
+   
+      res.render('admin/assgtX1',{listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
         subjectName:subjectName,teacherName:teacherName,class1:class1})
     })
   })
@@ -7554,7 +7607,10 @@ console.log(arr,'arr333')
   router.get('/teacherClassAssignment2/:id',isLoggedIn,adminX,function(req,res){
     var id = req.params.id
     var term = req.user.term
-    var year = 2023
+    var arr =[]
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
     var pro = req.user
 
     StudentSub.findById(id,function(err,doc){
@@ -7573,8 +7629,11 @@ console.log(arr,'arr333')
           let teacherName = zocs[0].fullname
       
       Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Assignment'},function(err,locs){
-        
-        res.render('admin/assgtX2',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+        for(var i = locs.length - 1; i>=0; i--){
+      
+          arr.push(locs[i])
+        }
+        res.render('admin/assgtX2',{listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
           class1:class1,teacherName:teacherName,subject:subject,id:id
         })
       })
@@ -7661,7 +7720,9 @@ console.log(arr,'arr333')
     router.get('/teacherFinalExam/:id',isLoggedIn,adminX,function(req,res){
       var id = req.params.id
       var term = req.user.term
-      var year = 2023
+      var m = moment()
+      var month = m.format('MMMM')
+      var year = m.format('YYYY')
       var pro = req.user
       
       StudentSub.findById(id,function(err,doc){
@@ -7682,9 +7743,13 @@ console.log(arr,'arr333')
 
       
        
-        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,locs){
-          
-          res.render('admin/assgtX3',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
+        Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,locs){
+          let arr=[]
+          for(var i = locs.length - 1; i>=0; i--){
+      
+            arr.push(locs[i])
+          }
+          res.render('admin/assgtX3',{listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,
           teacherName:teacherName,class1:class1,subject:subject,id:id})
         
       })
@@ -7737,7 +7802,7 @@ console.log(arr,'arr333')
                 let class1 = zocs[0].class1
                 let teacherName = zocs[0].fullname
             
-            Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,docs){
+            Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,docs){
       console.log(docs,'777')
           if(docs){
       
@@ -7770,6 +7835,9 @@ console.log(arr,'arr333')
       router.get('/teacherViewTest/:id',isLoggedIn,adminX,function(req,res){
         var id = req.params.id
         var pro = req.user
+        var m = moment()
+        var month = m.format('MMMM')
+        var year = m.format('YYYY')
       Test.findById(id,function(err,loc){
         if(loc){
 
@@ -7792,9 +7860,13 @@ console.log(arr,'arr333')
        StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
          let studentSubId = tocs[0]._id
        TestX.find({quizId:id},function(err,docs){
-
+        let arr=[]
+        for(var i = docs.length - 1; i>=0; i--){
+    
+          arr.push(docs[i])
+        }
      
-      res.render('admin/assgtList',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+      res.render('admin/assgtList',{listX:arr,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
       class1:class1})
         })
       })
@@ -7913,9 +7985,13 @@ console.log(arr,'arr333')
      StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
        let studentSubId = tocs[0]._id
      TestX.find({quizId:id},function(err,docs){
-
+      let arr=[]
+      for(var i = docs.length - 1; i>=0; i--){
+  
+        arr.push(docs[i])
+      }
    
-    res.render('admin/assgtList2',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+    res.render('admin/assgtList2',{listX:arr,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
     class1:class1})
       })
     })
@@ -8013,7 +8089,9 @@ console.log(arr,'arr333')
   router.get('/teacherViewExam/:id',isLoggedIn,adminX,function(req,res){
     var id = req.params.id
     var pro = req.user
-  
+    var m = moment()
+    var month = m.format('MMMM')
+    var year = m.format('YYYY')
   Test.findById(id,function(err,loc){
     if(loc){
 
@@ -8038,8 +8116,12 @@ let uid = doc.uid
      let studentSubId = tocs[0]._id
    TestX.find({quizId:id},function(err,docs){
 
- 
-  res.render('admin/assgtList3',{listX:docs,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+  res.render('admin/assgtList3',{listX:arr,userId:userId,teacherSubId:teacherSubId,studentSubId:studentSubId,pro:pro,id:id,subject:subject,teacherName:teacherName,
   class1:class1})
     })
   })
@@ -8137,7 +8219,9 @@ router.get('/classSubjects/:id',isLoggedIn,adminX,function(req,res){
   var pro = req.user
   var id = req.params.id
   var arr = []
-
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   Class1.findById(id,function(err,doc){
     if(doc){
 
@@ -8196,7 +8280,9 @@ StudentSub.findById(id,function(err,doc){
 router.get('/classTest/:id',isLoggedIn,adminX,function(req,res){
 var id = req.params.id
 var term = req.user.term
-var year = 2023
+var m = moment()
+var month = m.format('MMMM')
+var year = m.format('YYYY')
 
 var pro = req.user
 StudentSub.findById(id,function(err,doc){
@@ -8211,8 +8297,12 @@ StudentSub.findById(id,function(err,doc){
 
   let id2 = kocs[0]._id
   Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Test'},function(err,locs){
-    
-    res.render('admin/assgt1',{listX:locs,pro:pro,studentSubId:id,id1:id1,classId:id2,class1:class1,subject:subject,id:id})
+    let arr=[]
+    for(var i = locs.length - 1; i>=0; i--){
+
+      arr.push(locs[i])
+    }
+    res.render('admin/assgt1',{listX:arr,pro:pro,studentSubId:id,id1:id1,classId:id2,class1:class1,subject:subject,id:id})
   })
 })
 }
@@ -8292,7 +8382,9 @@ console.log(arr,'arr333')
 router.get('/classAssgt/:id',isLoggedIn,adminX,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   var pro = req.user
  
   StudentSub.findById(id,function(err,doc){
@@ -8306,8 +8398,12 @@ router.get('/classAssgt/:id',isLoggedIn,adminX,function(req,res){
   
     let id2 = kocs[0]._id
     Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Assignment'},function(err,locs){
-      
-      res.render('admin/assgt2',{listX:locs,pro:pro,id1:id1,id2:id2,id:id})
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('admin/assgt2',{listX:arr,pro:pro,id1:id1,id2:id2,id:id})
     })
   })
 }
@@ -8386,7 +8482,9 @@ router.get('/classAssgt/:id',isLoggedIn,adminX,function(req,res){
 router.get('/finalExam/:id',isLoggedIn,adminX,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   var pro = req.user
 
   StudentSub.findById(id,function(err,doc){
@@ -8399,9 +8497,13 @@ router.get('/finalExam/:id',isLoggedIn,adminX,function(req,res){
     Class1.find({class1:class1},function(err,kocs){
   
     let id2 = kocs[0]._id
-    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,locs){
-      
-      res.render('admin/assgt3',{listX:locs,pro:pro,id1:id1,id2:id2,id:id})
+    Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,locs){
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('admin/assgt3',{listX:arr,pro:pro,id1:id1,id2:id2,id:id})
     })
   })
 
@@ -8450,7 +8552,7 @@ router.get('/finalExam/:id',isLoggedIn,adminX,function(req,res){
       Class1.find({class1:class1},function(err,kocs){
     
       let id2 = kocs[0]._id
-      Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Exam'},function(err,docs){
+      Test.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Final Exam'},function(err,docs){
   console.log(docs,'777')
       if(docs){
   
@@ -8501,9 +8603,13 @@ console.log(subjectCode,subject,'yaita')
    StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
      let studentSubId = tocs[0]._id
    TestX.find({quizId:id},function(err,docs){
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
 
+      arr.push(docs[i])
+    }
  
-  res.render('admin/assgtListC1',{listX:docs,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
+  res.render('admin/assgtListC1',{listX:arr,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
   class1:class1})
     })
   })
@@ -8613,9 +8719,13 @@ console.log(arr,'arr333')
    StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
      let studentSubId = tocs[0]._id
    TestX.find({quizId:id},function(err,docs){
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
 
+      arr.push(docs[i])
+    }
  
-  res.render('admin/assgtListC2',{listX:docs,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
+  res.render('admin/assgtListC2',{listX:arr,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
   class1:class1})
     })
   })
@@ -8726,9 +8836,13 @@ Class1.find({class1:class1},function(err,cok){
  StudentSub.find({subjectCode:subjectCode,class1:class1},function(err,tocs){
    let studentSubId = tocs[0]._id
  TestX.find({quizId:id},function(err,docs){
+  let arr=[]
+          for(var i = docs.length - 1; i>=0; i--){
+      
+            arr.push(docs[i])
+          }
 
-
-res.render('admin/assgtListC3',{listX:docs,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
+res.render('admin/assgtListC3',{listX:arr,studentSubId:studentSubId,pro:pro,id:id,subject:subject,classId:classId,
 class1:class1})
   })
 })
@@ -8822,7 +8936,9 @@ console.log(arr,'arr333')
 router.get('/teacherLearningMaterial/:id',isLoggedIn,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   var pro = req.user
 
 
@@ -8844,8 +8960,12 @@ router.get('/teacherLearningMaterial/:id',isLoggedIn,function(req,res){
    
 
     Learn.find({subjectCode:subjectCode,term:term,year:year,class1:class1},function(err,locs){
-      
-      res.render('admin/files2',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('admin/files2',{listX:arr,pro:pro,teacherSubId:teacherSubId,
         subject:subject,id:id,class1:class1,id2:id2,teacherName:teacherName
       })
    
@@ -8868,7 +8988,9 @@ router.get('/teacherLearningMaterial/:id',isLoggedIn,function(req,res){
 router.get('/teacherOnlineAssignmentFiles/:id',isLoggedIn,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
   var pro = req.user
 
 
@@ -8890,9 +9012,13 @@ router.get('/teacherOnlineAssignmentFiles/:id',isLoggedIn,function(req,res){
    
 
     Test.find({subjectCode:subjectCode,term:term,year:year,type2:'online assignment attached',class1:class1},function(err,locs){
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
       
-      
-      res.render('admin/files3',{listX:locs,pro:pro,teacherSubId:teacherSubId,
+      res.render('admin/files3',{listX:arr,pro:pro,teacherSubId:teacherSubId,
         subject:subject,id:id,class1:class1,id2:id2,teacherName:teacherName
       })
    

@@ -181,7 +181,7 @@ let uid = docs[i].uid
 
 
 //TestX.find({year:year,uid:uid},function(err,vocs) {
-  TestX.find({year:year,uid:uid}).lean().then(vocs=>{
+  TestX.find({year:year,month:month,uid:uid,type3:"class"}).lean().then(vocs=>{
 
   
 for(var x = 0;x<vocs.length;x++){
@@ -392,7 +392,7 @@ repo.month = month;
 repo.filename = uid+'.pdf';
 repo.year = year;
 repo.date = mformat
-repo.type = "Class"
+repo.type = "Monthly Assessment"
 repo.save().then(poll =>{
   console.log("Done creating pdf",uid)
 })
@@ -452,7 +452,7 @@ for(var z = 0; z<zocs.length;z++){
 
 
 
-      TestX.find({year:year,uid:uid}).lean().then(vocs=>{
+      TestX.find({year:year,month:month,type3:"class",uid:uid}).lean().then(vocs=>{
 for(var x = 0;x<vocs.length;x++){
 //size = docs.length
 let subjectCode = vocs[x].subjectCode
@@ -677,6 +677,7 @@ repo.month = month;
 repo.filename = subjectCode+'.pdf';
 repo.year = year;
 repo.date = mformat
+repo.type = "Monthly Assessment"
 repo.save().then(poll =>{
 console.log("Done creating pdf",subjectCode)
 })
@@ -790,11 +791,12 @@ for(var i = 0; i<docs.length;i++){
 
 //console.log(docs[i].uid,'ccc')
 let uid = docs[i].uid
+let term = docs[i].term
 //let uid = "SZ125"
 
 
 //TestX.find({year:year,uid:uid},function(err,vocs) {
-  TestX.find({year:year,uid:uid,type:"Final Exam"}).lean().then(vocs=>{
+  TestX.find({year:year,uid:uid,type:"Final Exam",type3:"exam",term:term}).lean().then(vocs=>{
 
   
 for(var x = 0;x<vocs.length;x++){
@@ -1066,7 +1068,7 @@ for(var z = 0; z<zocs.length;z++){
 
 
 
-      TestX.find({year:year,uid:uid,type:"Final Exam"}).lean().then(vocs=>{
+      TestX.find({year:year,uid:uid,type:"Final Exam",month:month}).lean().then(vocs=>{
 for(var x = 0;x<vocs.length;x++){
 //size = docs.length
 let subjectCode = vocs[x].subjectCode
@@ -1292,6 +1294,7 @@ repo.month = month;
 repo.filename = subjectCode+'.pdf';
 repo.year = year;
 repo.date = mformat
+repo.type = "Final Exam"
 repo.save().then(poll =>{
 console.log("Done creating pdf",subjectCode)
 })

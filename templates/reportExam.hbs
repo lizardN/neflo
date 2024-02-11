@@ -199,8 +199,8 @@ background:#5e5e5e;
 
 
 				<div class="col-sm-6 top-right">
-						<h3 class="marginright">END OF TERM REPORT</h3>
-						<span class="marginright">{{this.0.fullname}}</span>
+						<h3 class="marginright">END OF TERM </h3>
+						<!--<span class="marginright">{{this.0.year}}</span>-->
 			    </div>
 
 			</div>
@@ -209,20 +209,22 @@ background:#5e5e5e;
 			<div class="row">
 
 				<div class="col-xs-4 from">
-					<p class="lead marginbottom">From : Hurlings PreSchool</p>
-					<p>1 Ingatestone rd Marlbereign</p>
-					<p>rd Marlbereign</p>
-					<p>near Greencroft shops</p>
-					<p>Phone: +263 077 552 9777</p>
-					<p>Email: info@hurlings@.co.zw</p>
+					<p class="lead marginbottom">Student Name : {{this.1.fullname}}</p>
+		             	<p>ID: <b>{{this.1.uid}}</b></p>
+		             	
+			            <p>Class: <b>{{this.1.class1}}</b></p>
+					    
+					    <p>Term: <b>{{this.1.term}}</b></p>
+
+						    <p>Year: <b>{{this.1.year}}</b></p>
 				</div>
 
 
 	   
-				<div class="col-xs-4 to">
+			<!--	<div class="col-xs-4 to">
 					<p class="lead marginbottom">To : {{this.fullname}}</p>
 		             	<p>Student ID: <b>{{this.uid}}</b></p>
-		             	<!--<p>Student: <b>{{user.fullname}}</b></p>-->
+		             	<!--<p>Student: <b>{{user.fullname}}</b></p>
 			            <p>Class: <b>{{class1}}</b></p>
 					    <p>Phone: {{parentPhone}}</p>
 					    <p>Email: {{parentEmail}}</p>
@@ -233,7 +235,7 @@ background:#5e5e5e;
 					<p class="lead marginbottom payment-info">Payment details</p>
 				    <p> Term: <b>{{term}}</b></p>
 			        <p>Year: <b>{{year}}</b></p>
-			    </div>
+			    </div>-->
 
 			</div>
     
@@ -275,9 +277,9 @@ background:#5e5e5e;
 
 			<div class="row">
 			<div class="col-xs-6 margintop">
-				<p class="lead marginbottom">THANK YOU!</p>
+				<!--<p class="lead marginbottom">THANK YOU!</p>
 
-				<!--<button class="btn btn-success" id="invoice-print"><i class="fa fa-print"></i> Print Invoice</button>
+				<button class="btn btn-success" id="invoice-print"><i class="fa fa-print"></i> Print Invoice</button>
 				<button class="btn btn-danger"><i class="fa fa-envelope-o"></i> Mail Invoice</button>-->
 			</div>
 		<!--	<div class="col-xs-6 text-right pull-right invoice-total">

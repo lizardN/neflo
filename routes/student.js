@@ -2580,8 +2580,10 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
                 
                 router.get('/testUpdate2',function(req,res){
                   var m = moment()
+             
+var year = m.format('YYYY')
                   var dateValue = m.valueOf()
-                  Test.find(function(err,docs){
+                  Test.find({year:year},function(err,docs){
                     //console.log(docs,'docs')
                     for(var i = 0;i<docs.length;i++){
                          
@@ -2612,8 +2614,10 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
 
                 router.get('/testUpdate3',function(req,res){
                   var m = moment()
+                  var m6 = moment()
+var year = m.format('YYYY')
                   var dateValue = m.valueOf()
-                  TestX.find({type2:'online assignment'},function(err,docs){
+                  TestX.find({year:year,type2:'online assignment'},function(err,docs){
                     //console.log(docs,'docs')
                     for(var i = 0;i<docs.length;i++){
                          
@@ -2643,6 +2647,8 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
 
 
                 router.get('/assignmentsFiles',isLoggedIn,student,function(req,res){
+                  var m = moment()
+var year = m.format('YYYY')
                   var uid = req.user.uid
                   var class1= req.user.class1
                const arr2= []
@@ -2654,7 +2660,7 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
                     for(var i = 0; i< locs.length;i++){
                     
                    let subject= locs[i].subjectName
-                 Test.find({subject:subject,class1:class1,type2:'online assignment attached',status3:'null'},function(err,docs){
+                 Test.find({year:year,subject:subject,class1:class1,type2:'online assignment attached',status3:'null'},function(err,docs){
                   
                   if(docs.length > 0){
                     console.log(subject,'subject')
@@ -2683,11 +2689,13 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
                 })
 
                 router.get('/onlineQuiz',isLoggedIn,student,function(req,res){
+                  var m = moment()
+var year = m.format('YYYY')
                   var uid = req.user.uid
                   var class1 = req.user.class1
                   var arr = []
                   var pro = req.user
-                  Test.find({class1:class1,type2:'online quiz',status2:'active'},function(err,locs){
+                  Test.find({year:year,class1:class1,type2:'online quiz',status2:'active'},function(err,locs){
                     res.render('students/quiz',{listX:locs,pro:pro})
                   })
 
@@ -2732,6 +2740,8 @@ router.get('/analytics',isLoggedIn,student,function(req,res){
 
 
 router.get('/assignments/:id',isLoggedIn,student,function(req,res,next){
+  var m = moment()
+var year = m.format('YYYY')
   var id = req.params.id
   console.log(id,'id')
   var pro = req.user
@@ -3931,6 +3941,8 @@ router.get('/timetable',isLoggedIn,student, (req, res) => {
 
   router.get('/examTimetable',isLoggedIn,student, (req, res) => {
     var pro = req.user
+    var m = moment()
+    var year = m.format('YYYY')
       var term = req.user.term
       var class1 = req.user.class1
       var uid = req.user.uid
@@ -3951,9 +3963,12 @@ router.get('/timetable',isLoggedIn,student, (req, res) => {
 //exam timetable student
 router.get('/examList',isLoggedIn,student,(req, res) => {
   var pro = req.user
+  var m = moment()
+  var year = m.format('YYYY')
  var grade = req.user.grade
 
-    Exam.find({grade:grade},(err, docs) => {
+
+    Exam.find({uid:grade,year:year},(err, docs) => {
         if (!err) {
             res.render("exam/examListStudent", {
                list:docs,pro:pro
@@ -3989,10 +4004,14 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
     var year = n.format('YYYY')
     var term = req.user.term
     
-     TestX.find({uid:uid,type2:'online assignment',status3:'recorded'},(err, docs) => {
+     TestX.find({uid:uid,type2:'online assignment',status3:'recorded',year:year},(err, docs) => {
          if (!err) {
+          for(var i = docs.length - 1; i>=0; i--){
+  
+            arr.push(docs[i])
+          }
              res.render("exam/productList", {
-                listX:docs, pro:pro
+                listX:arr, pro:pro
                
              });
          }
@@ -4060,8 +4079,12 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
 
      TestX.find({uid:uid,type2:'online quiz',status3:'recorded',term:term,year:year},(err, docs) => {
          if (!err) {
+          for(var i = docs.length - 1; i>=0; i--){
+  
+            arr.push(docs[i])
+          }
              res.render("exam/productList2", {
-                listX:docs, pro:pro
+                listX:arr, pro:pro
                
              });
          }
@@ -4132,8 +4155,12 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
 
      TestX.find({uid:uid,type3:'class',term:term,year:year/*type2:'offline'*/},(err, docs) => {
          if (!err) {
+          for(var i = docs.length - 1; i>=0; i--){
+  
+            arr.push(docs[i])
+          }
              res.render("exam/productList3", {
-                listX:docs, pro:pro
+                listX:arr, pro:pro
                
              });
          }
@@ -4201,12 +4228,19 @@ router.get('/examList',isLoggedIn,student,(req, res) => {
 
    router.get('/results',isLoggedIn,student, (req, res) => {
     var pro = req.user
+    var m = moment()
+    var year = m.format('YYYY')
     var uid= req.user.uid
-    var companyId = req.user.companyId
-     TestX.find({uid:uid},(err, docs) => {
+ 
+     TestX.find({uid:uid,year:year},(err, docs) => {
          if (!err) {
+           let arr = []
+          for(var i = docs.length - 1; i>=0; i--){
+  
+            arr.push(docs[i])
+          }
              res.render("exam/productList", {
-                list:docs, pro:pro
+                list:arr, pro:pro
                
              });
          }
@@ -4228,11 +4262,18 @@ res.render('students/assgt2',{doc:doc,pro:pro})
    router.get('/examResults',isLoggedIn,student,  (req, res) => {
     var uid= req.user.uid
     var pro = req.user
+    var m = moment()
+    var year = m.format('YYYY')
 
-     TestX.find({uid:uid, type:'Final Exam'},(err, docs) => {
+     TestX.find({uid:uid, type:'Final Exam',year:year},(err, docs) => {
          if (!err) {
+           let arr= []
+          for(var i = docs.length - 1; i>=0; i--){
+  
+            arr.push(docs[i])
+          }
              res.render("exam/resultX", {
-                list:docs,pro:pro
+                list:arr,pro:pro
                
              });
          }
@@ -4352,8 +4393,13 @@ router.get('/typeFolderOnlineTest/:id',isLoggedIn,student,function(req,res){
 
     TestX.find({uid:uid,class1:class1,subjectCode:subjectCode,year:year,type2:'online quiz'},(err, docs) => {
       if (!err) {
+        let arr=[]
+        for(var i = docs.length - 1; i>=0; i--){
+    
+          arr.push(docs[i])
+        }
           res.render("studentFolder/assgtX4", {
-            listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+            listX:arr,pro:pro,studentSubId:studentSubId,id:id,
         subjectName:subjectName,class1:class1
             
           });
@@ -4368,12 +4414,14 @@ router.get('/typeFolderOnlineTest/:id',isLoggedIn,student,function(req,res){
 router.get('/typeFolderTest/:id',isLoggedIn,student,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var year = m.format('YYYY')
   var pro = req.user
   var uid = req.user.uid
   StudentSub.findById(id,function(err,doc){
     if(doc){
 
+      console.log(doc,"doc")
    
     let class1 = doc.class1
     let studentSubId = doc._id
@@ -4388,8 +4436,13 @@ router.get('/typeFolderTest/:id',isLoggedIn,student,function(req,res){
 
     TestX.find({uid:uid,class1:class1,subjectCode:subjectCode,year:year,type:'Class Test',type2:'offline'},(err, docs) => {
       if (!err) {
+        let arr=[]
+        for(var i = docs.length - 1; i>=0; i--){
+    
+          arr.push(docs[i])
+        }
           res.render("studentFolder/assgtX1", {
-            listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+            listX:arr,pro:pro,studentSubId:studentSubId,id:id,
         subjectName:subjectName,class1:class1
             
           });
@@ -4470,7 +4523,8 @@ router.get('/typeFolderTest/:id',isLoggedIn,student,function(req,res){
   router.get('/typeFolderClass/:id',isLoggedIn,student,function(req,res){
     var id = req.params.id
     var term = req.user.term
-    var year = 2023
+    var m = moment()
+var year = m.format('YYYY')
     var pro = req.user
     var uid = req.user.uid
     StudentSub.findById(id,function(err,doc){
@@ -4490,8 +4544,13 @@ router.get('/typeFolderTest/:id',isLoggedIn,student,function(req,res){
   
       TestX.find({uid:uid,class1:class1,subjectCode:subjectCode,year:year,type:'Class Assignment'},(err, docs) => {
         if (!err) {
+          let arr=[]
+          for(var i = docs.length - 1; i>=0; i--){
+      
+            arr.push(docs[i])
+          }
             res.render("studentFolder/assgtX7", {
-              listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+              listX:arr,pro:pro,studentSubId:studentSubId,id:id,
           subjectName:subjectName,class1:class1
               
             });
@@ -4533,7 +4592,8 @@ StudentSub.findById(id,function(err,doc){
 router.get('/typeFolderOnlineAssgt/:id',isLoggedIn,student,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var year = m.format('YYYY')
   var pro = req.user
   var uid = req.user.uid
   StudentSub.findById(id,function(err,doc){
@@ -4553,8 +4613,13 @@ router.get('/typeFolderOnlineAssgt/:id',isLoggedIn,student,function(req,res){
 
     TestX.find({uid:uid,subjectCode:subjectCode,year:year,type2:'online assignment',status3:'recorded'},(err, docs) => {
       if (!err) {
+        let arr=[]
+        for(var i = docs.length - 1; i>=0; i--){
+    
+          arr.push(docs[i])
+        }
           res.render("studentFolder/assgtX44", {
-            listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+            listX:arr,pro:pro,studentSubId:studentSubId,id:id,
         subjectName:subjectName,class1:class1
             
           });
@@ -4573,7 +4638,8 @@ router.get('/typeFolderOnlineAssgt/:id',isLoggedIn,student,function(req,res){
 router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+  var year = m.format('YYYY')
   var pro = req.user
   var uid = req.user.uid
   StudentSub.findById(id,function(err,doc){
@@ -4593,8 +4659,13 @@ router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
 
     TestX.find({uid:uid,subjectCode:subjectCode,year:year,type2:'offline',status3:'recorded'},(err, docs) => {
       if (!err) {
+        let arr=[]
+        for(var i = docs.length - 1; i>=0; i--){
+    
+          arr.push(docs[i])
+        }
           res.render("studentFolder/assgtX55", {
-            listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+            listX:arr,pro:pro,studentSubId:studentSubId,id:id,
         subjectName:subjectName,class1:class1
             
           });
@@ -4676,7 +4747,8 @@ router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
   router.get('/typeFolderExam/:id',isLoggedIn,student,function(req,res){
     var id = req.params.id
     var term = req.user.term
-    var year = 2023
+    var m = moment()
+    var year = m.format('YYYY')
     var pro = req.user
     var uid = req.user.uid
     StudentSub.findById(id,function(err,doc){
@@ -4694,10 +4766,15 @@ router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
    
     
   
-      TestX.find({uid:uid,class1:class1,subjectCode:subjectCode,year:year,type:'Exam'},(err, docs) => {
+      TestX.find({uid:uid,class1:class1,subjectCode:subjectCode,year:year,type:'Final Exam'},(err, docs) => {
         if (!err) {
+          let arr=[]
+          for(var i = docs.length - 1; i>=0; i--){
+      
+            arr.push(docs[i])
+          }
             res.render("studentFolder/assgtX3", {
-              listX:docs,pro:pro,studentSubId:studentSubId,id:id,
+              listX:arr,pro:pro,studentSubId:studentSubId,id:id,
           subjectName:subjectName,class1:class1
               
             });
@@ -4747,7 +4824,7 @@ router.get('/typeFolderOffAssgt/:id',isLoggedIn,student,function(req,res){
         let subjectCode = doc.subjectCode
         let subject = doc.subjectName
       
-        TestX.find({uid:uid,subjectCode:subjectCode,year:year,type:'Exam'},(err, docs) => {
+        TestX.find({uid:uid,subjectCode:subjectCode,year:year,type:'Final Exam'},(err, docs) => {
   console.log(docs,'777')
       if(docs){
   
@@ -4848,15 +4925,40 @@ router.get('/monthlyReports',isLoggedIn,student,function(req,res){
   var mformat = m.format('L')
   var uid = req.user.uid
 
-    Report.find({uid:uid,year:year},function(err,docs){
+    Report.find({uid:uid,year:year,type:"Monthly Assessment"},function(err,docs){
 
+      let arr=[]
+      for(var i = docs.length - 1; i>=0; i--){
   
+        arr.push(docs[i])
+      }
 
-    res.render('repositoryS/filesMonthly',{pro:pro,listX:docs,month:month,year:year})
+    res.render('repositoryS/filesMonthly',{pro:pro,listX:arr,month:month,year:year})
  
   })
 })
 
+///////////termly reports
+router.get('/termlyReports',isLoggedIn,student,function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var uid = req.user.uid
+
+    Report.find({uid:uid,year:year,type:"Final Exam"},function(err,docs){
+
+      let arr=[]
+      for(var i = docs.length - 1; i>=0; i--){
+  
+        arr.push(docs[i])
+      }
+
+    res.render('repositoryS/filesTermly',{pro:pro,listX:arr,month:month,year:year})
+ 
+  })
+})
 
 
 router.get('/assgtRepo',isLoggedIn,function(req,res){
@@ -4901,7 +5003,8 @@ router.get('/assgtRepo',isLoggedIn,function(req,res){
 router.get('/assgtFiles/:id',isLoggedIn,student,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+var year = m.format('YYYY')
   var pro = req.user
   StudentSub.findById(id,function(err,doc){
        if(doc){
@@ -4913,8 +5016,12 @@ router.get('/assgtFiles/:id',isLoggedIn,student,function(req,res){
     
     
     Test.find({subjectCode:subjectCode,term:term,year:year,type2:'online assignment attached'},function(err,locs){
-      
-      res.render('repositoryS/files',{listX:locs,pro:pro,studentSubId:studentSubId,
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('repositoryS/files',{listX:arr,pro:pro,studentSubId:studentSubId,
         subject:subject,id:id
       })
    
@@ -5006,7 +5113,8 @@ router.get('/typeFolderMaterial',isLoggedIn,function(req,res){
 router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
   var id = req.params.id
   var term = req.user.term
-  var year = 2023
+  var m = moment()
+var year = m.format('YYYY')
   var pro = req.user
   StudentSub.findById(id,function(err,doc){
        if(doc){
@@ -5018,8 +5126,11 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
     
     
     Learn.find({subjectCode:subjectCode,term:term,year:year},function(err,locs){
-      
-      res.render('repositoryS/filesX',{listX:locs,pro:pro,studentSubId:studentSubId,
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('repositoryS/filesX',{listX:arr,pro:pro,studentSubId:studentSubId,
         subject:subject,id:id
       })
    
@@ -5076,6 +5187,17 @@ router.get('/materialFiles/:id',isLoggedIn,student,function(req,res){
   
   })
 
+
+  router.get('/downloadTermlyReport/:id',isLoggedIn,student,function(req,res){
+    var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+    Report.findById(req.params.id,function(err,doc){
+      var name = doc.filename;
+      res.download( './reportsExam/'+year+'/'+month+'/'+name, name)
+    })  
+  
+  })
 
 
   router.get('/feesRecord',isLoggedIn,student, function(req,res){

@@ -197,22 +197,22 @@ background:#5e5e5e;
 				</div>
 
 				<div class="col-sm-6 top-right">
-						<h3 class="marginright">MONTHLY REPORT</h3>
-						<span class="marginright">{{date}}</span>
+						<h3 class="marginright">MONTHLY</h3>
+						<!--<span class="marginright">{{date}}</span>-->
 			    </div>
 
 			</div>
 			<hr>
 			<div class="row">
 
-				<div class="col-xs-4 from">
+			<!--	<div class="col-xs-4 from">
 					<p class="lead marginbottom">From : Hurlings PreSchool</p>
 					<p>1 Ingatestone rd Marlbereign</p>
 					<p>rd Marlbereign</p>
 					<p>near Greencroft shops</p>
 					<p>Phone: +263 077 552 9777</p>
 					<p>Email: info@hurlings@.co.zw</p>
-				</div>
+				</div>-->
 
 
 	   
@@ -220,17 +220,17 @@ background:#5e5e5e;
 					<p class="lead marginbottom">To : {{this.1.fullname}}</p>
 		             	<p>Student ID: <b>{{this.1.uid}}</b></p>
 		             	<!--<p>Student: <b>{{user.fullname}}</b></p>-->
-			            <p>Class: <b>{{class1}}</b></p>
-					    <p>Phone: {{parentPhone}}</p>
-					    <p>Email: {{parentEmail}}</p>
+			            <p>Class: <b>{{this.1.class1}}</b></p>
+					    <p>Phone: {{this.1.parentPhone}}</p>
+					    <p>Email: {{this.1.parentEmail}}</p>
 
 			    </div>
 
-			    <div class="col-xs-4 text-right payment-details">
+			   <!-- <div class="col-xs-4 text-right payment-details">
 					<p class="lead marginbottom payment-info">Payment details</p>
 				    <p> Term: <b>{{term}}</b></p>
 			        <p>Year: <b>{{year}}</b></p>
-			    </div>
+			    </div>-->
 
 			</div>
     
@@ -268,9 +268,9 @@ background:#5e5e5e;
 
 			<div class="row">
 			<div class="col-xs-6 margintop">
-				<p class="lead marginbottom">THANK YOU!</p>
+				<!--<p class="lead marginbottom">THANK YOU!</p>
 
-				<!--<button class="btn btn-success" id="invoice-print"><i class="fa fa-print"></i> Print Invoice</button>
+				<button class="btn btn-success" id="invoice-print"><i class="fa fa-print"></i> Print Invoice</button>
 				<button class="btn btn-danger"><i class="fa fa-envelope-o"></i> Mail Invoice</button>-->
 			</div>
 		<!--	<div class="col-xs-6 text-right pull-right invoice-total">

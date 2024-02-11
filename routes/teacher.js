@@ -4670,7 +4670,12 @@ router.get('/viewAssignments',isLoggedIn,teacher,function(req,res){
   var n = moment()
   var year = n.format('YYYY')
   Test.find({teacherId:teacherId,type2:"online assignment",term:term,year:year},function(err,docs){
-    res.render('exam/assgtList',{  id:id,listX:docs,pro:pro})
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+    res.render('exam/assgtList',{  id:id,listX:arr,pro:pro})
   })
 
 })
@@ -4732,7 +4737,12 @@ router.get('/viewAssignments/:id',isLoggedIn,teacher,function(req,res){
   var uid = req.user.uid
 
  TestX.find({type2:'online assignment',submissionStatus:'submitted',teacherId:uid,quizId:id},function(err,docs){
-res.render('teachers/assgtList',{listX:docs,pro:pro,id:id})
+  let arr=[]
+  for(var i = docs.length - 1; i>=0; i--){
+
+    arr.push(docs[i])
+  }
+res.render('teachers/assgtList',{listX:arr,pro:pro,id:id})
   })
 
 })
@@ -4843,7 +4853,12 @@ router.get('/classWork',isLoggedIn,teacher,function(req,res){
   var pro = req.user
  
   TestX.find({quizId:id},function(err,docs){
-    res.render('exam/resultUpdate',{     listX:docs,pro:pro})
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+    res.render('exam/resultUpdate',{     listX:arr,pro:pro})
   })
 
 })
@@ -4906,7 +4921,12 @@ router.get('/viewClassWorkX',isLoggedIn,teacher,function(req,res){
   var teacherId = req.user.uid
 
   TestX.find({teacherId:teacherId},function(err,docs){
-    res.render('exam/listX',{     listX:docs,pro:pro})
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+    res.render('exam/listX',{     listX:arr,pro:pro})
   })
 
 })
@@ -4921,7 +4941,12 @@ router.get('/viewClassWork',isLoggedIn,teacher,function(req,res){
   var n = moment()
 var year = n.format('YYYY')
   Test.find({teacherId:teacherId,year:year,term,type:"Class Test"},function(err,docs){
-    res.render('exam/list',{     listX:docs,pro:pro})
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+    res.render('exam/list',{     listX:arr,pro:pro})
   })
 
 })
@@ -4986,7 +5011,12 @@ router.get('/viewClassWork/:id',isLoggedIn,teacher,function(req,res){
   var teacherId = req.user.uid
 
   TestX.find({quizId:id},function(err,docs){
-    res.render('exam/resultUpdate',{ id:id,    listX:docs,pro:pro})
+    let arr=[]
+    for(var i = docs.length - 1; i>=0; i--){
+
+      arr.push(docs[i])
+    }
+    res.render('exam/resultUpdate',{ id:id,    listX:arr,pro:pro})
   })
 
 })
@@ -5135,6 +5165,7 @@ var term = req.user.term
 var year = req.user.year
 
 Exam.find({uid:uid, term:term, year:year},(err, docs) => {
+  
 if (!err) {
    res.render("exam/examListX", {
       list:docs, pro:pro
@@ -5645,7 +5676,7 @@ test.size = 0
 test.topic = topic
 test.quizId = tesn._id
 
-test.type2 = 'null'
+test.type2 = 'offline'
 test.type3 = 'class'
 test.status3 = 'null'
 test.type = type
@@ -6631,8 +6662,12 @@ router.get('/typeFolderClassReg/:id',isLoggedIn,teacher,function(req,res){
   
  
     Attendance.find({class1:class1,subjectCode:subjectCode,term:term,year:year,type:'Class Register'},function(err,locs){
-      
-      res.render('teachrFolderReg/assgtX1',{listX:locs,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
+      let arr=[]
+      for(var i = locs.length - 1; i>=0; i--){
+  
+        arr.push(locs[i])
+      }
+      res.render('teachrFolderReg/assgtX1',{listX:arr,pro:pro,userId:userId,studentSubId:studentSubId,teacherSubId:teacherSubId,id:id,
         subjectName:subjectName,class1:class1})
     })
   })
