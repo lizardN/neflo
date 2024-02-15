@@ -42,7 +42,7 @@ var userSchema = new mongoose.Schema({
     children:{type:Number},
     photo:{type:String},
     duration:{type:Number},
-    level:{type:String, required:true},
+    level:{type:Number, required:true},
     levelX:{type:String, required:true},
     type:{type:String, required:true},
     address:{type:String, required:true},
@@ -67,7 +67,7 @@ var userSchema = new mongoose.Schema({
     email:{type:String, required:true},
     topic:{type:String, required:true},
     testId:{type:String, required:true},
-    status3:{type:String, required:true},
+   status3:{type:String, required:true},
     status4:{type:String, required:true},
     pollCount:{type:Number, required:true},
     count:{type:Number, required:true},
@@ -86,6 +86,12 @@ var userSchema = new mongoose.Schema({
     icon:{type:String, required:true},
     salutation:{type:String},
     companyId:{type:String},
+
+    reportId:{type:String},
+    reportClass:{type:String},
+    reportYear:{type:String},
+    reportMonth:{type:String},
+    classReportId:{type:String},
     
    
 });

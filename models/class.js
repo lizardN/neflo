@@ -7,7 +7,7 @@ var classSchema = new mongoose.Schema({
 class1:{type:String, required:true},
 numberOfStudents:{type:Number, required:true},
 grade:{type:Number, required:true},
-level:{type:String, required:true},
+level:{type:Number, required:true},
 pic1:{type:String, required:true},
 pic2:{type:String, required:true},
 pic3:{type:String, required:true},

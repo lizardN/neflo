@@ -7195,6 +7195,9 @@ var uid1 = prefix1 + idNum1
                 
               })
 
+
+              
+
 router.get('/files',isLoggedIn,adminX,function(req,res){
   var pro = req.user
 
@@ -7305,6 +7308,7 @@ router.get('/teacherClass/:id',isLoggedIn,adminX,function(req,res){
 router.get('/teacherClassAssignment/:id',isLoggedIn,adminX,function(req,res){
   var pro = req.user
   var id = req.params.id
+  var adminId = req.user._id
 
 StudentSub.findById(id,function(err,doc){
   if(doc){
@@ -7319,7 +7323,9 @@ let teacherName = hocs[0].teacherName
   User.find({uid:teacherId},function(err,nocs){
     let id2 = nocs[0]._id
  User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+  User.findByIdAndUpdate(adminId,{$set:{reportId:id}},function(err,pvocs){
 
+  })
 
 
     res.render('admin/fileAssgt22',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
@@ -7329,6 +7335,44 @@ let teacherName = hocs[0].teacherName
 }
 })
 })
+
+
+
+
+router.get('/teacherReportsYear/:id',isLoggedIn,adminX,function(req,res){
+  var pro = req.user
+  var year = req.params.id
+  var id = req.user.reportId
+  var adminId = req.user._id
+  console.log(year,id,"illest")
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+User.findByIdAndUpdate(adminId,{$set:{year:year}},function(err,klops){
+
+})
+
+
+
+    res.render('admin/fileAssgtReports',{id:id,year:year,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+ 
+  })
+})
+  })
+}
+})
+})
+
 
 router.get('/teacherReports/:id',isLoggedIn,adminX,function(req,res){
   var pro = req.user
@@ -7350,8 +7394,8 @@ let teacherName = hocs[0].teacherName
 
 
 
-
-    res.render('admin/fileAssgtReports',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+//fileAssgtReportsYear
+    res.render('admin/fileAssgtReportsYear',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
  
   })
 })
@@ -7365,6 +7409,7 @@ let teacherName = hocs[0].teacherName
 router.get('/monthlyReports/:id',isLoggedIn,adminX,function(req,res){
   var pro = req.user
   var id = req.params.id
+  var year = req.user.year
 
 StudentSub.findById(id,function(err,doc){
   if(doc){
@@ -7382,7 +7427,7 @@ let teacherName = hocs[0].teacherName
 
 
   Report2.find({subjectCode:subjectCode,year:year,type:"Monthly Assessment"},function(er,hocs){
-    res.render('admin/filesMonthly',{listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+    res.render('admin/filesMonthly',{year:year,listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
   })
 
 })
@@ -7398,7 +7443,7 @@ let teacherName = hocs[0].teacherName
 router.get('/termlyReports/:id',isLoggedIn,adminX,function(req,res){
   var pro = req.user
   var id = req.params.id
-
+  var year = req.user.year
 StudentSub.findById(id,function(err,doc){
   if(doc){
   let class1 = doc.class1
@@ -7415,7 +7460,7 @@ let teacherName = hocs[0].teacherName
 
 
   Report2.find({subjectCode:subjectCode,year:year,type:"Final Exam"},function(er,hocs){
-    res.render('admin/filesTermly',{listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+    res.render('admin/filesTermly',{year:year,listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
   })
 
 })

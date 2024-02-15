@@ -6,7 +6,7 @@ var levelSchema = new mongoose.Schema({
 
 
 grade:{type:Number, required:true},
-levelX:{type:String, required:true},
+levelX:{type:Number, required:true},
 companyId:{type:String}
 
 

@@ -328,6 +328,8 @@ User.find({role:"student"},function(err,docs){
 
   
   let uid = docs[i].uid
+  let class1 = docs[i].class1
+  let term = docs[i].term
 
 
 const compile = async function (templateName, arr){
@@ -391,7 +393,9 @@ repo.uid = uid;
 repo.month = month;
 repo.filename = uid+'.pdf';
 repo.year = year;
+repo.term = term
 repo.date = mformat
+repo.class1 = class1
 repo.type = "Monthly Assessment"
 repo.save().then(poll =>{
   console.log("Done creating pdf",uid)
@@ -617,6 +621,7 @@ for(var i = 0; i< docs.length;i++){
 
 
 let subjectCode = docs[i].code
+
 
 
 const compile = async function (templateName, arr2){
@@ -943,6 +948,8 @@ User.find({role:"student"},function(err,docs){
 
   
   let uid = docs[i].uid
+  let class1 = docs[i].class1
+  let term = docs[i].term
 
 
 const compile = async function (templateName, arrE){
@@ -1008,6 +1015,8 @@ repo.month = month;
 repo.filename = uid+'.pdf';
 repo.year = year;
 repo.date = mformat
+repo.term = term
+repo.class1 = class1
 repo.type = 'Final Exam'
 repo.save().then(poll =>{
   console.log("Done creating pdf",uid)
@@ -1224,6 +1233,7 @@ var m = moment()
 var month = m.format('MMMM')
   var year = m.format('YYYY')
   var mformat = m.format('L')
+  var term = req.user.term
   
  // console.log(arr,'arr')
 /*console.log(arr,'iiii')*/
@@ -1233,6 +1243,7 @@ for(var i = 0; i< docs.length;i++){
 
 
 let subjectCode = docs[i].code
+
 
 
 const compile = async function (templateName, arrE2){
@@ -1294,6 +1305,7 @@ repo.month = month;
 repo.filename = subjectCode+'.pdf';
 repo.year = year;
 repo.date = mformat
+repo.term = term
 repo.type = "Final Exam"
 repo.save().then(poll =>{
 console.log("Done creating pdf",subjectCode)
@@ -1326,6 +1338,65 @@ res.redirect('/records/dash')*/
 })
 
 
+
+router.get('/genEmailExam',isLoggedIn,function(req,res){
+  User.find({role:"parent"},function(err,docs){
+ 
+   for(var i = 0;i<docs.length;i++){
+     let email = docs[i].email
+     let studentId = docs[i].studentId
+ 
+ 
+ 
+ 
+ 
+             
+   const transporter = nodemailer.createTransport({
+     service: 'gmail',
+     port:465,
+     secure:true,
+     logger:true,
+     debug:true,
+     secureConnection:false,
+     auth: {
+         user: "kratosmusasa@gmail.com",
+         pass: "znbmadplpvsxshkg",
+     },
+     tls:{
+       rejectUnAuthorized:true
+     }
+     //host:'smtp.gmail.com'
+   });
+   let mailOptions ={
+     from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                 to: email, // list of receivers
+                 subject: "Monthly Assessment Reports",
+     //text:"Node js testing",
+     attachments: [
+       {
+         filename:'document.pdf',
+         path:`./reportsExam/${year}/${month}/${studentId}.pdf`
+       }
+     ]
+   };
+   transporter.sendMail(mailOptions, function (error,info){
+     if(error){
+       console.log(error)
+       req.flash('danger', 'Reports Not Emailed!');
+  
+res.redirect('/records/dash')
+     }else{
+       console.log('Email sent successfully')
+       req.flash('success', 'Reports Emailed Successfully!');
+  
+res.redirect('/records/dash')
+     }
+   })
+ 
+ }
+ })
+ 
+ })
 
 
 router.get('/stats',isLoggedIn,records, function(req,res){
@@ -1410,8 +1481,6 @@ router.get('/stats',isLoggedIn,records, function(req,res){
   
     
   })
-
-
 
 
 
@@ -3079,301 +3148,300 @@ router.get('/fix',isLoggedIn,records,function(req,res){
 
 
 
-      //add student
-
-router.get('/addStudent',isLoggedIn,records,  function(req,res){
-var pro = req.user
-var actualCount = req.user.actualCount
-var count = req.user.count
-var prefix = req.user.prefix
-var title, readonly
-var idNum=req.user.idNumber
-idNum++
-var uid = prefix+idNum
-
-if(actualCount < count){
-
-  Class1.find({},function(err,docs){
-    Level.find({},function(err,gocs){
-
-   var arr = gocs
-    var arr1 = docs;
-    title = "Add Students"
-    readonly =" "
-   var classes = docs.length;
-    if(classes == 0){
-      res.redirect('/records/addClass')
-    }else
-    res.render('students/admit',{arr1:arr1,arr:arr,pro:pro,uid1:uid,title:title,readonly:readonly})
-      
-    })
-  })
-
-}else
-
-
-res.redirect('/records/addStudentX')
-  
-})
-
-
-router.post('/addStudent',isLoggedIn,records,upload.single('file'),function(req, res, next) {
-  var m = moment()
-  var m = moment()
-  var year = m.format('YYYY')
+   
+router.get('/addStudent',isLoggedIn,  function(req,res){
   var pro = req.user
-    var adminBal = req.user.balance
-    var uid = req.body.uid;
-    var grade = req.body.grade
-    var name = req.body.name;
-    var surname = req.body.surname;
-    var fullname= name +" "+ surname
-    var role = 'student';
-    var suffix = 'null';
-    var expdate = req.user.expdate
-    var expStr = req.user.expStr
-    var address = req.body.address
-    var mobile = req.body.mobile;
-    var gender = req.body.gender;
-    var dob = req.body.dob;
-  var email = req.body.email
-    var class1 = req.body.class1;
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  var prefix = req.user.prefix
+  var title, readonly
+  var idNum=req.user.idNumber
+  idNum++
+  var uid = prefix+idNum
   
-
-    var idNumber = req.user.idNumber;
-    var schoolName = req.user.schoolName;
-    var password = req.body.password;
-    var term = req.user.term
-    idNumber++
-
-    var prefix = req.user.prefix
-    var photo = req.body.file
-    var id = req.user._id
-    var count = req.user.count
-    var actualCount = req.user.actualCount
-   var uid1 = prefix+idNumber
+  //if(actualCount < count){
   
-   console.log(grade,'gradeX')
+    Class1.find({},function(err,docs){
+      Level.find({},function(err,gocs){
   
-
-  
+     var arr = gocs
+      var arr1 = docs;
    
-    req.check('name','Enter Name').notEmpty();
-    req.check('surname','Enter Surname').notEmpty();
-    req.check('email','Enter email').notEmpty().isEmail();
-    req.check('dob','Enter Date Of Birth').notEmpty();
-    req.check('address','Enter Address').notEmpty();
-    req.check('grade','Enter Grade/Form').notEmpty();
-    req.check('uid','Enter Student ID').notEmpty();
-    req.check('class1','Enter Class').notEmpty();
-    req.check('gender','Enter Gender').notEmpty();
-    req.check('mobile', 'Enter Phone Number').notEmpty()
-    req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
- 
+     var classes = docs.length;
+      /*if(classes == 0){
+        res.redirect('/hurlings/addClass')
+      }else{*/
+      res.render('students/admit',{arr1:arr1,arr:arr,pro:pro,uid1:uid,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+      
+      })
+    })
+  //}
   
+  /*}else
+  
+  
+  res.redirect('/hurlings/addStudentX')*/
+    
+  })
+  
+  
+  router.post('/addStudent',isLoggedIn,upload.single('file'),function(req, res, next) {
+    var m = moment()
+    var m = moment()
+    var year = m.format('YYYY')
+    var pro = req.user
+      var adminBal = req.user.balance
+      var uid = req.body.uid;
+      var grade = req.body.grade
+      var name = req.body.name;
+      var surname = req.body.surname;
+      var fullname= name +" "+ surname
+      var role = 'student';
+      var suffix = 'null';
+      var expdate = req.user.expdate
+      var expStr = req.user.expStr
+      var address = req.body.address
+      var mobile = req.body.mobile;
+      var gender = req.body.gender;
+      var dob = req.body.dob;
+    var email = req.body.email
+      var class1 = req.body.class1;
+    
+  
+      var idNumber = req.user.idNumber;
+      var schoolName = req.user.schoolName;
+      var password = req.body.password;
+      var term = req.user.term
+      idNumber++
+  
+      var prefix = req.user.prefix
+      var photo = req.body.file
+      var id = req.user._id
+      var count = req.user.count
+      var actualCount = req.user.actualCount
+     var uid1 = prefix+idNumber
+    
+     console.log(grade,'gradeX')
+    
+  
+    
+     
+      req.check('name','Enter Name').notEmpty();
+      req.check('surname','Enter Surname').notEmpty();
+      req.check('email','Enter email').notEmpty().isEmail();
+      req.check('dob','Enter Date Of Birth').notEmpty();
+      req.check('address','Enter Address').notEmpty();
+      req.check('grade','Enter Grade/Form').notEmpty();
+      req.check('uid','Enter Student ID').notEmpty();
+      req.check('class1','Enter Class').notEmpty();
+      req.check('gender','Enter Gender').notEmpty();
+      req.check('mobile', 'Enter Phone Number').notEmpty()
+      req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
    
-  
-        
+    
+     
+    
           
-       
-    var errors = req.validationErrors();
-
-        if (errors) {
-          Class1.find({}, function(err,docs){
-            var arr1 = docs;  
-          req.session.errors = errors;
-          req.session.success = false;
-          res.render('students/admit',{ errors:req.session.errors, arr1:arr1,pro:pro})
-    })
+            
+         
+      var errors = req.validationErrors();
+  
+          if (errors) {
+    
+            req.session.errors = errors;
+            req.session.success = false;
+            //res.render('hurlings/students/admit',{ errors:req.session.errors, arr1:arr1,pro:pro})
+  
+            req.flash('danger', req.session.errors[0].msg);
+         
+          
+            res.redirect('/addStudent');
+    
+          
+        }
+        else
+      
+       {
+          User.findOne({'uid':uid})
+          .then(user =>{
+              if(user){ 
+            // req.session.errors = errors
+              //req.success.user = false;
+                
+        req.flash('danger', 'Email/User already in use');
+   
+        res.redirect('/addStudent');
+        }
         
-      }
-      else
-    
-     {
-        User.findOne({'uid':uid})
-        .then(user =>{
-            if(user){ 
-          // req.session.errors = errors
-            //req.success.user = false;
-            Class1.find({}, function(err,docs){
-              var arr1 = docs;
-           req.session.message = {
-             type:'errors',
-             message:'student already in the system'
-           }     
-           
-              res.render('students/admit', {
-                   message:req.session.message ,arr1:arr1,pro:pro
-              }) 
-            })
-      }
-      
-                    else  {   
-                      var user = new User();
-                      user.uid = uid;
-                      user.name = name;
-                      user.fullname = fullname;
-                      user.surname = surname;
-                      user.role = 'student';
-                      user.gender = gender;
-                      user.dob = dob;
-                      user.studentId = 'null'
-                      user.grade = grade;
-                      user.class1 = class1;
-                      user.mobile = mobile;
-                      user.classLength = 0;
-                      user.studentNum = 0;
-                      user.uidNum = 0;
-                      user.teacherId = 'null';
-                      user.teacherName = 'null';
-                      user.classNo = 0
-                      user.examDate = 'null';
-                      user.feeStatus = 'null';
-                      user.feesUpdate = 'null';
-                      user.term = term;
-                      user.amount = 0;
-                      user.idNumber = idNumber;
-                      user.schoolName = 'null';
-                      user.receiptNumber = 0;
-                      user.year = year;
-                      user.prefix = prefix
-                      user.balance = adminBal;
-                      user.balanceCarriedOver = 0;
-                      user.status = 'owing';
-                      user.status4 = 'null';
-                      user.number = 0;
-                      user.paymentId = 'null';
-                      user.suffix = suffix;
-                      user.photo = "propic.jpg";
-                      user.level = 'null';
-                      user.levelX = 'normal';
-                      user.pollUrl ='null';
-                      user.annual = 0;
-                      user.fees = 0;
-                      user.state = 'new'
-                   
-                      user.idNumber = 0;
-                      user.idNumX = 0
-                      user.recNumber=0
-                      user.type = 'null';
-                      user.address = address;
-                      user.email = email
-                      user.category = 'null';
-                      user.subject = 0;
-                      user.subjects = 'null'
-                      user.subjectCode = 'null'
-                      user.dept = 'null';
-                      user.paynow = 0
-                      user.password = user.encryptPassword(password)
-                      user.expdate=expdate;
-                      user.expStr = expStr;    
-                      user.status3 = "null"
-                      user.pollUrl2 = "null"
-                      user.possibleMark = 0;
-                      user.count=count
-                      user.pollCount = 0
-                      user.actualCount = actualCount
-                      user.startYear = year
-                      user.possibleMark = 0;
-                      user.topic = 'null';
-                      user.currentYearCount = 0
-                      user.stdYearCount = 0
-                      user.admissionYear = year 
-                      user.icon = 'null'
-                      user.subjectNo = 0
-                      user.quizDuration = 0
-                      user.inboxNo = 0
-                      user.quizNo = 0
-                      user.quizBatch = 0
-                      user.quizId = 'null'
-                      user.testId = 'null'
-                      user.industry = 'null'
-                      user.text = password
-                      user.parentId = 'null'
-                      user.save()
-                        .then(user =>{
-                          const CLIENT_URL = 'http://' + req.headers.host;
-      
-                          const output = `
-                          <h2>Please click on below link to activate your account</h2>
-                          <a href="${CLIENT_URL}/">click here to login</a>
-                          <h1> User credentials</h1>
-                          <p>userID:${uid}</p>
-                          <p>password:${password}</p>
-                          <p><b>NOTE: </b> The above activation link expires in 1 week.</p>
-                          `;
-                    
-                         
-                          const transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                                user: "cashreq00@gmail.com",
-                                pass: "itzgkkqtmchvciik",
-                            },
-                          });
-                          
-                    
-                          // send mail with defined transport object
-                          const mailOptions = {
-                              from: '"Admin" <cashreq00@gmail.com>', // sender address
-                              to: email, // list of receivers
-                              subject: "Account Verification ✔", // Subject line
-                              html: output, // html body
-                          };
-                    
-                        transporter.sendMail(mailOptions, (error, info) => {
-                              if (error) {
-                                console.log(error)
-                               
-                           req.session.message = {
-                             type:'errors',
-                             message:'confirmation emails not sent'
-                           }
+                      else  {   
+                        var user = new User();
+                        user.uid = uid;
+                        user.name = name;
+                        user.fullname = fullname;
+                        user.surname = surname;
+                        user.role = 'student';
+                        user.gender = gender;
+                        user.dob = dob;
+                        user.studentId = 'null'
+                        user.grade = grade;
+                        user.class1 = class1;
+                        user.mobile = mobile;
+                        user.classLength = 0;
+                        user.studentNum = 0;
+                        user.uidNum = 0;
+                        user.teacherId = 'null';
+                        user.teacherName = 'null';
+                        user.classNo = 0
+                        user.examDate = 'null';
+                        user.feeStatus = 'null';
+                        user.feesUpdate = 'null';
+                        user.term = term;
+                        user.amount = 0;
+                        user.idNumber = idNumber;
+                        user.schoolName = 'null';
+                        user.receiptNumber = 0;
+                        user.year = year;
+                        user.prefix = prefix
+                        user.balance = adminBal;
+                        user.balanceCarriedOver = 0;
+                        user.status = 'owing';
+                        user.status4 = 'null';
+                        user.number = 0;
+                        user.paymentId = 'null';
+                        user.suffix = suffix;
+                        user.photo = "propic.jpg";
+                        user.level = 'null';
+                        user.levelX = 'normal';
+                        user.pollUrl ='null';
+                        user.annual = 0;
+                        user.fees = 0;
+                        user.state = 'new'
+                     
+                        user.idNumber = 0;
+                        user.idNumX = 0
+                        user.recNumber=0
+                        user.type = 'null';
+                        user.address = address;
+                        user.email = email
+                        user.category = 'null';
+                        user.subject = 0;
+                        user.subjects = 'null'
+                        user.subjectCode = 'null'
+                        user.dept = 'null';
+                        user.paynow = 0
+                        user.password = user.encryptPassword(password)
+                        user.expdate=expdate;
+                        user.expStr = expStr;    
+                        user.status3 = "null"
+                        user.pollUrl2 = "null"
+                        user.possibleMark = 0;
+                        user.count=count
+                        user.pollCount = 0
+                        user.actualCount = actualCount
+                        user.startYear = year
+                        user.possibleMark = 0;
+                        user.topic = 'null';
+                        user.currentYearCount = 0
+                        user.stdYearCount = 0
+                        user.admissionYear = year 
+                        user.icon = 'null'
+                        user.subjectNo = 0
+                        user.quizDuration = 0
+                        user.inboxNo = 0
+                        user.quizNo = 0
+                        user.quizBatch = 0
+                        user.quizId = 'null'
+                        user.testId = 'null'
+                        user.industry = 'null'
+                        user.text = password
+                        user.parentId = 'null'
+                        user.save()
+                          .then(user =>{
+                          /*  const CLIENT_URL = 'http://' + req.headers.host;
+        
+                            const output = `
+                            <h2>Please click on below link to activate your account</h2>
+                            <a href="${CLIENT_URL}/">click here to login</a>
+                            <h1> User credentials</h1>
+                            <p>userID:${uid}</p>
+                            <p>password:${password}</p>
+                            <p><b>NOTE: </b> The above activation link expires in 1 week.</p>
+                            `;
+                      
                            
-                           res.render('students/admit', {message:req.session.message,pro:pro}) 
+                            const transporter = nodemailer.createTransport({
+                              service: 'gmail',
+                              auth: {
+                                  user: "cashreq00@gmail.com",
+                                  pass: "itzgkkqtmchvciik",
+                              },
+                            });
+                            
+                      
+                            // send mail with defined transport object
+                            const mailOptions = {
+                                from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                                to: email, // list of receivers
+                                subject: "Account Verification ✔", // Subject line
+                                html: output, // html body
+                            };
+                      
+                          transporter.sendMail(mailOptions, (error, info) => {
+                                if (error) {
+                                  console.log(error)
+                                 
+                             req.session.message = {
+                               type:'errors',
+                               message:'confirmation emails not sent'
+                             }
+                             
+                             res.render('hurlings/students/admit', {message:req.session.message,pro:pro}) 
+                         
+                          
+                                }
+                                else {
+                                    console.log('Mail sent : %s', info.response);
+                                    idNumber++
+                                 
+                                    User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,locs){
+                
+                                    req.session.message = {
+                                      type:'success',
+                                      message:'confirmation emails sent'
+                                    }     
+                                    
+                                    res.render('hurlings/students/admit', {message:req.session.message,pro:pro}) 
+                                  })
+                                }*/
+                            
                        
+                            User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,locs){
+                            
+                              req.flash('success', 'Student Registered Successfully');
+                            res.redirect('/addStudent')
+                            })
+                         
                         
-                              }
-                              else {
-                                  console.log('Mail sent : %s', info.response);
-                                  idNumber++
-                               
-                                  User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,locs){
-              
-                                  req.session.message = {
-                                    type:'success',
-                                    message:'confirmation emails sent'
-                                  }     
-                                  
-                                  res.render('students/admit', {message:req.session.message,pro:pro}) 
-                                })
-                              }
-                          
-                     
-                          User.findByIdAndUpdate(id,{$set:{uidNum:idNum}},function(err,locs){
-                          
-                          
-                          res.redirect('/records/addStudent')
-                          })
-                       
+      
                       })
-    
-                    })
-                    }
-    
-                        })
                       }
-                  
-                     
+      
+                          })
+                        }
                     
-                        
-                        
-                    
-                     
+                       
                       
-    
+                          
+                          
                       
-    })
+                       
+                        
+      
+                        
+      })
+      
+  
+  
     
                  //importing students details from excel
   
@@ -5220,297 +5288,255 @@ router.get('/classBatchDelete/:id',isLoggedIn, (req, res) => {
 
 //add teachers
 router.get('/addTeacher',isLoggedIn,records,  function(req,res){
-   var pro = req.user
-   var actualCount = req.user.actualCount
-   var count = req.user.count
-   var title
-    var readonly
-    var idNum = req.user.idNumber
-    idNum++
-    var prefix = req.user.prefix
-    var uid = prefix+idNum
-    
+  var pro = req.user
+  var actualCount = req.user.actualCount
+  var count = req.user.count
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+   var idNum = req.user.idNumber
+   idNum++
+   var prefix = req.user.prefix
+   var uid = prefix+idNum
+   
 
 
-    if(actualCount < count){
-      title = "Add Teachers"
-      readonly = ""
-      Dept.find({},function(err,docs){
-        var arr1 = docs;
+  // if(actualCount < count){
+     title = "Add Teachers"
+     readonly = ""
+    /* Dept.find({},function(err,docs){
+       var arr1 = docs;
+   
+     if(docs.length == 0){
+      res.redirect('/dept')
+    }
+   else*/
     
-      if(docs.length == 0){
-       res.redirect('/records/dept')
-     }
-    else
-     
-       res.render('teachers/admit', { arr1:arr1,pro:pro,uid:uid,readonly:readonly});
-       })
-    
-    }else
-
-    res.redirect('/records/addTeacherX')
-  
+      res.render('teacher/admit', { pro:pro,uid:uid,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg});
+    //  })
+   
+  // }
+ 
 })
 
 router.get('/addTeacherX',isLoggedIn,records,function(req,res){
-  var pro = req.user
+ var pro = req.user
 
-var title = 'You have reched maximum users'
-var readonly = 'readonly'
+var title = ''
+var readonly = ''
 
 
 
-res.render('teachers/admit',{pro:pro,readonly:readonly, title:title})
+res.render('teacher/admit',{pro:pro})
 })
 
 router.post('/addTeacher',isLoggedIn,records, function(req,res){
-  var m = moment()
-                  var year = m.format('YYYY')
-                  var pro = req.user
-                var uid = req.body.uid;
-                var name = req.body.name;
-                var teacher = 'teacher'
-                var dept = req.body.dept
-                var surname = req.body.surname;
-                var role = 'teacher';
-                var mobile = req.body.mobile;
-                var expdate = req.user.expdate
-                var expStr = req.user.expStr
-                var gender = req.body.gender;
-                var dob = req.body.dob;
-                var class1 = 'null';
-                var fullname = name +" "+ surname 
-                var grade = 0
-                var id = req.user._id;
-                var email = req.body.email
-                var password = req.body.password;
-                var term = req.user.term;
-                var address = req.body.address
-                var prefix = req.user.prefix
-                var idNum=req.user.idNumber
-                idNum++
-                var uid1 = prefix+idNum
-                var file = req.body.file;
-                var companyId = req.user.companyId
-                var count = req.user.actualCount           
-                var idNumber = req.user.idNumber
-                
-                req.check('name','Enter Name').notEmpty();
-                req.check('surname','Enter Surname').notEmpty();
-                req.check('dob','Enter Date Of Birth').notEmpty();
-                req.check('email','Enter email').notEmpty().isEmail();
-                req.check('uid','Enter Teacher ID').notEmpty();
-                
-                req.check('gender','Enter Gender').notEmpty();
-                req.check('mobile', 'Enter Phone Number').notEmpty();
-                req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
-                    
-                
-                      
-                   
-                var errors = req.validationErrors();
-                    if (errors) {
-                      Dept.find({},function(err,docs){
-                        var arr1 = docs;
-                    
-                      req.session.errors = errors;
-                      req.session.success = false;
-                      res.render('teachers/admit',{ errors:req.session.errors,uid:uid1,arr1:arr1,pro:pro,pre:prefix})
-                      })
-                    
-                  }
-                  else
-                
-                 {
-                    User.findOne({'fullname':fullname, 'role':teacher})
-                    .then(user =>{
-                        if(user){ 
-                      // req.session.errors = errors
-                        //req.success.user = false;
-                        Dept.find({},function(err,docs){
-                          var arr1 = docs;
-                       req.session.message = {
-                         type:'errors',
-                         message:'user id already in use'
-                       }     
-                       
-                          res.render('teachers/admit', {
-                              message:req.session.message, uid:uid1, pro:pro  }) 
-                          })
-                        
-                  }
-                  
-                                else  {   
+ var m = moment()
+                 var year = m.format('YYYY')
+                 var pro = req.user
+               var uid = req.body.uid;
+               var name = req.body.name;
+               var teacher = 'teacher'
+               //var dept = req.body.dept
+               var surname = req.body.surname;
+               var role = 'teacher';
+               var mobile = req.body.mobile;
+               var expdate = req.user.expdate
+               var expStr = req.user.expStr
+               var gender = req.body.gender;
+               var dob = req.body.dob;
+               var class1 = 'null';
+               var fullname = name +" "+ surname 
+               var grade = 0
+               var id = req.user._id;
+               var email = req.body.email
+               var password = req.body.password;
+               var term = req.user.term;
+               var address = req.body.address
+               var prefix = req.user.prefix
+               var idNum=req.user.idNumber
+               idNum++
+               var uid1 = prefix+idNum
+               var file = req.body.file;
+               var companyId = req.user.companyId
+               var count = req.user.actualCount           
+               var idNumber = req.user.idNumber
                
-
-                  
-                  var user = new User();
-                  user.uid = uid;
-                  user.name = name;
-                  user.fullname = fullname;
-                  user.surname = surname;
-                  user.role = role;
-                  user.gender = gender;
-                  user.dob = dob;
-                  user.studentId = 'null'
-                  user.grade = 0;
-                  user.class1 = 'null';
-                  user.mobile = mobile;
-                  user.classLength = 0;
-                  user.studentNum = 0;
-                  user.uidNum = 0;
-                  user.teacherId = 'null';
-                  user.teacherName = 'null';
-                  user.classNo = 0
-                  user.examDate = 'null';
-                  user.feeStatus = 'null';
-                  user.feesUpdate = 'null';
-                  user.term = term;
-                  user.amount = 0;
-                  user.receiptNumber = 0;
-                  user.year = year;
-                  user.balance = 0;
-                  user.idNumber = 0
-                  user.idNumX = 0
-                  user.number = 0
-                  user.schoolName = 'null'
-                  user.balanceCarriedOver = 0;
-                  user.status = 'owing';
-                  user.paymentId = 'null';
-                  user.prefix = prefix;
-                  user.photo = "propic.jpg";
-                  user.level = 'null';
-                  user.pollUrl ='null';
-                  user.annual = 0;
-                  user.fees = 0
-                  user.type = 'null';
-                  user.address = address;
-                  user.email = email
-                  user.category = 'null';
-                  user.subject = 0;
-                  user.subjects = 'null'
-                  user.subjectCode = 'null'
-                  user.dept = dept;
-                  user.paynow = 0
-                 
-                  user.expdate=expdate;
-                  user.expStr = expStr; 
-                  user.status3 = "null"
-                  user.pollUrl2 = "null"
-                  user.levelX = 'null';
-                  user.status4 = 'null';
-                  user.recNumber = 0
-                  user.suffix = 'null'
-                  user.count=0
-                  user.pollCount = 0
-                  user.possibleMark = 0;
-                  user.topic = 'null';
-                  user.actualCount = 0  
-                  user.startYear = year
-                  user.currentYearCount = 0
-                  user.stdYearCount = 0
-                  user.admissionYear = year
-                  user.icon = 'null'
-                  user.subjectNo = 0
-                  user.quizDuration = 0
-                  user.inboxNo = 0
-                  user.quizNo = 0
-                  user.quizBatch = 0
-                  user.quizId = 'null'
-                  user.testId = 'null'
-                  user.industry = 'null'
-                  user.text = password
-                  user.password = user.encryptPassword(password)
-
-                  
+               req.check('name','Enter Name').notEmpty();
+               req.check('surname','Enter Surname').notEmpty();
+               req.check('dob','Enter Date Of Birth').notEmpty();
+               req.check('email','Enter email').notEmpty().isEmail();
+               req.check('uid','Enter Teacher ID').notEmpty();
+               
+               req.check('gender','Enter Gender').notEmpty();
+               req.check('mobile', 'Enter Phone Number').notEmpty();
+               req.check('password', 'Password do not match').isLength({min: 4}).equals(req.body.confirmPassword);
                    
-              
-                   
-          
-                  user.save()
-                    .then(user =>{
-                      const CLIENT_URL = 'http://' + req.headers.host;
-      
-                      const output = `
-                      <h2>Please click on below link to activate your account</h2>
-                      <a href="${CLIENT_URL}/">click here to login</a>
-                      <h1> User credentials</h1>
-                      <p>userID:${uid}</p>
-                      <p>password:${password}</p>
-                      <p><b>NOTE: </b> The above activation link expires in 1 week.</p>
-                      `;
-                
+               
                      
-                      const transporter = nodemailer.createTransport({
-                        service: 'gmail',
-                        auth: {
-                            user: "cashreq00@gmail.com",
-                            pass: "itzgkkqtmchvciik",
-                        },
-                      });
-                      
-                
-                      // send mail with defined transport object
-                      const mailOptions = {
-                          from: '"Admin" <cashreq00@gmail.com>', // sender address
-                          to: email, // list of receivers
-                          subject: "Account Verification ✔", // Subject line
-                          html: output, // html body
-                      };
-                
-                    transporter.sendMail(mailOptions, (error, info) => {
-                          if (error) {
-                            console.log(error)
-                           
-                       req.session.message = {
-                         type:'errors',
-                         message:'confirmation emails not sent'
-                       }
-                       
-                       res.render('imports/teacher', {message:req.session.message,pro:pro}) 
-                   
+                  
+               var errors = req.validationErrors();
+                   if (errors) {
                     
-                          }
-                          else {
-                              console.log('Mail sent : %s', info.response);
-                              idNumber++
-                           
-                              User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,locs){
-          
-                              req.session.message = {
-                                type:'success',
-                                message:'confirmation emails sent'
-                              }     
-                              
-                              res.render('imports/teacher', {message:req.session.message,pro:pro}) 
-                            })
-                          }
-                      
-                 
-                      User.findByIdAndUpdate(id,{$set:{uidNum:idNum}},function(err,locs){
-                      
-                      
-                      res.redirect('/records/addTeacher')
-                      })
                    
-                  })
+                     req.session.errors = errors;
+                     req.session.success = false;
+                     req.flash('danger', req.session.errors[0].msg);
+      
+       
+                     res.redirect('/records/addTeacher');
+                 }
+                 else
+               
+                {
+                   User.findOne({'fullname':fullname, 'role':teacher})
+                   .then(user =>{
+                       if(user){ 
+                     // req.session.errors = errors
+                       //req.success.user = false;
+                           
+     req.flash('danger', 'Email/User already in use');
 
-                })
-                }
-
-                    })
-                  }
+     res.redirect('/records/addTeacher');
+                 }
+                 
+                               else  {   
               
-                 
-                
-                    
-                    
-                
-                 
-                  
 
+                 
+                 var user = new User();
+                 user.uid = uid;
+                 user.name = name;
+                 user.fullname = fullname;
+                 user.surname = surname;
+                 user.role = role;
+                 user.gender = gender;
+                 user.dob = dob;
+                 user.studentId = 'null'
+                 user.grade = 0;
+                 user.class1 = 'null';
+                 user.mobile = mobile;
+                 user.classLength = 0;
+                 user.studentNum = 0;
+                 user.uidNum = 0;
+                 user.teacherId = 'null';
+                 user.teacherName = 'null';
+                 user.classNo = 0
+                 user.examDate = 'null';
+                 user.feeStatus = 'null';
+                 user.feesUpdate = 'null';
+                 user.term = term;
+                 user.amount = 0;
+                 user.receiptNumber = 0;
+                 user.year = year;
+                 user.balance = 0;
+                 user.idNumber = 0
+                 user.idNumX = 0
+                 user.number = 0
+                 user.schoolName = 'null'
+                 user.balanceCarriedOver = 0;
+                 user.status = 'owing';
+                 user.paymentId = 'null';
+                 user.prefix = prefix;
+                 user.photo = "propic.jpg";
+                 user.level = 'null';
+                 user.pollUrl ='null';
+                 user.annual = 0;
+                 user.fees = 0
+                 user.type = 'null';
+                 user.address = address;
+                 user.email = email
+                 user.category = 'null';
+                 user.subject = 0;
+                 user.subjects = 'null'
+                 user.subjectCode = 'null'
+                 user.dept = "null";
+                 user.paynow = 0
+                
+                 user.expdate=expdate;
+                 user.expStr = expStr; 
+                 user.status3 = "null"
+                 user.pollUrl2 = "null"
+                 user.levelX = 'null';
+                 user.status4 = 'null';
+                 user.recNumber = 0
+                 user.suffix = 'null'
+                 user.count=0
+                 user.pollCount = 0
+                 user.possibleMark = 0;
+                 user.topic = 'null';
+                 user.actualCount = 0  
+                 user.startYear = year
+                 user.currentYearCount = 0
+                 user.stdYearCount = 0
+                 user.admissionYear = year
+                 user.icon = 'null'
+                 user.subjectNo = 0
+                 user.quizDuration = 0
+                 user.inboxNo = 0
+                 user.quizNo = 0
+                 user.quizBatch = 0
+                 user.quizId = 'null'
+                 user.testId = 'null'
+                 user.industry = 'null'
+                 user.text = password
+                 user.password = user.encryptPassword(password)
+
+                 
                   
+             
+                  
+         
+                 user.save()
+                   .then(user =>{
+     /*                const CLIENT_URL = 'http://' + req.headers.host;
+     
+                     const output = `
+                     <h2>Please click on below link to activate your account</h2>
+                     <a href="${CLIENT_URL}/">click here to login</a>
+                     <h1> User credentials</h1>
+                     <p>userID:${uid}</p>
+                     <p>password:${password}</p>
+                     <p><b>NOTE: </b> The above activation link expires in 1 week.</p>
+                     `;
+               
+                    
+                     const transporter = nodemailer.createTransport({
+                       service: 'gmail',
+                       auth: {
+                           user: "cashreq00@gmail.com",
+                           pass: "itzgkkqtmchvciik",
+                       },
+                     });*/
+                     
+               
+                     // send mail with defined transport object
+                 
+                 })
+
+               
+               }
+               User.findByIdAndUpdate(id,{$set:{idNumber:idNum}},function(err,locs){
+                         
+                 req.flash('success', 'Teacher Added Successfully');
+               res.redirect('/records/addTeacher')
+               })
+                   })
+                 }
+             
+                
+               
+                   
+                   
+               
+                
+                 
+
+                 
 })
+
+
+
+
 
 
  //importing teachers details from excel
@@ -6600,7 +6626,7 @@ router.get('/idEdit',isLoggedIn,records,function(req,res){
    }
    else
   User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,docs){
-
+    req.flash('success', 'ID sequence changed successfully');
     res.redirect('/records/addStudent')
   })
 
@@ -6634,7 +6660,7 @@ router.get('/idEdit',isLoggedIn,records,function(req,res){
      }
      else
     User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,docs){
-  
+      req.flash('success', 'ID sequence changed successfully');
       res.redirect('/records/addTeacher')
     })
   
@@ -8029,8 +8055,509 @@ router.get('/alloBatchDelete/:id',isLoggedIn, (req, res) => {
     
     })
     })
+    /////////////////////////files & reports
+    router.get('/files',isLoggedIn,records,function(req,res){
+      var pro = req.user
     
+      Class1.find({},function(err,docs){
+        res.render('adminStudentRecords/folders',{listX:docs,pro:pro})
+    
+      })
+    
+    })
+    
+
+  /////////
+  router.get('/studentReportsYear/:id',isLoggedIn,records,function(req,res){
+    var pro = req.user
+    //var year = req.params.id
+    var id = req.params.id
+    console.log(id,'id')
+    var adminId = req.user._id
+    Class1.findById(id,function(err,doc){
+console.log(doc,'doc')
+  let class1 = doc.class1
+
+
+    User.findByIdAndUpdate(adminId,{$set:{reportClass:class1,classReportId:id}},function(err,tocs){
+
+   
+    
+
   
+  
+      res.render('adminStudentRecords/fileAssgtReportsYear',{id:id,pro:pro,class1:class1})
+   
+    })
+})
+  })
+
+
+
+  
+
+
+  router.get('/studentReportsMonth/:id',isLoggedIn,records,function(req,res){
+    var pro = req.user
+    var year = req.params.id
+    var id = req.user.reportId
+    var adminId = req.user._id
+    var class1 = req.user.reportClass
+    var classReportId =req.user.classReportId
+    console.log(classReportId,'classId')
+  
+
+    User.findByIdAndUpdate(adminId,{$set:{reportYear:year}},function(err,klocs){
+
+
+    
+
+  
+  
+      res.render('adminStudentRecords/fileAssgtReportsMonth',{id:id,year:year,pro:pro,class1:class1,classReportId:classReportId})
+   
+    })
+
+  })
+
+
+////
+router.get('/studentMonthlyReportFiles/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var month = req.params.id
+  var class1 =  req.user.reportClass
+  var year = req.user.reportYear
+  var adminId = req.user._id
+  var classId = req.user.classReportId
+
+  User.findByIdAndUpdate(adminId,{$set:{reportMonth:month}},function(err,klocs){
+
+
+
+  Report.find({year:year,month:month,type:"Monthly Assessment",class1:class1},function(er,hocs){
+    res.render('adminStudentRecords/filesMonthly',{year:year,listX:hocs,pro:pro,class1:class1,classId:classId,month:month,year:year})
+  })
+
+  })
+
+
+})
+
+
+router.get('/studentDownloadMonthlyReport/:id',isLoggedIn,records,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reports/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
+
+
+
+//student examfiles
+router.get('/examFiles',isLoggedIn,records,function(req,res){
+  var pro = req.user
+
+  Class1.find({},function(err,docs){
+    res.render('adminStudentExamRecords/folders',{listX:docs,pro:pro})
+
+  })
+
+})
+
+
+/////////
+router.get('/studentExamReportsYear/:id',isLoggedIn,records,function(req,res){
+var pro = req.user
+//var year = req.params.id
+var id = req.params.id
+console.log(id,'id')
+var adminId = req.user._id
+Class1.findById(id,function(err,doc){
+console.log(doc,'doc')
+let class1 = doc.class1
+
+
+User.findByIdAndUpdate(adminId,{$set:{reportClass:class1,classReportId:id}},function(err,tocs){
+
+
+
+
+
+
+  res.render('adminStudentExamRecords/fileAssgtReportsYear',{id:id,pro:pro,class1:class1})
+
+})
+})
+})
+
+
+
+
+
+
+router.get('/studentExamReportsMonth/:id',isLoggedIn,records,function(req,res){
+var pro = req.user
+var year = req.params.id
+var id = req.user.reportId
+var adminId = req.user._id
+var class1 = req.user.reportClass
+var classReportId =req.user.classReportId
+console.log(classReportId,'classId')
+
+
+User.findByIdAndUpdate(adminId,{$set:{reportYear:year}},function(err,klocs){
+
+
+
+
+
+
+  res.render('adminStudentExamRecords/fileAssgtReportsMonth',{id:id,year:year,pro:pro,class1:class1,classReportId:classReportId})
+
+})
+
+})
+
+
+////
+router.get('/studentTermlyReportFiles/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var term = req.params.id
+  var class1 =  req.user.reportClass
+  var year = req.user.reportYear
+  var adminId = req.user._id
+  var classId = req.user.classReportId
+
+  User.findByIdAndUpdate(adminId,{$set:{reportMonth:month}},function(err,klocs){
+
+
+
+  Report.find({year:year,term:term,type:"Final Exam",class1:class1},function(er,hocs){
+    res.render('adminStudentExamRecords/filesMonthly',{year:year,listX:hocs,pro:pro,class1:class1,classId:classId,year:year,term:term})
+  })
+
+  })
+
+
+})
+
+
+
+
+router.get('/studentDownloadTermlyReport/:id',isLoggedIn,records,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reportsExam/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
+
+//teacher reports
+
+
+router.get('/teachersRepo',isLoggedIn,records,function(req,res){
+  var pro = req.user
+
+  User.find({role:"teacher"},function(err,docs){
+    res.render('adminRecords/folders2',{listX:docs,pro:pro})
+
+  })
+
+})
+
+
+router.get('/subjectFile/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var arr = []
+
+  User.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let uid = doc.uid
+    let teacherName = doc.fullname
+    TeacherSub.find({teacherId:uid},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.subjectName == docs[i].subjectName)){
+                console.log('true')
+               arr.find(value => value.subjectName == docs[i].subjectName).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('adminRecords/fileSubjects2',{listX:arr,pro:pro,id:id,teacherName:teacherName})
+
+    })
+  }
+  })
+})
+
+
+
+
+router.get('/teacherClass/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var arr = []
+
+  TeacherSub.findById(id,function(err,doc){
+    if(doc){
+
+   
+    let subjectCode = doc.subjectCode
+    let uid = doc.teacherId
+    let subject = doc.subjectName
+    let teacherName = doc.teacherName
+    User.find({uid:uid},function(err,ocs){
+
+    
+    let id2 = ocs[0]._id
+    StudentSub.find({subjectCode:subjectCode},function(err,docs){
+      for(var i = 0;i<docs.length;i++){
+        
+     
+          
+         if(arr.length > 0 && arr.find(value => value.class1 == docs[i].class1)){
+                console.log('true')
+               arr.find(value => value.class1 == docs[i].class1).year += docs[i].year;
+
+              }else{
+      arr.push(docs[i])
+  
+ 
+              }
+      
+          
+          }
+
+          res.render('adminRecords/fileClass2',{listX:arr,pro:pro,id:id,id2:id2,subject:subject,teacherName:teacherName})
+
+    })
+  })
+}
+  })
+})
+
+
+router.get('/teacherClassAssignment/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var adminId = req.user._id
+
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+  User.findByIdAndUpdate(adminId,{$set:{reportId:id}},function(err,pvocs){
+
+  })
+
+
+    res.render('adminRecords/fileAssgt22',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+})
+  })
+}
+})
+})
+
+
+
+
+router.get('/teacherReportsYear/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var year = req.params.id
+  var id = req.user.reportId
+  var adminId = req.user._id
+  console.log(year,id,"illest")
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+User.findByIdAndUpdate(adminId,{$set:{year:year}},function(err,klops){
+
+})
+
+
+
+    res.render('adminRecords/fileAssgtReports',{id:id,year:year,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+ 
+  })
+})
+  })
+}
+})
+})
+
+
+router.get('/teacherReports/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+
+//fileAssgtReportsYear
+    res.render('adminRecords/fileAssgtReportsYear',{id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+ 
+  })
+})
+  })
+}
+})
+})
+
+
+
+router.get('/monthlyReports/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var year = req.user.year
+
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+  Report2.find({subjectCode:subjectCode,year:year,type:"Monthly Assessment"},function(er,hocs){
+    res.render('adminRecords/filesMonthly',{year:year,listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+
+})
+})
+  })
+}
+})
+})
+
+
+
+
+router.get('/termlyReports/:id',isLoggedIn,records,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var year = req.user.year
+StudentSub.findById(id,function(err,doc){
+  if(doc){
+  let class1 = doc.class1
+  let subjectCode = doc.subjectCode
+  let subject = doc.subjectName
+
+  TeacherSub.find({subjectCode:subjectCode},function(err,hocs){
+let teacherId = hocs[0].teacherId
+let id3 = hocs[0]._id
+let teacherName = hocs[0].teacherName
+  User.find({uid:teacherId},function(err,nocs){
+    let id2 = nocs[0]._id
+ User.findByIdAndUpdate(id2,{$set:{class1:class1}},function(err,voc){
+
+
+  Report2.find({subjectCode:subjectCode,year:year,type:"Final Exam"},function(er,hocs){
+    res.render('adminRecords/filesTermly',{year:year,listX:hocs,id:id,pro:pro,id2:id2,id3:id3,teacherName:teacherName,subject:subject,class1:class1})
+  })
+
+})
+})
+  })
+}
+})
+})
+
+
+router.get('/downloadMonthlyReport/:id',isLoggedIn,records,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report2.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reports2/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
+
+
+router.get('/downloadTermlyReport/:id',isLoggedIn,records,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  Report2.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './reportsExam2/'+year+'/'+month+'/'+name, name)
+  })  
+
+})
+
+
   
     router.get('/teacherSubList',isLoggedIn,records, (req, res) => {
        var pro = req.user
@@ -11285,9 +11812,6 @@ router.get('/onlineQuiz/delete/:id',isLoggedIn, (req, res) => {
     })
   })
   })
-
-
-
 
 
 

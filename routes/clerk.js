@@ -1963,7 +1963,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   var year = m.format('YYYY')
   var month = m.format('MMMM')
   var receiptNumber = req.body.receiptNumber;
-  var method = 'manual'
+  var method = 'cash payment'
   var day = moment().toString()
 
   console.log(studentId,'studentId')
@@ -2011,8 +2011,8 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
         fees.save()
           .then(fee =>{
             User.find({uid:uid},function(err,docs){
-  
-             User.findByIdAndUpdate(xId,{$set:{studentId:studentId,amount:amount,receiptNumber:receiptNumber}},function(err,gocs){
+              let parentEmail =docs[0].parentEmail
+             User.findByIdAndUpdate(xId,{$set:{studentId:studentId,amount:amount,receiptNumber:receiptNumber,paymentCode:fee._id,parentEmail:parentEmail}},function(err,gocs){
             
   
   console.log('xId',xId)
@@ -2022,7 +2022,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   
               if(newBalance >= 0){
       
-                User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"paid", term:term,amount:amount, year:year,balanceCarriedOver:balance}},function(err,docs){
+                User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"paid", term:term,amount:amount, year:year,balanceCarriedOver:balance,receiptNumber:fee._id}},function(err,docs){
               
           
                 
@@ -2031,7 +2031,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
             
               }else
               
-              User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"owing",amount:amount, term:term, year:year,balanceCarriedOver:balance}},function(err,docs){
+              User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"owing",amount:amount, term:term, year:year,balanceCarriedOver:balance,receiptNumber:fee._id}},function(err,docs){
               
               
                 
@@ -2109,10 +2109,17 @@ const page = await browser.newPage()
 
 const content = await compile('receipt3',docs)
 
+await page.setContent(content, { waitUntil: 'networkidle0'});
+
+ await page.setContent(content)
+  //await page.setContent(content, { waitUntil: "domcontentloaded"});
+//await page.addStyleTag({ path: `./public/hurlings/feesReceipt.css`});
+//create a pdf document
+//await page.setContent(html, { waitUntil: "domcontentloaded"});
+await page.setContent(content, { waitUntil: 'networkidle2'});
 
 
-await page.setContent(content)
-await page.addStyleTag({ path: './public/hurlings/feesReceipt.css'});
+//await page.addStyleTag({ path: './public/hurlings/feesReceipt.css'});
 //create a pdf document
 
 await page.pdf({
@@ -2142,17 +2149,81 @@ console.log(e)
 
   })
   
+
+  
+router.get('/genEmail2',isLoggedIn,function(req,res){
+  //User.find({role:"parent"},function(err,docs){
+ let email= req.user.parentEmail
+ let uid = req.user.studentUid
+  /* for(var i = 0;i<docs.length;i++){
+     let email = docs[i].email
+     let studentId = docs[i].studentId*/
+ 
+ 
+ 
+ 
+ 
+             
+   const transporter = nodemailer.createTransport({
+     service: 'gmail',
+     port:465,
+     secure:true,
+     logger:true,
+     debug:true,
+     secureConnection:false,
+     auth: {
+         user: "kratosmusasa@gmail.com",
+         pass: "znbmadplpvsxshkg",
+     },
+     tls:{
+       rejectUnAuthorized:true
+     }
+     //host:'smtp.gmail.com'
+   });
+   let mailOptions ={
+     from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                 to: email, // list of receivers
+                 subject: "Fees Receipt",
+     //text:"Node js testing",
+     attachments: [
+       {
+         filename:'document.pdf',
+         path:(`./finance/${year}/${month}/${uid}`+'.pdf')
+       }
+     ]
+   };
+   transporter.sendMail(mailOptions, function (error,info){
+     if(error){
+       console.log(error)
+       req.flash('danger', 'Receipt Not Emailed!');
+  
+       res.redirect('/clerk/print')
+     }else{
+       console.log('Email sent successfully')
+       req.flash('success', 'Receipt Emailed Successfully!');
+  
+       res.redirect('/clerk/print')
+     }
+   })
+ 
+
+ 
+ })
+
+
+
   router.get('/print',isLoggedIn,function(req,res){
     var uid =req.user.studentId;
-    var day = moment().toString();
-    var amount = req.user.amount
+  var day = moment().toString();
+  var amount = req.user.amount
+  var receiptNumber = req.user.paymentCode
     
     User.findById(uid,function(err,zocs){
   
       
          
          res.render('accounts/receipt3', {
-           date:day,uid:uid,user:zocs, clerk:req.user.fullname, amount:amount})
+           date:day,uid:uid,user:zocs, clerk:req.user.fullname, amount:amount,receiptNumber:receiptNumber,})
      
     })
   })
