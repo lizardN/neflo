@@ -86,7 +86,10 @@ var userSchema = new mongoose.Schema({
     icon:{type:String, required:true},
     salutation:{type:String},
     companyId:{type:String},
-
+    alumniYearCount:{type:Number},
+    alumniLevel:{type:Number},
+    accountStatus:{type:String},
+    accountType:{type:String},
     reportId:{type:String},
     reportClass:{type:String},
     reportYear:{type:String},

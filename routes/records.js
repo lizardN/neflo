@@ -1397,7 +1397,27 @@ res.redirect('/records/dash')
  })
  
  })
+ router.get('/classNameUpdate',function(req,res){
+   Class1.find({class1:"12B"},function(err,docs){
+     for(var i=0;i<docs.length;i++){
+       let id = docs[i]._id
+       Class1.findByIdAndUpdate(id,{$set:{className:"B"}},function(err,tocs){
 
+       })
+     }
+   })
+ })
+
+ router.get('/levelUpdate',function(req,res){
+  User.find({role:"student"},function(err,docs){
+    for(var i=0;i<docs.length;i++){
+      let id = docs[i]._id
+      User.findByIdAndUpdate(id,{$set:{levelX:"null"}},function(err,tocs){
+
+      })
+    }
+  })
+})
 
 router.get('/stats',isLoggedIn,records, function(req,res){
     var students, teachers, paid, unpaid, depts, class1
@@ -1494,7 +1514,7 @@ router.get('/gradeUpdate',isLoggedIn,records,function(req,res){
      console.log(grade,'grade')
      Level.find({grade:grade},function(err,tocs){
        let levelX = tocs[0].levelX
-      // console.log('levelX',levelX)
+       console.log('tocs',levelX)
 User.findByIdAndUpdate(id,{$set:{levelX:levelX}},function(err,jocs){
 
 })
@@ -1503,10 +1523,123 @@ User.findByIdAndUpdate(id,{$set:{levelX:levelX}},function(err,jocs){
     }
   
   })
-  res.redirect('/records/classUpdate')
+ // res.redirect('/records/classUpdate')
+})
+//alumni rollover
+
+router.get('/alumniRollOver',isLoggedIn,records,function(req,res){
+  User.find({role:"student",accountType:"alumni"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let alumniYearCount = docs[i].alumniYearCount
+      let id = docs[i]._id
+      let class1= docs[i].class1
+
+      if(alumniYearCount > 0){
+        alumniYearCount++
+
+        User.findByIdAndUpdate(id,{$set:{alumniYearCount:alumniYearCount}},function(err,ovs){
+
+        })
+      }
+
+    }
+    res.redirect('/records/newAlumni')
+  })
+})
+
+router.get('/newAlumni',isLoggedIn,records,function(req,res){
+  User.find({role:"student",levelX:"last"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let id = docs[i]._id
+      User.findByIdAndUpdate(id,{$set:{accountStatus:"deactivated",alumniYearCount:1,alumniLevel:1,accountType:"alumni"}},function(err,tocs){
+
+      })
+    }
+    res.redirect('/records/studentRollOver')
+  })
 })
 
 
+
+router.get('/studentRollOver',isLoggedIn,records,function(req,res){
+  User.find({role:"student",levelX:"normal"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let id = docs[i]._id
+      let class1= docs[i].class1
+
+Class1.find({class1:class1},function(err,vocs){
+if(vocs){
+  let grade = vocs[0].grade + 1
+  let className = vocs[0].className
+  let xclass = grade+className
+
+      User.findByIdAndUpdate(id,{$set:{grade:grade,class:xclass}},function(err,tocs){
+
+      })
+    }
+
+  })
+    }
+  })
+})
+
+///reverse rollOvers
+router.get('/reverseAlumniRollOver',isLoggedIn,records,function(req,res){
+  User.find({role:"student",accountType:"alumni"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let alumniYearCount = docs[i].alumniYearCount
+      let id = docs[i]._id
+      let class1= docs[i].class1
+
+      if(alumniYearCount > 0){
+        alumniYearCount--
+
+        User.findByIdAndUpdate(id,{$set:{alumniYearCount:alumniYearCount}},function(err,ovs){
+
+        })
+      }
+
+    }
+    res.redirect('/records/reverseNewAlumni')
+  })
+})
+
+
+router.get('/reverseNewAlumni',isLoggedIn,records,function(req,res){
+  User.find({role:"student",levelX:"last"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let id = docs[i]._id
+      User.findByIdAndUpdate(id,{$set:{accountStatus:"activate",alumniYearCount:0,alumniLevel:0,accountType:"student"}},function(err,tocs){
+
+      })
+    }
+    res.redirect('/records/reverseStudentRollOver')
+  })
+})
+
+
+
+router.get('/reverseStudentRollOver',isLoggedIn,records,function(req,res){
+  User.find({role:"student",levelX:"normal"},function(err,docs){
+    for(var i = 0;i<docs.length;i++){
+      let id = docs[i]._id
+      let class1= docs[i].class1
+
+Class1.find({class1:class1},function(err,vocs){
+if(vocs){
+  let grade = vocs[0].grade - 1
+  let className = vocs[0].className
+  let xclass = grade+className
+
+      User.findByIdAndUpdate(id,{$set:{grade:grade,class:xclass}},function(err,tocs){
+
+      })
+    }
+
+  })
+    }
+  })
+})
 
 router.get('/classUpdate',isLoggedIn,records,function(req,res){
   Class1.find(function(err,docs){

@@ -5,6 +5,7 @@ var classSchema = new mongoose.Schema({
 
 
 class1:{type:String, required:true},
+className:{type:String, required:true},
 numberOfStudents:{type:Number, required:true},
 grade:{type:Number, required:true},
 level:{type:Number, required:true},
