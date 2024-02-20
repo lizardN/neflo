@@ -7,6 +7,8 @@ const Trip =require('../models/trip')
 const Setup =require('../models/setup')
 const Report =require('../models/reports')
 const Class1 =require('../models/class');
+const CV =require('../models/cv');
+const JobAd =require('../models/jobAd');
 let pdf = require('html-pdf');
 const Report2 = require('../models/reportsT');
 const Enroll = require('../models/enroll');
@@ -4193,10 +4195,30 @@ router.get('/alumni',function(req,res){
   res.render('eurit/alumni')
 })
 
-router.get('/career',function(req,res){
+/*router.get('/career',function(req,res){
   res.render('eurit/career')
-})
+})*/
 
+
+
+
+
+router.get('/career',function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+
+
+    JobAd.find(function(err,docs){
+
+  
+
+    res.render('eurit/career',{pro:pro,listX:docs})
+ 
+  })
+})
 
 router.get('/parentLounge',function(req,res){
   res.render('eurit/parentLounge')
@@ -4482,6 +4504,226 @@ let contentType = files[0].contentType
  //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
 })
 
+
+
+
+router.get('/euritCVDownload/:id',(req,res)=>{
+  var fileId = req.params.id
+  
+
+
+//const bucket = new GridFsStorage(db, { bucketName: 'uploads' });
+const bucket = new mongodb.GridFSBucket(conn.db,{ bucketName: 'uploads' });
+gfs.files.find({_id: mongodb.ObjectId(fileId)}).toArray((err, files) => {
+
+  console.log(files[0].filename,'files9')
+let filename = files[0].filename
+let contentType = files[0].contentType
+
+
+    res.set('Content-disposition', `attachment; filename="${filename}"`);
+    res.set('Content-Type', contentType);
+    bucket.openDownloadStreamByName(filename).pipe(res);
+  })
+ //gfs.openDownloadStream(ObjectId(mongodb.ObjectId(fileId))).pipe(fs.createWriteStream('./outputFile'));
+})
+
+
+router.get('/jobAd',isLoggedIn,function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('eurit/job',{successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+})
+router.post('/jobAd/',isLoggedIn, function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var date = m.format('L')
+ var role = req.body.role
+ var type = req.body.type
+ var description = req.body.description
+
+
+  req.check('role','Enter Job Role').notEmpty();
+  req.check('type','Enter Type of Job').notEmpty();
+  req.check('description','Enter Description of Job').notEmpty();
+  req.check('date','Enter Date').notEmpty();
+
+  var errors = req.validationErrors();
+
+if (errors) {
+
+
+req.session.errors = errors;
+req.session.success = false
+//res.render('eurit/batch',{errors:req.session.errors,pro:pro})
+
+req.flash('danger', req.session.errors[0].msg);
+       
+        
+        res.redirect('/jobAd');
+
+
+}else{
+
+
+
+
+  var not = new JobAd();
+  not.role = role
+  not.type = type
+  not.date = date;
+  not.year = year
+  not.month = month
+  not.description = description;
+
+  
+ 
+
+
+  
+  
+
+
+  
+   
+
+   
+
+  not.save()
+    .then(user =>{
+      
+})
+
+req.flash('success', 'Job Ad added Successfully!');
+  
+    res.redirect('/jobAd')
+
+}
+})
+
+
+
+
+
+router.get('/uploadCV/:id',function(req,res){
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+ var id = req.params.id
+  
+  JobAd.findById(id,function(err,doc){
+
+  
+
+ 
+ 
+
+  res.render('eurit/cvUpload',{doc:doc,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+})
+
+})
+router.post('/uploadCV/:id',upload.single('file'), function(req,res){
+  var m = moment()
+  var id = req.params.id
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+    var date = m.format('L')
+  var filename,fileId
+ var role = req.body.role
+ var type = req.body.type
+if(!req.file){
+
+  req.flash('danger', 'Select File');
+        
+  res.redirect('/uploadCV/'+id)
+}
+filename = req.file.filename
+fileId = req.file.id
+req.check('role','Enter Job Role').notEmpty();
+req.check('type','Enter Type of Job').notEmpty();
+
+
+  var errors = req.validationErrors();
+
+if (errors) {
+
+
+req.session.errors = errors;
+req.session.success = false
+//res.render('eurit/batch',{errors:req.session.errors,pro:pro})
+
+req.flash('danger', req.session.errors[0].msg);
+       
+        
+res.redirect('/uploadCV/'+id)
+
+
+}else{
+
+
+
+
+  var not = new CV();
+  not.role = role
+  not.type = type
+  not.date = date;
+  not.year = year
+
+
+  not.month = month;
+
+  not.fileId = fileId;
+  not.filename = filename;
+  
+ 
+
+
+  
+  
+
+
+  
+   
+
+   
+
+  not.save()
+    .then(user =>{
+      
+})
+
+req.flash('success', 'File Uploaded Successfully!');
+  
+    res.redirect('/uploadCV/'+id)
+
+}
+})
+
+
+
+
+
+
+
+
+
+
+router.get('/cvFiles',isLoggedIn,function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+  var uid = req.user.studentId
+
+    CV.find(function(err,docs){
+
+  
+
+    res.render('eurit/cFiles',{pro:pro,listX:docs})
+ 
+  })
+})
 
 
 router.get('/parentSignup',function(req,res){
