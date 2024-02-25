@@ -4,6 +4,18 @@ var express = require('express');
 var router = express.Router();
 const User =require('../models/user')
 const Class1 =require('../models/class');
+const Hostel =require('../models/hostel')
+const HostelHeadAllocation =require('../models/hostelHeadAllocation')
+const HostelAllo =require('../models/hostelAllocation')
+const StudentHostelAllo =require('../models/studentHostel')
+const AlloHostelBatch =require('../models/alloHostelBatch')
+const HostelFloat =require('../models/hostelFloat')
+const HostelRegister =require('../models/hostelRegister')
+const HostelRoom =require('../models/hostelRooms')
+const RoomAllo =require('../models/roomAllocation')
+const RoomTransfer =require('../models/roomTransfer')
+const TopUp =require('../models/topUp')
+const Voucher =require('../models/voucher')
 const ClassV =require('../models/classV');
 const CodeV =require('../models/codev');
 const AlloCode =require('../models/alloCode');
@@ -6798,6 +6810,41 @@ router.get('/idEdit',isLoggedIn,records,function(req,res){
     })
   
     })
+
+
+
+    router.get('/idEditStaff',isLoggedIn,records,function(req,res){
+      var pro = req.user
+      res.render('records/idNumStaff',{pro:pro})
+      
+      })
+      
+      router.post('/idEditStaff',isLoggedIn, records,function(req,res){
+           var pro = req.user
+      var idNumber = req.body.idNumber;
+      var id = req.user._id
+    
+      
+        req.check('idNumber','Enter ID Number').notEmpty();
+       
+       
+        var errors = req.validationErrors();
+        if (errors) {
+       
+          req.session.errors = errors;
+          req.session.success = false;
+          res.render('records/idNumStaff',{errors:req.session.errors,pro:pro})
+       
+        
+       }
+       else
+      User.findByIdAndUpdate(id,{$set:{idNumber:idNumber}},function(err,docs){
+        req.flash('success', 'ID sequence changed successfully');
+        res.redirect('/addStaff')
+      })
+    
+      })
+    
       
 //activate/deactivate users
 
@@ -7022,11 +7069,1395 @@ router.get('/emailResponse',isLoggedIn,function(req,res){
  res.render('records/email',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
 })
 
+//////add hostel
+
+router.get('/hostelBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('admin/subBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+  router.post('/hostelBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+    var code = req.body.code
+    var date = req.body.date
+    var time  = req.body.time
+    var m2 = moment()
+    var mformat = m2.format('L')
+    var pro = req.user
+
+    
+    
+
+    req.check('code','Enter  Code').notEmpty();
+    req.check('date','Enter Date').notEmpty();
+    req.check('time','Enter Time').notEmpty();
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+     
+
+      
+  
+
+
+  req.flash('danger', req.session.errors[0].msg);
+       
+        
+  res.redirect('/records/subVBatch');
+    
+    }
+    
+    else 
+    
+    CodeSub.findOne({'code':code})
+    .then(grower =>{
+    if(grower){
+
+      req.flash('danger', 'Code already in use');
+ 
+      res.redirect('/records/subVBatch');
+    }else{
+
+      var truck = new CodeSub()
+      truck.code = code
+      truck.time = time
+      truck.mformat = mformat
+
+      truck.save()
+          .then(pro =>{
+
+      User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
+          
+        
+      })
+res.redirect('/records/subject')
+
+    })
+
+    }
+    
+    })
+    
+    
+    })
+  
+
+
+
+////add hostel
+router.get('/addHostel',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('hostel/addHostel',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
 
 
 
 
 
+
+
+  router.post('/addHostel',isLoggedIn,  function(req,res){
+    var id =req.user._id
+      var code = req.body.code
+      var name = req.body.name
+      var capacity  = req.body.capacity
+      var gender  = req.body.gender
+      var rooms  = req.body.rooms
+      var m2 = moment()
+      var mformat = m2.format('L')
+      var pro = req.user
+  
+      
+      
+  
+      req.check('code','Enter  Code').notEmpty();
+      req.check('name','Enter Hostel Name').notEmpty();
+      req.check('capacity','Enter Capacity').notEmpty();
+      req.check('gender','Enter Gender').notEmpty();
+      req.check('rooms','Enter Number Rooms').notEmpty();
+    
+      
+      var errors = req.validationErrors();
+       
+      if (errors) {
+        req.session.errors = errors;
+        req.session.success = false;
+       
+  
+        
+    
+  
+  
+    req.flash('danger', req.session.errors[0].msg);
+         
+          
+    res.redirect('/records/addHostel');
+      
+      }
+      
+      else 
+      
+      Hostel.findOne({'hostelId':code})
+      .then(grower =>{
+      if(grower){
+  
+        req.flash('danger', 'Hostel already in use');
+   
+        res.redirect('/records/addHostel');
+      }else{
+  
+        var truck = new Hostel()
+        truck.hostelId = code
+        truck.name = name
+        truck.gender = gender
+        truck.capacity = capacity
+        truck.rooms = rooms
+        truck.roomsAvailable = 0
+        truck.head = "null"
+        truck.studentMaxNo = 0
+        truck.balance = 0
+  
+        truck.save()
+            .then(pro =>{
+
+ req.flash('success', 'Hostel added successfully');
+  
+      
+  res.redirect('/records/addHostel')
+  
+      })
+  
+      }
+      
+      })
+      
+      
+      })
+    
+  
+  
+
+
+
+
+      router.get('/hostelHead',isLoggedIn,records, function(req,res){
+        var pro = req.user
+       
+        var errorMsg = req.flash('danger')[0];
+        var successMsg = req.flash('success')[0];
+       
+  
+        res.render('hostel/allocateHostels',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+      
+        })
+     
+      
+      
+      
+      router.post('/hostelHead', isLoggedIn,records, function(req,res){
+        var pro = req.user
+        var m = moment()
+        var month = m.format('MMMM')
+        var year = m.format('YYYY')
+      var headId;
+      var headName = req.body.headName;
+      headId = req.body.uid;
+      var gender = req.body.gender
+      var hostelName = req.body.hostelName;
+      var hostelId = req.body.hostelId;
+     
+        
+      req.check('headName','Enter Name Of Teacher').notEmpty();
+    
+      req.check('hostelName','Enter Name of Hostel').notEmpty();
+      
+      
+        
+      var errors = req.validationErrors();
+      
+      
+      
+       if (errors) {
+       
+      
+         
+            req.session.errors = errors;
+            req.session.success = false;
+            //res.render('teachers/subjects',{ errors:req.session.errors,arr:arr,arr1:arr1,pro:pro})
+         
+            req.flash('danger', req.session.errors[0].msg);
+         
+          
+            res.redirect('/records/hostelHead');
+  
+        }
+      else
+   HostelHeadAllocation.findOne({'headName':headName,  'hostelName':hostelName})
+      .then(clax =>{
+          if(clax){ 
+         
+            
+           /* Class1.find({},function(err,docs){
+              Subject.find({},function(err,locs){
+              arr1 = docs;
+              arr = locs
+            
+              req.session.message = {
+                type:'errors',
+                message:'subject already allocated'
+              }   
+            res.render('teachers/subjects',{message:req.session.message, arr:arr, arr1:arr1,pro:pro});
+              })
+            })*/
+  
+            req.flash('danger', 'Hostel already allocated');
+   
+        res.redirect('/records/hostelHead');
+            
+          }
+          else
+      
+          
+          var teacher = new HostelHeadAllocation();
+          teacher.headName = headName;
+          teacher.headId = headId;
+          teacher.hostelId = hostelId
+          teacher.hostelName = hostelName;
+          teacher.gender = gender;
+          teacher.year = year
+         
+
+          
+          
+          
+          teacher.save()
+      .then(teach =>{
+
+        Hostel.find({hostelId:hostelId},function(err,docs){
+          if(docs){
+            Hostel.findByIdAndUpdate(docs[0]._id,{$set:{head:headName}},function(err,locs){
+
+            })
+          }
+        })
+                  
+        req.flash('success', 'Hostel allocated successfully');
+   
+        res.redirect('/records/hostelHead');
+      
+      })
+      
+      
+      
+      
+      
+      })
+      
+      })
+      
+      //////mafia
+      
+     //autocomplete teacherName & uid
+   
+  router.get('/autocompleteTSHead/',isLoggedIn, function(req, res, next) {
+   
+  
+    var regex= new RegExp(req.query["term"],'i');
+   
+    var uidFilter =User.find({  role:"hostel head", fullname:regex, },{'fullname':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(user=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:user._id,
+           label: user.fullname,
+  
+       
+         /*  name:name,
+           surname:surname,
+           batch:batch*/
+          
+          
+       
+         
+          
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  /*
+  router.post('/autoTS',isLoggedIn,function(req,res){
+    var fullname = req.body.code
+    var companyId = req.user.companyId
+   
+    User.find({companyId:companyId,fullname:fullname ,role:"teacher"},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/records/autoTS')
+   }else
+   console.log(docs[0],'docs[0]')
+      res.send(docs[0])
+    })
+  
+  
+  })
+  */
+
+  router.post('/autoTSHead',isLoggedIn,function(req,res){
+    var id = req.body.code
+
+   
+    User.findById(id,function(err,doc){
+   if(doc== undefined){
+     res.redirect('/records/autoTS')
+   }else
+   console.log(doc,'docs[0]')
+      res.send(doc)
+    })
+  
+  
+  })
+  
+  
+  
+  router.get('/autocompleteXMHead/',isLoggedIn,records, function(req, res, next) {
+    
+     
+    var regex= new RegExp(req.query["term"],'i');
+    var uidFilter =Hostel.find({hostelId:regex},{'hostelId':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  console.log(sub,'roman')
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.hostelId,
+           
+  
+       
+         /*  name:name,
+           surname:surname,
+           batch:batch*/
+          
+          
+       
+         
+          
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoXMHead',isLoggedIn,records,function(req,res){
+    var codeX = req.body.codeX
+  
+  
+  
+    Hostel.find({hostelId:codeX},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/records/lesson')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+  
+  
+  
+  //hostelName
+  
+  
+  router.get('/autocompleteXMHostel/',isLoggedIn,records, function(req, res, next) {
+    
+     
+    var regex= new RegExp(req.query["term"],'i');
+    var uidFilter =Hostel.find({name:regex},{'name':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(sub=>{
+  console.log(sub,'roman')
+        
+     
+  
+          
+         let obj={
+           id:sub._id,
+           label: sub.name,
+           
+  
+       
+         /*  name:name,
+           surname:surname,
+           batch:batch*/
+          
+          
+       
+         
+          
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj.id)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  router.post('/autoXMHostel',isLoggedIn,records,function(req,res){
+    var codeX = req.body.codeX
+  
+  
+  
+    Hostel.find({name:codeX},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/records/lesson')
+   }else
+  
+      res.send(docs[0])
+    })
+  
+  
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ////////allocate student to hostels
+  router.get('/alloHostelBatch',isLoggedIn,  function(req,res){
+    var pro = req.user
+    var errorMsg = req.flash('danger')[0];
+    var successMsg = req.flash('success')[0];
+    res.render('hostel/alloBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+    })
+  
+  
+  
+  /*
+    router.post('/alloHostelBatch',isLoggedIn,  function(req,res){
+    var id =req.user._id
+      var code = req.body.code
+      var date = req.body.date
+      var time  = req.body.time
+      var m2 = moment()
+      var mformat = m2.format('L')
+      var pro = req.user
+  
+      
+      
+  
+      req.check('code','Enter  Code').notEmpty();
+      req.check('date','Enter Date').notEmpty();
+      req.check('time','Enter Time').notEmpty();
+    
+      
+      var errors = req.validationErrors();
+       
+      if (errors) {
+        req.session.errors = errors;
+        req.session.success = false;
+        res.render('hostel/alloBatch',{ errors:req.session.errors,pro:pro})
+  
+        
+    
+  
+  
+    req.flash('danger', req.session.errors[0].msg);
+         
+          
+    res.redirect('/records/alloHostelBatch');
+      
+      }
+      
+      else 
+      
+      AlloHostelBatch.findOne({'code':code})
+      .then(grower =>{
+      if(grower){
+  
+        req.flash('danger', 'Code already in use');
+   
+        res.redirect('/records/alloHostelBatch');
+      }else{
+  
+        var truck = new AlloHostelBatch()
+        truck.code = code
+        truck.time = time
+        truck.mformat = mformat
+  
+        truck.save()
+            .then(pro =>{
+  
+        User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
+            
+          
+        })
+  res.redirect('/records/studentHostel')
+  
+      })
+  
+      }
+      
+      })
+      
+      
+      })
+    
+  */
+  
+  ////
+  
+  router.post('/alloHostelBatch',isLoggedIn,  function(req,res){
+    var id =req.user._id
+    var code = req.body.code
+    var gender = req.body.gender
+    var capacity = req.body.capacity
+    var head = req.body.head
+    var hostelId = req.body.hostelId
+    var date = req.body.date
+    var time  = req.body.time
+    var m2 = moment()
+    var mformat = m2.format('L')
+    var pro = req.user
+    var hostel = req.body.hostelName
+      
+      
+  
+    req.check('code','Enter  Code').notEmpty();
+    req.check('date','Enter Date').notEmpty();
+    req.check('time','Enter Time').notEmpty();
+    req.check('hostelName','Enter Hostel Name').notEmpty();
+      
+    
+      
+      var errors = req.validationErrors();
+       
+      if (errors) {
+        req.session.errors = errors;
+        req.session.success = false;
+       // res.render('product/dispatchCust',{ errors:req.session.errors,pro:pro})
+  
+       req.flash('danger', req.session.errors[0].msg);
+         
+          
+       res.redirect('/records/alloHostelBatch');
+  
+  
+      
+      }
+      
+      else 
+      
+      Hostel.findOne({'name':hostel})
+      .then(grower =>{
+      if(grower){
+        AlloHostelBatch.findOne({code:code})
+        .then(lock=>{
+          if(!lock){
+            var truck = new AlloHostelBatch()
+            truck.code = code
+            truck.time = time
+            truck.mformat = mformat
+      
+            truck.save()
+                .then(pro =>{
+      
+                  User.findByIdAndUpdate(id,{$set:{hostel:hostel,hostelId:hostelId,hostelType:gender,hostelCapacity:capacity, hostelHead:head,paymentId:code,pollUrl:pro._id}}, function(err,coc){
+            
+          
+                  })
+                  res.redirect('/records/studentHostel')
+      
+          })
+            
+            
+            
+          }
+        })
+  
+      
+  
+      
+      }else{
+  
+        req.flash('danger', 'Hostel Does not Exist/Code already in use');
+   
+        res.redirect('/records/alloHostelBatch');
+  
+  
+      
+  
+      }
+      
+      })
+      
+      
+      })
+    
+  
+  
+  
+
+//allocate hostel to students
+
+  
+router.get('/studentHostel',isLoggedIn,records, function(req,res){
+  var pro = req.user
+  var hostel = req.user.hostel
+  var hostelId = req.user.hostelId
+  var hostelType = req.user.hostelType
+  var hostelHead = req.user.hostelHead
+  var hostelCapacity = req.user.hostelCapacity
+  var code = req.user.paymentId
+  if(hostel == 'null'){
+    res.redirect('/records/alloHostelBatch')
+  }else
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+
+
+  res.render('hostel/studentsAllo',{code:code,hostelHead:hostelHead,hostelCapacity:hostelCapacity,hostelType:hostelType,hostel:hostel,hostelId,pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  
+  })
+
+
+
+
+router.post('/studentHostel', isLoggedIn,records, function(req,res){
+  var pro = req.user
+  var m = moment()
+  var month = m.format('MMMM')
+    var year = m.format('YYYY')
+var studentId, hosteld, grade, id;
+var studentName = req.body.studentName;
+studentId = req.body.studentId;
+var class1 = req.body.class1
+var hostelType = req.body.hostelType
+var hostelName = req.body.hostel;
+var hostelHead = req.body.hostelHead;
+var hostelCapacity = req.body.hostelCapacity;
+var gender = req.body.gender
+hostelId = req.body.hostelId
+grade = req.body.grade
+var code = req.user.paymentId
+var gender= req.body.gender
+var type= req.body.hostelType
+var status = "null"
+var arr, arr1
+
+console.log(hostelId,'ex')
+  
+req.check('studentName','Enter Name Of Student').notEmpty();
+
+req.check('hostel','Enter Name of Hostel').notEmpty();
+
+
+  
+var errors = req.validationErrors();
+
+
+
+ if (errors) {
+ 
+
+   
+      req.session.errors = errors;
+      req.session.success = false;
+      //res.render('teachers/subjects',{ errors:req.session.errors,arr:arr,arr1:arr1,pro:pro})
+   
+      req.flash('danger', req.session.errors[0].msg);
+   
+    
+      res.redirect('/records/studentHostel');
+
+  }
+else
+HostelAllo.findOne({'studentName':studentName,  'hostel':hostelName,"year":year})
+.then(clax =>{
+    if(clax){ 
+   console.log('error')
+      
+     /* Class1.find({},function(err,docs){
+        Subject.find({},function(err,locs){
+        arr1 = docs;
+        arr = locs
+      
+        req.session.message = {
+          type:'errors',
+          message:'subject already allocated'
+        }   
+      res.render('teachers/subjects',{message:req.session.message, arr:arr, arr1:arr1,pro:pro});
+        })
+      })*/
+
+      req.flash('danger', 'Student already in the hostel');
+
+  res.redirect('/records/studentHostel');
+      
+    }
+    else{
+
+var teacher = new HostelAllo();
+teacher.studentName = studentName;
+teacher.studentId = studentId;
+teacher.hostelId = hostelId;
+teacher.hostelType = hostelType;
+teacher.head = hostelHead;
+teacher.hostel = hostelName;
+teacher.hostelCapacity = hostelCapacity;
+teacher.grade = grade;
+teacher.gender = gender;
+teacher.code = code
+teacher.class1 = class1
+teacher.year = year
+teacher.status = status
+
+
+teacher.save()
+.then(teach =>{
+                     
+  HostelAllo.find({code:code,status:"null"},(err, docs) => {
+    let size = docs.length - 1
+    console.log(docs[size],'fff')
+    res.send(docs[size])
+            })
+
+            console.log('zvaita')
+
+})
+
+
+
+    }
+
+})
+
+})
+  
+router.post('/loadHostelAllo',isLoggedIn, (req, res) => {
+  var pro = req.user
+  var m2 = moment()
+var wformat = m2.format('L')
+var year = m2.format('YYYY')
+  var code = req.user.paymentId
+
+
+  HostelAllo.find({code:code,status:'null'},(err, docs) => {
+ 
+    res.send(docs)
+            })
+
+  }); 
+  
+  
+  router.post('/hostelAllo/update/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'emblem')
+    var pro = req.user
+  
+    var m = moment()
+    var year = m.format('YYYY')
+    var month = m.format('MMMM')
+    var dateValue = m.valueOf()
+    var mformat = m.format("L")
+    var date = m.toString()
+    var class1 = req.body.code
+    HostelAllo.findById(id,function(err,doc){
+    
+    
+    
+     
+      HostelAllo.findByIdAndUpdate(id,{$set:{class1:class1}},function(err,doc){
+  
+   })     
+        
+    
+    
+    
+    
+    
+   /* }else{
+      console.log('null')
+    
+      ShopStock.findByIdAndUpdate(id,{$set:{stockUpdate:'yes'}},function(err,loc){
+    
+      })
+    }*/
+    res.send(doc)
+  })
+    })
+
+
+
+    router.get('/saveHostelAllo/:id',isLoggedIn, function(req,res){
+      var pro = req.user
+     var receiver = req.user.fullname
+     var code = req.params.id
+     var uid = req.user._id
+    
+    var m2 = moment()
+    var wformat = m2.format('L')
+    var year = m2.format('YYYY')
+    var dateValue = m2.valueOf()
+    var date = m2.toString()
+    var numDate = m2.valueOf()
+    var month = m2.format('MMMM')
+    
+    
+    //var mformat = m.format("L")
+    
+    
+    
+    HostelAllo.find({code:code,status:"null"},function(err,locs){
+    
+    for(var i=0;i<locs.length;i++){
+    
+    let grade = locs[i].grade
+    let gender = locs[i].gender
+    let head = locs[i].head
+    let class1 = locs[i].class1
+    let hostelName = locs[i].hostel
+    let hostelId = locs[i].hostelId
+    let hostelType = locs[i].hostelType
+    let studentName = locs[i].studentName
+    let studentId = locs[i].studentId
+    
+    
+    let idN = locs[i]._id
+    
+    
+    
+    
+      
+    
+      StudentHostelAllo.findOne({'studentId':studentId,'hostelName':hostelName})
+      .then(hoc=>{
+    
+        if(!hoc){
+         
+        var teacher = new StudentHostelAllo();
+        teacher.studentName = studentName;
+        teacher.studentId = studentId;
+        teacher.hostelId = hostelId
+        teacher.hostel = hostelName;
+        teacher.grade = grade;
+        teacher.gender = gender;
+        teacher.hostelType = hostelType;
+        teacher.head = head 
+        teacher.year = year
+        teacher.class1 = class1
+    
+        
+        
+        
+        teacher.save()
+        .then(teach =>{
+                             
+        id = teach._id;
+        User.findByIdAndUpdate(uid,{$set:{paymentId:'null',hostel:"null",hostelType:'null',hostelCapacity:'null', hostelHead:'null'}},function(err,doc){
+    
+        })
+        
+
+
+
+        User.find({uid:studentId},function(err,locs){
+          if(locs){
+            let idS = locs[0]._id
+
+            User.findByIdAndUpdate(idS,{$set:{hostel:hostelName}},function(err,tocs){
+
+            })
+          }
+        })
+        /*
+        Subject.find({name:subjectName,},function(err,docs){
+        subjectCode=docs[0].code;
+        grade = docs[0].grade;
+        dept = docs[0].dept;
+        console.log(subjectCode)
+        TeacherSub.findByIdAndUpdate(id,{$set:{subjectCode:subjectCode, grade:grade, dept:dept}},function(err,nocs){
+        
+        
+        
+        
+        
+        })
+        })*/
+        HostelAllo.findByIdAndUpdate(idN,{$set:{status:'saved'}},function(err,pocs){
+    
+        })
+        
+            
+    
+        })
+    
+           /* req.flash('success', 'Stock Received Successfully');
+            res.redirect('/rec/addStock')*/
+          }  /* else{
+            req.flash('danger', 'Product Does Not Exist');
+          
+            res.redirect('/rec/addStock');
+          }*/
+        }) 
+    
+         
+    }
+    
+    
+    req.flash('success', 'Students Allocated Successfully');
+    res.redirect('/records/alloHostelBatch')
+    }) 
+    })
+    
+    
+    router.get('/hostelAlloDelete/:id',isLoggedIn, (req, res) => {
+      HostelAllo.findByIdAndRemove(req.params.id, (err, doc) => {
+        if (!err) {
+            res.redirect('/records/studentHostel');
+        }
+        else { console.log('Error in deleting :' + err); }
+      });
+      });
+
+  
+  //student Details
+   //autocomplete teacherName & uid
+   
+   router.get('/autocompleteTStudent/',isLoggedIn, function(req, res, next) {
+   
+  
+    var regex= new RegExp(req.query["term"],'i');
+   
+    var uidFilter =User.find({  role:"student", fullname:regex, },{'fullname':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
+  
+    
+    uidFilter.exec(function(err,data){
+   
+  
+  console.log('data',data)
+  
+  var result=[];
+  
+  if(!err){
+     if(data && data.length && data.length>0){
+       data.forEach(user=>{
+  
+        
+     
+  
+          
+         let obj={
+           id:user._id,
+           label: user.fullname,
+  
+       
+         /*  name:name,
+           surname:surname,
+           batch:batch*/
+          
+          
+       
+         
+          
+  
+           
+         };
+        
+         result.push(obj);
+         console.log('object',obj)
+       });
+  
+     }
+   
+     res.jsonp(result);
+     console.log('Result',result)
+    }
+  
+  })
+  
+  });
+  
+  // role admin
+  //this routes autopopulates teachers info from the id selected from automplet1
+  /*
+  router.post('/autoTS',isLoggedIn,function(req,res){
+    var fullname = req.body.code
+    var companyId = req.user.companyId
+   
+    User.find({companyId:companyId,fullname:fullname ,role:"teacher"},function(err,docs){
+   if(docs == undefined){
+     res.redirect('/records/autoTS')
+   }else
+   console.log(docs[0],'docs[0]')
+      res.send(docs[0])
+    })
+  
+  
+  })
+  */
+
+  router.post('/autoTStudent',isLoggedIn,function(req,res){
+    var id = req.body.code
+
+   
+    User.findById(id,function(err,doc){
+   if(doc== undefined){
+     res.redirect('/records/autoTS')
+   }else
+   console.log(doc,'docs[0]')
+      res.send(doc)
+    })
+  
+  
+  })
+  
+  
+  
+  
+  
+  ///import hostel rooms
+  
+
+
+ //importing teachers details from excel
+  
+ router.get('/importRooms',isLoggedIn,records, function(req,res){
+  var pro = req.user
+
+ 
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+
+ /* if(actualCount < count){*/
+   title = "Import Rooms"
+
+  
+   // res.redirect('/records/dept')
+  
+ res.render('imports/room',{pro:pro,title:title,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
+
+   })
+ /*else
+
+res.redirect('/records/importTeacherX')*/
+
+ 
+ 
+ 
+/*
+router.get('/importTeacherX',isLoggedIn,function(req,res){
+ var pro = req.user
+ res.render('imports/teacherX',{pro:pro})
+})*/
+
+
+
+  
+ router.post('/importRooms',isLoggedIn,records, upload.single('file'),function(req,res){
+   var term = req.user.term;
+   var m = moment()
+   var year = m.format('YYYY')
+   var id =   req.user._id
+   var idNumber = req.user.idNumber
+   var pro = req.user
+
+
+ 
+   
+ /*  if(!req.file){
+       req.session.message = {
+         type:'errors',
+         message:'Select File!'
+       }     
+         res.render('imports/students', {message:req.session.message,pro:pro}) */
+         if (!req.file || req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+           req.session.message = {
+               type:'errors',
+               message:'Upload Excel File'
+             }     
+               res.render('imports/room', {message:req.session.message,pro:pro
+                    
+                }) 
+ 
+ 
+ 
+       }
+         
+       else{
+
+       
+           const file = req.file.filename;
+   
+           
+                var wb =  xlsx.readFile(`./public/uploads/` + file)
+        
+                var sheets = wb.Sheets;
+                var sheetNames = wb.SheetNames;
+    
+                var sheetName = wb.SheetNames[0];
+    var sheet = wb.Sheets[sheetName ];
+    
+       for (var i = 0; i < wb.SheetNames.length; ++i) {
+        var sheet = wb.Sheets[wb.SheetNames[i]];
+    
+        console.log(wb.SheetNames.length)
+        var data =xlsx.utils.sheet_to_json(sheet)
+            
+        var newData = data.map(async function (record){
+    
+       
+        
+     
+         
+      
+      
+     
+           let hostel = record.hostel;
+           let roomNumber = record.roomNumber;
+           let roomName = record.roomName;
+           let floor = record.floor
+           let gender = record.gender;
+           let capacity = record.capacity
+           let beds = record.beds;
+           let head = record.head;
+           let state = record.state;
+         let occupants = record.occupants;
+       
+          let hostelId = record.hostelId
+
+
+
+
+
+          req.body.hostel = record.hostel   
+req.body.roomNumber = record.roomNumber 
+req.body.roomName = record.roomName
+req.body.floor = record.floor  
+req.body.capacity = record.capacity  
+req.body.beds = record.beds 
+req.body.head= record.head 
+req.body.gender = record.gender
+req.body.occupants = record.occupants
+req.body.state = record.state   
+req.body.hostelId = record.hostelId    
+          
+
+       req.check('hostel','Enter Hostel').notEmpty();
+req.check('roomNumber','Enter roomNumber').notEmpty();
+
+req.check('floor','Enter Floor').notEmpty()
+req.check('gender','Enter Gender').notEmpty();
+req.check('capacity','Enter Capacity').notEmpty();
+req.check('beds','Enter Beds').notEmpty();
+req.check('head','Enter Hostel Head').notEmpty();
+req.check('state', 'Enter State').notEmpty();
+req.check('occupants', 'Enter Occupants').notEmpty();
+req.check('hostelId', 'Enter Hostel ID').notEmpty();
+   
+
+var errors = req.validationErrors();
+ 
+if (errors) {
+ 
+ req.session.errors = errors;
+ req.session.success = false;
+ console.log( req.session.errors[0].msg)
+ req.flash('danger', req.session.errors[0].msg);
+      
+       
+ res.redirect('/records/importRooms');
+
+}
+
+else
+
+
+           {
+             HostelRoom.findOne({'roomName':roomName,'roomNumber':roomNumber})
+             .then(user =>{
+                 if(user){ 
+               // req.session.errors = errors
+                 //req.success.user = false;
+           
+           
+           
+                 req.flash('danger', 'Room already in the system');
+
+                 res.redirect('/records/importRooms') 
+ 
+                 //res.redirect('/records/import')
+               
+           }
+           else
+
+
+
+
+
+           var user = new HostelRoom();
+           user.hostel = hostel
+           user.roomNumber = roomNumber;
+           user.roomName = roomName;
+           user.floor = floor;
+           user.gender = gender;
+           user.capacity = capacity;
+           user.beds = beds;
+           user.head = head
+           user.state = state
+           user.occupants = occupants;
+           user.hostelId = hostelId;
+          
+          
+           user.save()
+             .then(user =>{
+              
+             
+                 
+             /*  req.session.message = {
+                 type:'success',
+                 message:'Account Registered'
+               }  
+               res.render('imports/teacherX',{message:req.session.message});*/
+             })
+
+           })
+         }
+                  
+                   // .catch(err => console.log(err))
+                 
+               
+                   
+                 
+                 
+        
+                 
+                 
+                 
+                   
+                   
+       
+                  
+       
+                  
+            
+               })
+               
+               req.flash('success', 'File Successfully!');
+ 
+               res.redirect('/records/importRooms') 
+     
+       }
+     }
+ 
+ })
+  
+  
+  
+  
+  
+  
+  
+  
 //////////////////////
 
 router.get('/subVBatch',isLoggedIn,  function(req,res){
@@ -7961,7 +9392,7 @@ res.redirect('/records/teacherSubject')
 
 
 router.get('/alloBatchDelete/:id',isLoggedIn, (req, res) => {
-  ClassV.findByIdAndRemove(req.params.id, (err, doc) => {
+  AlloSub.findByIdAndRemove(req.params.id, (err, doc) => {
     if (!err) {
         res.redirect('/records/classesV');
     }

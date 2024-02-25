@@ -6813,7 +6813,7 @@ idNum++
 
     title = "Add Staff"
     readonly = ""
-    res.render('admin/staff',{pro:pro,uid1:uid, title:title,readonly})
+    res.render('admin/staff',{pro:pro,uid1:uid, title:title})
   
 
 })
@@ -6841,7 +6841,7 @@ res.render('admin/staff2',{pro:pro,uid1:uid, title:title,readonly})
 
 })
 
-router.post('/addStaffOffline',isLoggedIn,adminX, function(req, res, next) {
+router.post('/addStaffOffline',isLoggedIn, function(req, res, next) {
   var pro = req.user
   var uid = req.body.uid;
   var name = req.body.name;
@@ -6895,7 +6895,7 @@ var uid1 = prefix1 + idNum1
   })
 }
      {
-        User.findOne({'uid':uid,companyId:companyId})
+        User.findOne({'uid':uid,})
         .then(user =>{
             if(user){ 
           // req.session.errors = errors
@@ -6905,7 +6905,7 @@ var uid1 = prefix1 + idNum1
              message:'User ID already in use'
            }     
          
-              res.render('admin/staff2', {
+              res.render('admin/staff', {
                   user:req.body, message:req.session.message,uid1:uid1 
               }) 
       }
@@ -6921,85 +6921,88 @@ var uid1 = prefix1 + idNum1
                 let idNumQ = idNumber + 1
                 let uid9 = prefix + idNumQ
                 User.findByIdAndUpdate(id,{$set:{idNumber:idNumber,actualCount:actualCount}},function(err,ocs){
+                 
                   var user = new User();
-                                    user.uid = uid;
-                                    user.name = name;
-                                    user.surname = surname;
-                                    user.fullname = fullname;
-                                    user.email = email;
-                                    user.role = role;
-                                    user.prefix = prefix;
-                                    user.suffix = suffix;
-                                 
-                                    user.gender = gender;
-                                    user.dob = dob;
-                                    user.mobile= mobile;
-                                    user.studentId = 'null'
-                                    user.teacherName='null'
-                                    user.teacherId = 'null'
-                                    user.grade = 0;
-                                    user.idNumber= idNumber;
-                                    user.idNumX = idNumX;
-                                    user.class1 = 'null';
-                                    user.mobile = mobile;
-                                    user.classLength = 0;
-                                    user.classNo = 0
-                                    user.studentNum = 0;
-                                    user.uidNum = 309;
-                                    user.number = 0;
-                                    user.schoolName=schoolName
-                                    user.examDate = 'null';
-                                    user.feeStatus = 'null';
-                                    user.feesUpdate = 'null';
-                                    user.term = term;
-                                    user.amount = 0;
-                                    user.receiptNumber = 0;
-                                    user.possibleMark = 0;
-                                    user.topic = 'null';
-                                    user.year = year;
-                                    user.recNumber = 0;
-                                    user.balance = 0;
-                                    user.balanceCarriedOver = 0;
-                                    user.status = 'null';
-                                    user.paymentId = 'null';
-                                    user.role1 = 'staff'
-                                    user.photo = 'propic.jpg';
-                                    user.level = 'null';
-                                    user.pollUrl='null'
-                                    user.annual =0
-                                    user.fees = 0
-                                    user.paynow = 0
-                                    user.type = 'null';
-                                    user.address = 'null';
-                                    user.dept = 'null';
-                                    user.subject = 0;
-                                    user.subjectCode = 'null'
-                                    user.subjects = 'null'
-                                    user.dept = 'null';
-                                    user.expdate=expdate;
-                                    user.expStr = expStr; 
-                                    user.duration = duration;   
-                                    user.levelX = 'null';
-                                    user.status4 = 'null';
-                                    user.status3 = "null"
-                                    user.pollUrl2 = "null"
-                                    user.count= count
-                                    user.pollCount = 0
-                                    user.actualCount = actualCount   
-                                    user.startYear = year
-                                    user.currentYearCount = 0
-                                    user.stdYearCount = 0
-                                    user.admissionYear = 0  
-                                    user.password = user.encryptPassword(password)
-                                    user.icon = 'null'
-                                    user.subjectNo = 0
-                                    user.quizDuration = 0
-                                    user.inboxNo = 0
-                                    user.quizNo= 0
-                                    user.quizBatch =0
-                                    user.quizId = 'null'
-                                    user.testId = 'null'
-                                    user.save()
+                  user.uid = uid;
+                  user.name = name;
+                  user.surname = surname;
+                  user.fullname = fullname;
+                  user.email = email;
+                  user.role = role;
+                  user.prefix = prefix;
+                  user.suffix = suffix;
+                  
+                  user.gender = gender;
+                  user.dob = dob;
+                  user.mobile= mobile;
+                  user.studentId = 'null'
+                  user.teacherName='null'
+                  user.teacherId = 'null'
+                  user.grade = 0;
+                  user.idNumber= idNumber;
+                  user.idNumX = idNumX;
+                  user.class1 = 'null';
+                  user.mobile = mobile;
+                  user.classLength = 0;
+                  user.classNo = 0
+                  user.studentNum = 0;
+                  user.uidNum = 309;
+                  user.number = 0;
+                  user.schoolName=schoolName
+                  user.examDate = 'null';
+                  user.feeStatus = 'null';
+                  user.feesUpdate = 'null';
+                  user.term = term;
+                  user.amount = 0;
+                  user.receiptNumber = 0;
+                  user.possibleMark = 0;
+                  user.topic = 'null';
+                  user.year = year;
+                  user.recNumber = 0;
+                  user.balance = 0;
+                  user.balanceCarriedOver = 0;
+                  user.status = 'null';
+                  user.paymentId = 'null';
+                  user.role1 = 'staff'
+                  user.photo = 'propic.jpg';
+                  user.level = 0;
+                  user.pollUrl='null'
+                  user.annual =0
+                  user.fees = 0
+                  user.paynow = 0
+                  user.type = 'null';
+                  user.address = 'null';
+                  user.dept = 'null';
+                  user.subject = 0;
+                  user.subjectCode = 'null'
+                  user.subjects = 'null'
+                  user.dept = 'null';
+                  user.expdate=expdate;
+                  user.expStr = expStr; 
+                  user.duration = duration;   
+                  user.levelX = 'null';
+                  user.status4 = 'null';
+                  user.status3 = "null"
+                  user.pollUrl2 = "null"
+                  user.count= count
+                  user.pollCount = 0
+                  user.actualCount = actualCount   
+                  user.startYear = year
+                  user.currentYearCount = 0
+                  user.stdYearCount = 0
+                  user.admissionYear = 0  
+                  user.text = password
+                  user.password = user.encryptPassword(password)
+                  user.icon = 'null'
+                  user.subjectNo = 0
+                  user.quizDuration = 0
+                  user.inboxNo = 0
+                  user.quizNo= 0
+                  user.quizBatch =0
+                  user.quizId = 'null'
+                  user.testId = 'null'
+                  user.industry = 'null'
+                  user.save()
                                       .then(user =>{
                                        
                                       
