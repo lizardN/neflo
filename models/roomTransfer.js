@@ -10,13 +10,13 @@ to:{type:String, required:true},
 from:{type:String,required:true},
 studentId:{type:String,required:true},
 studentName:{type:String,required:true},
-hosteHead:{type:String,required:true},
+hostelHead:{type:String,required:true},
 date:{type:String,required:true},
 month:{type:String,required:true},
 reason:{type:String,required:true},
 year:{type:Number,required:true},
 term:{type:Number,required:true},
-hostelId:{type:String,required:true},
+hostelId:{type:String}
 
 
 

@@ -101,6 +101,16 @@ var userSchema = new mongoose.Schema({
     reportYear:{type:String},
     reportMonth:{type:String},
     classReportId:{type:String},
+    room:{type:String},
+    cashBalance:{type:Number},
+    regCode:{type:String},
+    hostelMonth:{type:String},
+    hostelYear:{type:Number},
+    hostelTerm:{type:Number},
+    hostelFloor:{type:String},
+    demerit:{type:Number},
+    merit:{type:Number},
+    floor:{type:String},
     
    
 });

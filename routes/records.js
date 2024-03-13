@@ -5,6 +5,7 @@ var router = express.Router();
 const User =require('../models/user')
 const Class1 =require('../models/class');
 const Hostel =require('../models/hostel')
+const Floor =require('../models/floor')
 const HostelHeadAllocation =require('../models/hostelHeadAllocation')
 const HostelAllo =require('../models/hostelAllocation')
 const StudentHostelAllo =require('../models/studentHostel')
@@ -6263,133 +6264,7 @@ await   transporter.sendMail(mailOptions, (error, info) => {
   
 
 
-/*else
-
-
-            {
-              User.findOne({'uid':uid})
-              .then(user =>{
-                  if(user){ 
-                // req.session.errors = errors
-                  //req.success.user = false;
-            
-            
-            
-                  req.flash('danger', 'User already in the system');
-  
-                  //res.redirect('/records/import')
-                
-            }
-            else
-
-
-
-
-
-            var user = new User();
-            user.uid = uid;
-            user.name = name;
-            user.fullname = fullname;
-            user.surname = surname;
-            user.role = role;
-            user.gender = gender;
-            user.dob = dob;
-            user.studentId = 'null'
-            user.grade = 0;
-            user.class1 = 'null';
-            user.mobile = mobile;
-            user.classLength = 0;
-            user.studentNum = 0;
-            user.uidNum = 0;
-            user.teacherId = 'null';
-            user.teacherName = 'null';
-            user.classNo = 0
-            user.examDate = 'null';
-            user.feeStatus = 'null';
-            user.feesUpdate = 'null';
-            user.term = term;
-            user.amount = 0;
-            user.receiptNumber = 0;
-            user.year = year;
-            user.balance = 0;
-            user.idNumber = 0
-            user.idNumX = 0
-            user.number = 0
-            user.schoolName = 'null'
-            user.balanceCarriedOver = 0;
-            user.status = 'owing';
-            user.paymentId = 'null';
-            user.prefix = prefix;
-            user.photo = photo;
-            user.level = 'null';
-            user.pollUrl ='null';
-            user.annual = 0;
-            user.fees = 0
-            user.type = 'null';
-            user.address = address;
-            user.possibleMark = 0;
-            user.topic = 'null';
-            user.email = email
-            user.category = 'null';
-            user.subject = 0;
-            user.subjects = 'null'
-            user.subjectCode = 'null'
-            user.dept = dept;
-            user.paynow = 0
          
-            user.expdate=expdate;
-            user.expStr = expStr; 
-            user.status3 = "null"
-            user.pollUrl2 = "null"
-            user.levelX = 'null';
-            user.status4 = 'null';
-            user.recNumber = 0
-            user.suffix = 'null'
-            user.count=0
-            user.pollCount = 0
-            user.actualCount = 0  
-            user.startYear = year
-            user.currentYearCount = 0
-            user.stdYearCount = 0
-            user.admissionYear = year
-            user.password = user.encryptPassword(password)   
-            user.icon = 'null'
-            user.subjectNo = 0
-            user.quizDuration = 0
-            user.inboxNo = 0
-            user.quizNo = 0
-            user.quizBatch = 0
-            user.quizId = 'null'
-            user.testId = 'null'
-           
-            user.save()
-              .then(user =>{
-               
-              
-                  
-        
-              })
-
-            })
-          }*/
-                   
-                
-                  
-                
-                    
-                  
-                  
-         
-                  
-                  
-                  
-                    
-                    
-        
-                   
-        
-        
-             
                 })
                 
                 
@@ -7271,12 +7146,13 @@ router.get('/addHostel',isLoggedIn,  function(req,res){
         var month = m.format('MMMM')
         var year = m.format('YYYY')
       var headId;
+   
       var headName = req.body.headName;
       headId = req.body.uid;
       var gender = req.body.gender
       var hostelName = req.body.hostelName;
       var hostelId = req.body.hostelId;
-     
+     console.log(headName,'head')
         
       req.check('headName','Enter Name Of Teacher').notEmpty();
     
@@ -7326,7 +7202,9 @@ router.get('/addHostel',isLoggedIn,  function(req,res){
         res.redirect('/records/hostelHead');
             
           }
-          else
+          else{
+
+          
       
           
           var teacher = new HostelHeadAllocation();
@@ -7351,13 +7229,26 @@ router.get('/addHostel',isLoggedIn,  function(req,res){
             })
           }
         })
-                  
+        
+        User.find({fullname:headName},function(err,vocs){
+if(vocs){
+  let id = vocs[0]._id
+
+  User.findByIdAndUpdate(id,{$set:{hostel:hostelName}},function(err,nocs){
+
+  })
+}
+        })
+
+        
+
+
         req.flash('success', 'Hostel allocated successfully');
    
         res.redirect('/records/hostelHead');
       
       })
-      
+    }
       
       
       
@@ -7632,77 +7523,7 @@ router.get('/addHostel',isLoggedIn,  function(req,res){
   
   
   
-  /*
-    router.post('/alloHostelBatch',isLoggedIn,  function(req,res){
-    var id =req.user._id
-      var code = req.body.code
-      var date = req.body.date
-      var time  = req.body.time
-      var m2 = moment()
-      var mformat = m2.format('L')
-      var pro = req.user
   
-      
-      
-  
-      req.check('code','Enter  Code').notEmpty();
-      req.check('date','Enter Date').notEmpty();
-      req.check('time','Enter Time').notEmpty();
-    
-      
-      var errors = req.validationErrors();
-       
-      if (errors) {
-        req.session.errors = errors;
-        req.session.success = false;
-        res.render('hostel/alloBatch',{ errors:req.session.errors,pro:pro})
-  
-        
-    
-  
-  
-    req.flash('danger', req.session.errors[0].msg);
-         
-          
-    res.redirect('/records/alloHostelBatch');
-      
-      }
-      
-      else 
-      
-      AlloHostelBatch.findOne({'code':code})
-      .then(grower =>{
-      if(grower){
-  
-        req.flash('danger', 'Code already in use');
-   
-        res.redirect('/records/alloHostelBatch');
-      }else{
-  
-        var truck = new AlloHostelBatch()
-        truck.code = code
-        truck.time = time
-        truck.mformat = mformat
-  
-        truck.save()
-            .then(pro =>{
-  
-        User.findByIdAndUpdate(id,{$set:{paymentId:code,pollUrl:pro._id}}, function(err,coc){
-            
-          
-        })
-  res.redirect('/records/studentHostel')
-  
-      })
-  
-      }
-      
-      })
-      
-      
-      })
-    
-  */
   
   ////
   
@@ -7808,14 +7629,17 @@ router.get('/studentHostel',isLoggedIn,records, function(req,res){
   var hostelHead = req.user.hostelHead
   var hostelCapacity = req.user.hostelCapacity
   var code = req.user.paymentId
-  if(hostel == 'null'){
+  if(code == 'null'){
     res.redirect('/records/alloHostelBatch')
-  }else
+  }else{
+
+  
   var errorMsg = req.flash('danger')[0];
   var successMsg = req.flash('success')[0];
 
 
   res.render('hostel/studentsAllo',{code:code,hostelHead:hostelHead,hostelCapacity:hostelCapacity,hostelType:hostelType,hostel:hostel,hostelId,pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  }
   
   })
 
@@ -8445,6 +8269,206 @@ else
                req.flash('success', 'File Successfully!');
  
                res.redirect('/records/importRooms') 
+     
+       }
+     }
+ 
+ })
+  
+  
+  ////import floors
+  
+ router.get('/importFloors',isLoggedIn,records, function(req,res){
+  var pro = req.user
+
+ 
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+
+ /* if(actualCount < count){*/
+   title = "Import Floors"
+
+  
+   // res.redirect('/records/dept')
+  
+ res.render('imports/floor',{pro:pro,title:title,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
+
+   })
+ /*else
+
+res.redirect('/records/importTeacherX')*/
+
+ 
+ 
+ 
+/*
+router.get('/importTeacherX',isLoggedIn,function(req,res){
+ var pro = req.user
+ res.render('imports/teacherX',{pro:pro})
+})*/
+
+
+
+  
+ router.post('/importFloors',isLoggedIn,records, uploadX.single('file'),function(req,res){
+   var term = req.user.term;
+   var m = moment()
+   var year = m.format('YYYY')
+   var id =   req.user._id
+   var pro = req.user
+
+
+ 
+   
+ /*  if(!req.file){
+       req.session.message = {
+         type:'errors',
+         message:'Select File!'
+       }     
+         res.render('imports/students', {message:req.session.message,pro:pro}) */
+         if (!req.file || req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+           req.session.message = {
+               type:'errors',
+               message:'Upload Excel File'
+             }     
+               res.render('imports/floor', {message:req.session.message,pro:pro
+                    
+                }) 
+ 
+ 
+ 
+       }
+         
+       else{
+
+       
+           const file = req.file.filename;
+   
+           
+                var wb =  xlsx.readFile(`./public/uploads/` + file)
+        
+                var sheets = wb.Sheets;
+                var sheetNames = wb.SheetNames;
+    
+                var sheetName = wb.SheetNames[0];
+    var sheet = wb.Sheets[sheetName ];
+    
+       for (var i = 0; i < wb.SheetNames.length; ++i) {
+        var sheet = wb.Sheets[wb.SheetNames[i]];
+    
+        console.log(wb.SheetNames.length)
+        var data =xlsx.utils.sheet_to_json(sheet)
+            
+        var newData = data.map(async function (record){
+    
+       
+        
+     
+         
+      
+      
+     
+           let hostel = record.hostel;
+           let floor = record.floor;
+           let rooms = record.rooms;
+          
+
+
+
+
+
+          req.body.hostel = record.hostel   
+req.body.rooms = record.rooms
+req.body.floor = record.floor  
+
+          
+
+       req.check('hostel','Enter Hostel').notEmpty();
+req.check('rooms','Enter rooms').notEmpty();
+
+req.check('floor','Enter Floor').notEmpty()
+
+var errors = req.validationErrors();
+ 
+if (errors) {
+ 
+ req.session.errors = errors;
+ req.session.success = false;
+ console.log( req.session.errors[0].msg)
+ req.flash('danger', req.session.errors[0].msg);
+      
+       
+ res.redirect('/records/importFloors');
+
+}
+
+else
+
+
+           {
+             Floor.findOne({'floor':floor,'hostel':hostel})
+             .then(user =>{
+                 if(user){ 
+               // req.session.errors = errors
+                 //req.success.user = false;
+           
+           
+           
+                 req.flash('danger', 'Floor already in the system');
+
+                 res.redirect('/records/importFloor') 
+ 
+                 //res.redirect('/records/import')
+               
+           }
+           else
+
+
+
+
+
+           var user = new Floor();
+           user.hostel = hostel
+           user.rooms = rooms;
+           user.floor = floor;
+          
+           user.save()
+             .then(user =>{
+              
+             
+                 
+             /*  req.session.message = {
+                 type:'success',
+                 message:'Account Registered'
+               }  
+               res.render('imports/teacherX',{message:req.session.message});*/
+             })
+
+           })
+         }
+                  
+                   // .catch(err => console.log(err))
+                 
+               
+                   
+                 
+                 
+        
+                 
+                 
+                 
+                   
+                   
+       
+                  
+       
+                  
+            
+               })
+               
+               req.flash('success', 'File Successfully Imported!');
+ 
+               res.redirect('/records/importFloors') 
      
        }
      }

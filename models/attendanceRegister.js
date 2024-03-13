@@ -28,6 +28,7 @@ var attendanceRegSchema = new mongoose.Schema({
     comments:{type:String, required:true},
     companyId:{type:String},
     regId:{type:String},
+    size:{type:Number},
 
 
 })

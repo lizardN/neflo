@@ -796,6 +796,9 @@ router.get('/', function (req, res, next) {
       else if(req.user.role == 'eurit')
       res.redirect('/stEuritUpload')
 
+      else if(req.user.role == 'hostel head')
+      res.redirect('/hostel/studentList')
+
       else if(req.user.role == 'euritP')
       res.redirect('/euritFilesP')
 

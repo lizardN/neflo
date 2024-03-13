@@ -29,6 +29,7 @@ var indexRoute= require('./routes/index')
  var parentRoute = require('./routes/parent')
  var packageRoute = require('./routes/payment')
  var hurlingRoute = require('./routes/hurlings')
+ var hostelRoute = require('./routes/hostel')
 
 
 
@@ -92,6 +93,7 @@ app.use('/package',packageRoute)
 app.use('/teacher', teacherRoute);
 app.use('/parent', parentRoute);
 app.use('/hurlings', hurlingRoute);
+app.use('/hostel', hostelRoute);
 app.use('/', indexRoute);
 
 
