@@ -6,6 +6,7 @@ const Floor =require('../models/floor')
 const Attendance = require('../models/attendanceHostel');
 const AttendanceReg = require('../models/attendanceRegHostel');
 const User =require('../models/user')
+const AttendanceReport =require('../models/attReport')
 const Class1 =require('../models/class');
 const Hostel =require('../models/hostel')
 const Discipline =require('../models/discipline')
@@ -103,8 +104,9 @@ const methodOverride = require('method-override');
 const arr = {}
 const arr2 = {}
 const arr3 = {}
-const arrE ={}
-const arrE2 ={}
+const arrA ={}
+const arrB ={}
+const arrC ={}
 
 
 var storageX = multer.diskStorage({
@@ -5684,7 +5686,7 @@ router.get('/arrMonthlyUpdate',isLoggedIn,function(req,res){
     var repo = new VouchStudentReport();
    
   repo.uid = studentId;
-  repo.studentName = name
+  repo.studentName = studentName
   repo.hostel = hostel
   repo.head = head
   repo.room = room
@@ -5699,14 +5701,12 @@ router.get('/arrMonthlyUpdate',isLoggedIn,function(req,res){
   })
   
     
-    /*await browser.close()
-    
-    process.exit()*/
+   
     
     
     req.flash('success', 'Report Generation Successfull');
    
-    res.redirect('/hostel/alloStudentMonthBatch');
+    res.redirect('/hostel/alloStudentMonthlyBatch');
     
     }catch(e) {
     
@@ -7553,7 +7553,1175 @@ res.render('hostelFolderReg/assgtList',{listX:docs,pro:pro,floorId:floorId,floor
 })
 
 
+//////attendance report
 
+
+router.get('/arrAttAnnual',isLoggedIn,function(req,res){
+
+  var hostel = req.user.hostel
+  Hostel.find(function(err,docs){
+    for(var i=0;i<docs.length;i++){
+      let name = docs[i].name
+       arrA[name]=[]
+    }
+  })
+  
+  res.redirect('/hostel/alloAttYearBatch')
+  
+  })
+//agg Year Float
+//allo month batch
+router.get('/alloAttYearBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  console.log(arrA,'arrA')
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('hostel/alloAttYearBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+
+////
+
+router.post('/alloAttYearBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+  
+  var year = req.body.year
+  var pro = req.user
+
+    
+    
+
+  req.check('year','Enter Year').notEmpty();
+ 
+ 
+    
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+     // res.render('product/dispatchCust',{ errors:req.session.errors,pro:pro})
+
+     req.flash('danger', req.session.errors[0].msg);
+       
+        
+     res.redirect('/hostel/alloAttYearBatch');
+
+
+    
+    }
+    
+    else {
+
+    
+    
+    Year.findOne({'year':year})
+    .then(grower =>{
+    if(grower){
+    
+   
+User.findByIdAndUpdate(id,{$set:{hostelYear:year}},function(err,docs){
+
+})
+
+ 
+res.redirect('/hostel/aggDays');
+        
+          
+          
+          
+       
+    
+
+    
+    }else{
+
+      req.flash('danger', 'Year dont exist');
+ 
+      res.redirect('/hostel/alloAttYearBatch');
+
+
+    
+
+    }
+    
+    })
+    
+  }
+    })
+
+
+
+
+//aggFloat
+router.get('/aggDays',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+
+  Attendance.find({year:year,hostel:hostel},function(err,hods){
+
+   number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggDays:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggPresent')
+
+
+  })
+
+
+
+
+})
+//aggVouchers
+
+router.get('/aggPresent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Present",hostel:hostel},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggPresent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggAbsent')
+
+
+  })
+
+
+
+
+})
+
+
+router.get('/aggAbsent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Absent",hostel:hostel},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggAbsent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/generateAnnualAttReport1')
+
+
+  })
+
+
+
+
+})
+
+
+
+router.get('/generateAnnualAttReport1',function(req,res){
+
+  var year = req.user.hostelYear
+  var hostel = req.user.hostel
+  var month = req.user.hostelMonth
+  //var term = req.user.term
+  Hostel.find({name:hostel},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+  
+  //console.log(docs[i].uid,'ccc')
+  let name = docs[i].name
+  //let uid = "SZ125"
+  
+  
+  //TestX.find({year:year,uid:uid},function(err,vocs) {
+    AttendanceReg.find({year:year,hostel:name,status:"Absent"}).lean().sort({uid:1}).then(vocs=>{
+  
+    
+  for(var x = 0;x<vocs.length;x++){
+
+     
+     if( arrA[name].length > 0 && arrA[name].find(value => value.name == name) ){
+   
+      arrA[name].push(vocs[x])
+  
+          }
+          
+           
+          
+          
+          else{
+            arrA[name].push(vocs[x])
+                
+            } 
+  
+  
+       
+  
+           
+  
+  }  console.log(arrA,'arrA2')
+          })
+          }
+          res.redirect('/hostel/annualAttReportGeneration')
+        })
+  
+  /*})*/
+  
+  })
+  ////////////
+  
+  router.get('/annualAttReportGeneration',isLoggedIn,function(req,res){
+  
+    var m = moment()
+    var year = req.user.hostelYear
+    var name = req.user.hostel
+   
+      var mformat = m.format('L')
+      var term = req.user.hostelTerm
+  /*console.log(arr,'iiii')*/
+  
+    
+  //console.log(docs,'docs')
+  
+  const compile = async function (templateName, arr2){
+    const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+  
+    const html = await fs.readFile(filePath, 'utf8')
+  
+    return hbs.compile(html)(arr2)
+   
+  };
+  
+  
+  
+  
+   (async function(){
+  
+  try{
+  //const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+  
+  const page = await browser.newPage()
+  
+  
+  
+   //const content = await compile('report3',arr[uid])
+   const content = await compile('reportF2HostelAtt',arrA[name])
+  
+  //console.log(arr[uid],'tamama')
+  await page.setContent(content, { waitUntil: 'networkidle2'});
+   //await page.setContent(content)
+  //create a pdf document
+  await page.emulateMediaType('screen')
+  await page.evaluate(() => matchMedia('screen').matches);
+  await page.setContent(content, { waitUntil: 'networkidle0'});
+  //console.log(await page.pdf(),'7777')
+  
+  await page.pdf({
+    //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+    path:(`./voucherReports/annual/${year}/${term}`+'.pdf'),
+    format:"A4",
+    width:'30cm',
+  height:'21cm',
+    printBackground:true
+  })
+  
+  
+  
+  var repo = new AttendanceReport();
+   
+  repo.hostel = name
+  repo.month = month;
+  repo.filename = name+'.pdf';
+  repo.year = year;
+  repo.term = 1
+  repo.date = mformat
+  repo.type = "Attendance Annual"
+  repo.save().then(poll =>{
+    console.log("Done creating pdf",name)
+  })
+  
+  
+  /*await browser.close()
+  
+  process.exit()*/
+  req.flash('success', 'Report Generation Successful');
+ 
+  res.redirect('/hostel/alloAttYearBatch');
+  
+  
+  }catch(e) {
+  
+    console.log(e)
+  
+  
+  }
+
+  
+  }) ()
+
+
+  
+  
+  //res.redirect('/hostel/discList')
+
+
+  
+
+  
+  
+
+  })
+  
+
+  //////////22222222222222
+  
+//////attendance report
+
+
+router.get('/arrAttTerm',isLoggedIn,function(req,res){
+
+  var hostel = req.user.hostel
+  Hostel.find(function(err,docs){
+    for(var i=0;i<docs.length;i++){
+      let name = docs[i].name
+       arrB[name]=[]
+    }
+  })
+  
+  res.redirect('/hostel/alloAttTermBatch')
+  
+  })
+//agg Year Float
+//allo month batch
+//aggTerm
+
+router.get('/alloAttTermBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('hostel/alloAttTermBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+
+////
+
+router.post('/alloAttTermBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+  var term = req.body.term
+  var year = req.body.year
+  var pro = req.user
+
+    
+    
+
+  req.check('term','Enter  Term').notEmpty();
+  req.check('year','Enter Year').notEmpty();
+ 
+ 
+    
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+     // res.render('product/dispatchCust',{ errors:req.session.errors,pro:pro})
+
+     req.flash('danger', req.session.errors[0].msg);
+       
+        
+     res.redirect('/hostel/alloAttTermBatch');
+
+
+    
+    }
+    
+    else {
+
+    
+    
+    Year.findOne({'year':year})
+    .then(grower =>{
+    if(grower){
+     
+   
+User.findByIdAndUpdate(id,{$set:{hostelYear:year,hostelTerm:term}},function(err,docs){
+
+})
+
+ 
+res.redirect('/hostel/aggTermDays');
+        
+          
+          
+          
+       
+    
+
+    
+    }else{
+
+      req.flash('danger', 'Year dont exist');
+ 
+      res.redirect('/hostel/alloAttTermBatch');
+
+
+    
+
+    }
+    
+    })
+    
+  }
+    })
+
+
+//aggFloat
+router.get('/aggTermDays',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var term = req.user.hostelTerm
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+
+  Attendance.find({year:year,hostel:hostel,term:term},function(err,hods){
+
+   number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,term:term},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggDays:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggTermPresent')
+
+
+  })
+
+
+
+
+})
+//aggVouchers
+
+router.get('/aggTermPresent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var term = req.user.hostelTerm
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Present",hostel:hostel,term:term},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,term:term},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggPresent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggTermAbsent')
+
+
+  })
+
+
+
+
+})
+
+
+router.get('/aggTermAbsent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var term = req.user.hostelTerm
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Absent",hostel:hostel,term:term},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,term:term},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggAbsent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/generateTermAttReport1')
+
+
+  })
+
+
+
+
+})
+
+
+
+router.get('/generateTermAttReport1',function(req,res){
+
+  var year = req.user.hostelYear
+  var hostel = req.user.hostel
+  var month = req.user.hostelMonth
+  var term = req.user.hostelTerm
+  Hostel.find({name:hostel},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+  
+  //console.log(docs[i].uid,'ccc')
+  let name = docs[i].name
+  //let uid = "SZ125"
+  
+  
+  //TestX.find({year:year,uid:uid},function(err,vocs) {
+    AttendanceReg.find({year:year,hostel:name,status:"Absent",term:term}).lean().sort({uid:1}).then(vocs=>{
+  
+    
+  for(var x = 0;x<vocs.length;x++){
+
+     
+     if( arrB[name].length > 0 && arrB[name].find(value => value.name == name) ){
+   
+      arrB[name].push(vocs[x])
+  
+          }
+          
+           
+          
+          
+          else{
+            arrB[name].push(vocs[x])
+                
+            } 
+  
+  
+       
+  
+           
+  
+  }  console.log(arrA,'arrA2')
+          })
+          }
+          res.redirect('/hostel/termAttReportGeneration')
+        })
+  
+  /*})*/
+  
+  })
+  ////////////
+  
+  router.get('/termAttReportGeneration',isLoggedIn,function(req,res){
+  
+    var m = moment()
+    var year = req.user.hostelYear
+    var name = req.user.hostel
+   
+      var mformat = m.format('L')
+      var term = req.user.hostelTerm
+  /*console.log(arr,'iiii')*/
+  
+    
+  //console.log(docs,'docs')
+  
+  const compile = async function (templateName, arrB){
+    const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+  
+    const html = await fs.readFile(filePath, 'utf8')
+  
+    return hbs.compile(html)(arrB)
+   
+  };
+  
+  
+  
+  
+   (async function(){
+  
+  try{
+  //const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+  
+  const page = await browser.newPage()
+  
+  
+  
+   //const content = await compile('report3',arr[uid])
+   const content = await compile('reportF2HostelAttTerm',arrB[name])
+  
+  //console.log(arr[uid],'tamama')
+  await page.setContent(content, { waitUntil: 'networkidle2'});
+   //await page.setContent(content)
+  //create a pdf document
+  await page.emulateMediaType('screen')
+  await page.evaluate(() => matchMedia('screen').matches);
+  await page.setContent(content, { waitUntil: 'networkidle0'});
+  //console.log(await page.pdf(),'7777')
+  
+  await page.pdf({
+    //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+    path:(`./voucherReports/annual/${year}/${term}`+'.pdf'),
+    format:"A4",
+    width:'30cm',
+  height:'21cm',
+    printBackground:true
+  })
+  
+  
+  
+  var repo = new AttendanceReport();
+   
+  repo.hostel = name
+  repo.month = month;
+  repo.filename = name+'.pdf';
+  repo.year = year;
+  repo.term = 1
+  repo.date = mformat
+  repo.type = "Attendance Term"
+  repo.save().then(poll =>{
+    console.log("Done creating pdf",name)
+  })
+  
+  
+  /*await browser.close()
+  
+  process.exit()*/
+  req.flash('success', 'Report Generation Successful');
+ 
+  res.redirect('/hostel/alloAttTermBatch');
+  
+  
+  }catch(e) {
+  
+    console.log(e)
+  
+  
+  }
+
+  
+  }) ()
+
+
+  
+  
+  //res.redirect('/hostel/discList')
+
+
+  
+
+  
+  
+
+  })
+  
+ ///////////xxxxxxxxxxxxx
+ 
+router.get('/arrAttMonthly',isLoggedIn,function(req,res){
+
+  var hostel = req.user.hostel
+  Hostel.find(function(err,docs){
+    for(var i=0;i<docs.length;i++){
+      let name = docs[i].name
+       arrC[name]=[]
+    }
+  })
+  
+  res.redirect('/hostel/alloAttMonthBatch')
+  
+  })
+
+ //allo month batch
+ router.get('/alloAttMonthBatch',isLoggedIn,  function(req,res){
+  var pro = req.user
+  var errorMsg = req.flash('danger')[0];
+  var successMsg = req.flash('success')[0];
+  res.render('hostel/alloAttMonthBatch',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg})
+  })
+
+
+
+
+
+////
+
+router.post('/alloAttMonthBatch',isLoggedIn,  function(req,res){
+  var id =req.user._id
+  var month = req.body.month
+  var year = req.body.year
+  var pro = req.user
+
+    
+    
+
+  req.check('month','Enter  Month').notEmpty();
+  req.check('year','Enter Year').notEmpty();
+ 
+ 
+    
+  
+    
+    var errors = req.validationErrors();
+     
+    if (errors) {
+      req.session.errors = errors;
+      req.session.success = false;
+     // res.render('product/dispatchCust',{ errors:req.session.errors,pro:pro})
+
+     req.flash('danger', req.session.errors[0].msg);
+       
+        
+     res.redirect('/hostel/alloAttMonthBatch');
+
+
+    
+    }
+    
+    else {
+
+    
+    
+    Year.findOne({'year':year})
+    .then(grower =>{
+    if(grower){
+      Month.findOne({'month':month})
+      .then(lock=>{
+        if(lock){
+   
+User.findByIdAndUpdate(id,{$set:{hostelYear:year,hostelMonth:month}},function(err,docs){
+
+})
+
+ 
+res.redirect('/hostel/aggAttMonth');
+        
+          
+          
+          
+        }
+      })
+
+    
+
+    
+    }else{
+
+      req.flash('danger', 'Month/Year dont exist');
+ 
+      res.redirect('/hostel/alloAttMonthBatch');
+
+
+    
+
+    }
+    
+    })
+    
+  }
+    })
+
+
+//aggFloat
+router.get('/aggAttMonth',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var term = req.user.hostelTerm
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+
+  Attendance.find({year:year,hostel:hostel,term:term},function(err,hods){
+
+   number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,term:term},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggDays:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggMonthPresent')
+
+
+  })
+
+
+
+
+})
+//aggVouchers
+
+router.get('/aggMonthPresent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var term = req.user.hostelTerm
+  var month = req.user.hostelMonth
+  var arr1 = []
+  var number1
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Present",hostel:hostel,month:month},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,month:month},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggPresent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/aggMonthAbsent')
+
+
+  })
+
+
+
+
+})
+
+
+router.get('/aggMonthAbsent',isLoggedIn,function(req,res){
+  var m = moment()
+  var year = req.user.hostelYear
+  var month = m.format('MMMM')
+  var arr1 = []
+  var number1
+  var month = req.user.hostelMonth
+  var hostel = req.user.hostel
+  AttendanceReg.find({year:year,status:"Absent",hostel:hostel,month:month},function(err,hods){
+
+    number1 = hods.length
+
+AttendanceReg.find({year:year,hostel:hostel,month:month},function(err,docs){
+  for(var i = 0;i <docs.length;i++){
+    let id =  docs[i]._id
+    AttendanceReg.findByIdAndUpdate(id,{$set:{aggAbsent:number1}},function(err,focs){
+
+    })
+  }
+})
+
+  //aggVouchers
+       
+    
+
+
+
+        res.redirect('/hostel/generateMonthAttReport1')
+
+
+  })
+
+
+
+
+})
+
+
+
+router.get('/generateMonthAttReport1',function(req,res){
+
+  var year = req.user.hostelYear
+  var hostel = req.user.hostel
+  var month = req.user.hostelMonth
+  var term = req.user.hostelTerm
+  Hostel.find({name:hostel},function(err,docs){
+  
+  for(var i = 0; i<docs.length;i++){
+  
+  //console.log(docs[i].uid,'ccc')
+  let name = docs[i].name
+  //let uid = "SZ125"
+  
+  
+  //TestX.find({year:year,uid:uid},function(err,vocs) {
+    AttendanceReg.find({year:year,hostel:name,status:"Absent",month:month}).lean().sort({uid:1}).then(vocs=>{
+  
+    
+  for(var x = 0;x<vocs.length;x++){
+
+     
+     if( arrC[name].length > 0 && arrC[name].find(value => value.name == name) ){
+   
+      arrC[name].push(vocs[x])
+  
+          }
+          
+           
+          
+          
+          else{
+            arrC[name].push(vocs[x])
+                
+            } 
+  
+  
+       
+  
+           
+  
+  }  
+          })
+          }
+          res.redirect('/hostel/monthAttReportGeneration')
+        })
+  
+  /*})*/
+  
+  })
+  ////////////
+  
+  router.get('/monthAttReportGeneration',isLoggedIn,function(req,res){
+  
+    var m = moment()
+    var year = req.user.hostelYear
+    var name = req.user.hostel
+   
+      var mformat = m.format('L')
+      var term = req.user.hostelTerm
+  /*console.log(arr,'iiii')*/
+  
+    
+  //console.log(docs,'docs')
+  
+  const compile = async function (templateName, arrC){
+    const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+  
+    const html = await fs.readFile(filePath, 'utf8')
+  
+    return hbs.compile(html)(arrC)
+   
+  };
+  
+  
+  
+  
+   (async function(){
+  
+  try{
+  //const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+  });
+  
+  const page = await browser.newPage()
+  
+  
+  
+   //const content = await compile('report3',arr[uid])
+   const content = await compile('reportF2HostelAttMonth',arrC[name])
+  
+  //console.log(arr[uid],'tamama')
+  await page.setContent(content, { waitUntil: 'networkidle2'});
+   //await page.setContent(content)
+  //create a pdf document
+  await page.emulateMediaType('screen')
+  await page.evaluate(() => matchMedia('screen').matches);
+  await page.setContent(content, { waitUntil: 'networkidle0'});
+  //console.log(await page.pdf(),'7777')
+  
+  await page.pdf({
+    //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+    path:(`./voucherReports/annual/${year}/${term}`+'.pdf'),
+    format:"A4",
+    width:'30cm',
+  height:'21cm',
+    printBackground:true
+  })
+  
+  
+  
+  var repo = new AttendanceReport();
+   
+  repo.hostel = name
+  repo.month = month;
+  repo.filename = name+'.pdf';
+  repo.year = year;
+  repo.term = 1
+  repo.date = mformat
+  repo.type = "Attendance Month"
+  repo.save().then(poll =>{
+    console.log("Done creating pdf",name)
+  })
+  
+  
+  /*await browser.close()
+  
+  process.exit()*/
+  req.flash('success', 'Report Generation Successful');
+ 
+  res.redirect('/hostel/alloAttMonthBatch');
+  
+  
+  }catch(e) {
+  
+    console.log(e)
+  
+  
+  }
+
+  
+  }) ()
+
+
+  
+  
+  //res.redirect('/hostel/discList')
+
+
+  
+
+  
+  
+
+  })
+   
+  
 
 
  //importing teachers details from excel

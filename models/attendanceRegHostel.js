@@ -26,6 +26,10 @@ var attendanceRegHostelSchema = new mongoose.Schema({
     regId:{type:String},
     regCode:{type:String},
     size:{type:Number},
+    aggDays:{type:Number},
+    aggPresent:{type:Number},
+    aggAbsent:{type:Number},
+
 
 
 })

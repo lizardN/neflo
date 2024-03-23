@@ -19,6 +19,9 @@ var attendanceHostelSchema = new mongoose.Schema({
     type:{type:String},
     status:{type:String},
     regId:{type:String},
+    aggDays:{type:Number},
+    aggPresent:{type:Number},
+    aggAbsent:{type:Number},
 
 
 })

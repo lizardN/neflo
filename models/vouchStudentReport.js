@@ -21,4 +21,4 @@ type:{type:String, required:true},
 
 })
 
-module.exports = mongoose.model('StudentDiscReport', vouchStudentReportSchema);
+module.exports = mongoose.model('VouchStudentReport', vouchStudentReportSchema);

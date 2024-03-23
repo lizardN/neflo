@@ -111,8 +111,16 @@ var userSchema = new mongoose.Schema({
     demerit:{type:Number},
     merit:{type:Number},
     floor:{type:String},
-    
-   
+    invoCode:{type:String},
+    quoteCode:{type:String},
+    num:{type:Number},
+    clientName:{type:String},
+    companyName:{type:String},
+    companyEmail:{type:String},
+    companyAddress:{type:String},
+    companyCity:{type:String},
+    companyMobile:{type:String},
+    companyCountry:{type:String},
 });
 
 // Custom validation for email
