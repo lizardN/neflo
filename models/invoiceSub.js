@@ -27,7 +27,7 @@ var invoiceSubSchema = new Schema({
     status: {type: String, required: true},
     code: {type: String, required: true},
     type: {type: String, required: true},
-    subtotal: {type: Number, },
+    subtotal: {type: Number,required:true },
     size: {type: Number, }
   
 

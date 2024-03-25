@@ -4024,6 +4024,7 @@ var book = new InvoiceSub();
   book.month = month
   book.year = year
   book.size = i
+  book.subtotal = 0
  
 
 
@@ -4187,7 +4188,7 @@ router.get('/invoiceProcess',isLoggedIn,function(req,res){
 var code =req.user.invoCode
 console.log(code,'code')
 
-InvoiceSub.find({code:code,status:"not saved"},function(err,docs){
+InvoiceSub.find({code:code},function(err,docs){
 for(var i = 0;i<docs.length;i++){
 let id = docs[i]._id
 InvoiceSub.findByIdAndUpdate(id,{$set:{status:"saved"}},function(err,locs){
@@ -4206,7 +4207,7 @@ router.get('/invoiceSubTotal',isLoggedIn,function(req,res){
  var number1 = 0
  var arrSub = []
   var code =req.user.invoCode
-  InvoiceSub.find({code:code,status:"saved"},function(err,hods){
+  InvoiceSub.find({code:code},function(err,hods){
 
     for(var q = 0;q<hods.length; q++){
         
