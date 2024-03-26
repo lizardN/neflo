@@ -11,6 +11,8 @@ var QuoteFiles = require('../models/quoteFiles');
 var InvoiceSub = require('../models/invoiceSub');
 var InvoiceCode = require('../models/invoiceCode');
 var InvoiceFiles = require('../models/invoiceFiles');
+var InvoiceFile = require('../models/invoiceFile');
+var ReceiptFile = require('../models/receiptFile');
 var Category = require('../models/category');
 var BStats = require('../models/bookStats');
 var CStats = require('../models/categoryStats');
@@ -93,6 +95,7 @@ const methodOverride = require('method-override');
 
 const arr = {}
 const arr2 = {}
+const arrInvoice = {}
 //const data = require('../data.json')
 
 var storageX = multer.diskStorage({
@@ -1946,6 +1949,39 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
 
      
    
+router.get('/invoiceCode',isLoggedIn,function(req,res){
+  var id = req.user._id
+  var m = moment()
+  var month = m.format('MMMM')
+  var year = m.format('YYYY')
+  var mformat = m.format('L')
+var prefix = req.user.prefix
+var num = req.user.num
+
+var code = prefix+num
+
+var codex = new InvoiceCode();
+
+codex.code = code
+codex.mformat = mformat
+
+     
+             
+codex.save()
+.then(title =>{
+  num++
+User.findByIdAndUpdate(id,{$set:{invoCode:code,num:num}},function(err,docs){
+
+})
+
+res.redirect('/clerk/addFees')
+
+})
+
+
+})
+
+
   
   
   
@@ -1984,6 +2020,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   router.post('/addFees',isLoggedIn,clerk, function(req,res){
     var pro = req.user
   var m = moment()
+  var code = req.user.invoCode
   var xId = req.user._id;
   var uid = req.body.uid;
   var studentId = req.body.idN
@@ -2035,6 +2072,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
         fees.month = month;
         fees.method = method;
         fees.paymentId = 'null'
+        fees.invoCode = code
         fees.receiptNumber = receiptNumber;
  
       
@@ -2050,8 +2088,8 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   console.log('xId',xId)
   
               balance = docs[0].balance;
-              newBalance = balance + fees.amount;
-  
+              newBalance = docs[0].balance + fee.amount;
+  console.log(balance,'balance',fee.amount,'amount',newBalance,'newBalance')
               if(newBalance >= 0){
       
                 User.findByIdAndUpdate(docs[0]._id,{$set:{balance:newBalance, status:"paid", term:term,amount:amount, year:year,balanceCarriedOver:balance,receiptNumber:fee._id}},function(err,docs){
@@ -2092,7 +2130,7 @@ router.post('/profile',isLoggedIn,upload.single('file'),function(req,res){
   
   
   router.get('/printX',isLoggedIn,function(req,res){
-
+var code = req.user.invoCode
     
 var m = moment()
 var month = m.format('MMMM')
@@ -2139,28 +2177,37 @@ const page = await browser.newPage()
 
 
 
+//const content = await compile('receipt3',docs)
 const content = await compile('receipt3',docs)
 
-await page.setContent(content, { waitUntil: 'networkidle0'});
-
- await page.setContent(content)
-  //await page.setContent(content, { waitUntil: "domcontentloaded"});
-//await page.addStyleTag({ path: `./public/hurlings/feesReceipt.css`});
-//create a pdf document
-//await page.setContent(html, { waitUntil: "domcontentloaded"});
 await page.setContent(content, { waitUntil: 'networkidle2'});
-
-
-//await page.addStyleTag({ path: './public/hurlings/feesReceipt.css'});
+//await page.setContent(content)
 //create a pdf document
+await page.emulateMediaType('screen')
+let height = await page.evaluate(() => document.documentElement.offsetHeight);
+await page.evaluate(() => matchMedia('screen').matches);
+await page.setContent(content, { waitUntil: 'networkidle0'});
+//console.log(await page.pdf(),'7777')
 
 await page.pdf({
-  path:(`./finance/${year}/${month}/${uid}`+'.pdf'),
-format:"A4",
+  path:(`./finance/${year}/${month}/${name}_${code}`+'.pdf'),
+  height: height + 'px',
 printBackground:true
 })
-
-console.log("Done creating pdf",uid)
+var repo = new ReceiptFile();
+      
+      repo.studentName =name
+      repo.month = month;
+      repo.code = code;
+      repo.studentId = studentId;
+      repo.term = term;
+      repo.type = 'Invoice';
+      repo.filename = code+'.pdf';
+      repo.year = year;
+      repo.date = mformat
+      repo.save().then(poll =>{
+      console.log("Done creating pdf",)
+      })
 res.redirect('/clerk/print')
 /*await browser.close()
 
@@ -2182,7 +2229,70 @@ console.log(e)
   })
   
 
+  router.get('/emailInvoice/:id',isLoggedIn,function(req,res){
+    var uid = req.params.id
+    var month = m.format('MMMM')
+var year = m.format('YYYY')
+
   
+    User.find({uid:uid},function(err,docs){
+   
+  if(docs){
+       let email = docs[0].parentEmail
+   
+       
+   
+   
+   
+   
+   
+               
+     const transporter = nodemailer.createTransport({
+       service: 'gmail',
+       port:465,
+       secure:true,
+       logger:true,
+       debug:true,
+       secureConnection:false,
+       auth: {
+           user: "kratosmusasa@gmail.com",
+           pass: "znbmadplpvsxshkg",
+       },
+       tls:{
+         rejectUnAuthorized:true
+       }
+       //host:'smtp.gmail.com'
+     });
+     let mailOptions ={
+       from: '"Admin" <kratosmusasa@gmail.com>', // sender address
+                   to: email, // list of receivers
+                   subject: "Invoice",
+       //text:"Node js testing",
+       attachments: [
+         {
+           filename:'document.pdf',
+           path:`./finance/${year}/${month}/${name}_${code}`+'.pdf'
+         }
+       ]
+     };
+     transporter.sendMail(mailOptions, function (error,info){
+       if(error){
+         console.log(error)
+         req.flash('danger', 'Reports Not Emailed!');
+    
+  res.redirect('/clerk/addFees')
+       }else{
+         console.log('Email sent successfully')
+         req.flash('success', 'Invoice Emailed Successfully!');
+    
+  res.redirect('/clerk/addFees')
+       }
+     })
+   
+   }
+   })
+   
+   })
 router.get('/genEmail2',isLoggedIn,function(req,res){
   //User.find({role:"parent"},function(err,docs){
  let email= req.user.parentEmail
@@ -2261,8 +2371,292 @@ router.get('/genEmail2',isLoggedIn,function(req,res){
   })
   
   
+
+  router.get('/arrInvoice',isLoggedIn,function(req,res){
   
+    
+    User.find({role:"student"},function(err,docs){
+    for(var i=0;i<docs.length;i++){
+    let code= docs[i].uid
+     arrInvoice[code]=[]
+    }
+    })
+    
+    res.redirect('/clerk/invoiceProcess')
+    
+    })
+    
+    
+
+
+
+
+    router.get('/invoiceProcess',isLoggedIn,function(req,res){
+
+     
+      User.find({role:"student"}).lean().then(vocs=>{
+      
+      
+      for(var x = 0;x<vocs.length;x++){
+      let code = vocs[x].uid
+      console.log(code,'code')
+      if( arrInvoice[code].length > 0 && arrInvoice[code].find(value => value.uid == code) ){
+      
+      arrInvoice[code].push(vocs[x])
+      
+          }
+          
+           
+          
+          
+          else{
+            arrInvoice[code].push(vocs[x])
+                
+            } 
+      
+      
+       
+      
+           
+      
+      }  
+          })
+          
+          res.redirect('/clerk/invoiceGeneration')
+        
+      
+      /*})*/
+      
+      })
+      
+      
+      
+      
+
+
+
+
+
+    router.get('/invoiceGeneration',isLoggedIn,function(req,res){
+console.log(arrInvoice,'arrInvoice')
+      var m = moment()
+      var mformat = m.format('L')
+      var month = m.format('MMMM')
+      var year = m.format('YYYY')
+      var term = req.user.term
+    
+      /*console.log(arr,'iiii')*/
+      User.find({role:'student'},function(err,docs){
+        for(var i = 0; i< docs.length;i++){
+        
+        
+        let code = docs[i].uid
+        let name = docs[i].fullname
+      
+      //console.log(docs,'docs')
+      
+      const compile = async function (templateName, arrInvoice){
+      const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
+      
+      const html = await fs.readFile(filePath, 'utf8')
+      
+      return hbs.compile(html)(arrInvoice)
+      
+      };
+      
+      
+      
+      
+      (async function(){
+      
+      try{
+      //const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote",
+      ],
+      executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
+      });
+      
+      const page = await browser.newPage()
+      
+      
+      
+      //const content = await compile('report3',arr[uid])
+      const content = await compile('invoice2',arrInvoice[code])
+      
+      //const content = await compile('index',arr[code])
+      
+      await page.setContent(content, { waitUntil: 'networkidle2'});
+      //await page.setContent(content)
+      //create a pdf document
+      await page.emulateMediaType('screen')
+      
+      await page.evaluate(() => matchMedia('screen').matches);
+      await page.setContent(content, { waitUntil: 'networkidle0'});
+      //console.log(await page.pdf(),'7777')
+      
+      await page.pdf({
+      //path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
+      path:(`./invoiceReports/${year}/${code}`+'.pdf'),
+    format:"A4",
+      width:'30cm',
+      height:'21cm',
+    
+      printBackground:true
+      
+      })
+      
+      
+      
+      var repo = new InvoiceFile();
+      
+      repo.studentName =name
+      repo.month = month;
+      repo.code = code;
+      repo.term = term;
+      repo.type = 'Invoice';
+      repo.filename = code+'.pdf';
+      repo.year = year;
+      repo.date = mformat
+      repo.save().then(poll =>{
+      console.log("Done creating pdf",)
+      })
+      
+      
+      /*await browser.close()
+      
+      process.exit()*/
+      req.flash('success', 'Report Generation Successful');
+      
+      //res.redirect('/clerk/generatedQuote');
+      
+      
+      }catch(e) {
+      
+      console.log(e)
+      
+      
+      }
+      
+      
+      }) ()
+      
+      
+      
+      
+      //res.redirect('/hostel/discList')
+    }
+    })
+      })
+      
+      
+      
+
+    
+      
+      
+
+router.get('/folderTermInvoiceReg/',isLoggedIn,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var uid = req.user._id
+  var arr = []
+
+ /* User.findByIdAndUpdate(uid,{$set:{hostelFolder:'annual'}},function(err,locs){
+
+  })*/
+
+
+  Year.find({}).sort({year:1}).then(docs=>{
+     
+          res.render('invoiceFolderReg/fileClass3',{listX:docs,pro:pro})
+
+        
+  })
+})
+
+//
+
+
+
+//////x2
+
+router.get('/invoiceSelectTermFolderReg/:id',isLoggedIn,function(req,res){
+  var pro = req.user
+  var id = req.params.id
+  var uid = req.user._id
+  var arr = []
+  User.findByIdAndUpdate(uid,{$set:{hostelYear:id}},function(err,locs){
+
+  })
+
+
+     
+          res.render('invoiceFolderReg/term',{pro:pro,year:id})
+
+        
   
+})
+
+
+////view files
+router.get('/viewTermlyInvoiceFile/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+
+  var year = req.user.hostelYear
+  
+
+  
+
+   InvoiceFile.find({year:year,term:id},function(err,docs){
+     if(docs){
+
+   
+
+
+
+res.render('invoiceFolderReg/filesTerm',{listX:docs,pro:pro,id:id,year:year})
+}
+})
+    
+
+
+})
+//
+
+
+//download voucher annual file
+
+router.get('/downloadTermlyInvoiceReport/:id',isLoggedIn,function(req,res){
+  var m = moment()
+  var month = m.format('MMMM')
+
+  var mformat = m.format('L')
+  InvoiceFile.findById(req.params.id,function(err,doc){
+    var name = doc.filename;
+    var year = doc.year
+    var term = doc.term
+    //res.download( './public/uploads/'+name, name)
+ 
+    res.download( './invoiceReports/'+year+'/'+term+'/'+name, name)
+  })  
+
+})
+
+        
+  
+
+
+
     //role admin
     //Autocomplete for student details when recording school fees
     router.get('/autocompleteX/',isLoggedIn, function(req, res, next) {
@@ -2391,448 +2785,87 @@ router.get('/genEmail2',isLoggedIn,function(req,res){
 
 
         
-  
-  
-  
-  
-  
-  
-
-  
-  
-router.get('/subscriptions',isLoggedIn,function(req,res){
-  var pro = req.user
-
-  Subscriptions.find({},(err, docs) => {
-
-  res.render('clerk/subscriptions1',{doc:docs[0],pro:pro})
-
-  })
-})
-
-router.get('/startup',isLoggedIn,function(req,res){
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var m = moment()
-  var id  = req.user._id
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].startup
-    pollCount = docs[0].startupCount
-    duration = docs[0].startupDuration
-     
-      console.log(amount,'money')
- /*
-  Subscriptions.find({},function(err,docs){
-amount = docs[0].startup
-  })*/
-  
-  let payment = paynow.createPayment("Subscription");
-
-  
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Startup Quartely Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
- 
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.date = date;
-        poll.package = "Startup Quarterly Package"
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount, duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
-
-
-
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
-  })
-})
-})
-
-//startup A
-router.get('/startupA',isLoggedIn,function(req,res){
-  var m = moment()
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var id  = req.user._id
-
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].startupA
-    pollCount = docs[0].startupCount
-    duration = docs[0].startupAduration
-     
-  
-  let payment = paynow.createPayment("Subscription");
-
-  
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Startup Annual Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
- 
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.date = date;
-        poll.package = "Startup Annual Package"
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount,duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
-
-
-
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
-  })
-  })
-})
-
-
-//advanced Q
-router.get('/advanced',isLoggedIn, function(req,res){
-  var m = moment()
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var id  = req.user._id
-
-  var count = 100
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].advanced
-    pollCount = docs[0].advancedCount
-    duration = docs[0].advancedDuration
+  router.get('/debtors',isLoggedIn,(req, res) => {
+    var pro = req.user
+    var hostel = req.user.hostel
     
-  
-  let payment = paynow.createPayment("Subscription");
-
-  
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Advanced Quartely Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
+     User.find({role:"student",status:"owing"},(err, docs) => {
+         if (!err) {
+             res.render("acc2/debtors", {
+                 listX: docs, pro:pro    
+             });
+         }
+         else {
+             console.log('Error in retrieving Student list :' + err);
+         }
+     });
+   });
  
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.package = "Advanced Quartely Package"
-        poll.date = date;
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount, duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
 
 
+   router.get('/creditors',isLoggedIn,(req, res) => {
+    var pro = req.user
+    var hostel = req.user.hostel
+    
+     User.find({role:"student",status:"paid"},(err, docs) => {
+         if (!err) {
+             res.render("acc2/creditors", {
+                 listX: docs, pro:pro    
+             });
+         }
+         else {
+             console.log('Error in retrieving Student list :' + err);
+         }
+     });
+   });
+ 
+  
+  
+  
+  
 
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
-  })
-  })
+ router.get('/studentProfile/:id',isLoggedIn,function(req,res){
+  var id = req.params.id
+  var pro = req.user
+  User.findById(id,function(err,doc){
+    
+ 
+  //var pro = req.user
+  res.render('acc2/overview2',{doc:doc,id:id,pro:pro})
+  
 })
-
-//advanced A
-router.get('/advancedA',isLoggedIn, function(req,res){
-  var m = moment()
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var id  = req.user._id
- 
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].advancedA
-        pollCount = docs[0].advancedCount
-        duration = docs[0].advancedAduration
-     
-  
-  let payment = paynow.createPayment("Subscription");
-
-  
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Advanced Annual Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
- 
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.package = "Advanced Quartely Package"
-        poll.date = date;
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount, duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
-
-
-
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
   })
+
+  router.get('/studentPayments/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'idd')
+    var pro = req.user
+    User.findById(id,function(err,doc){
+      let uid = doc.uid
+  
+      Fees.find({studentId:uid},function(err,locs){
+        res.render('acc2/subjects3',{listX:locs,pro:pro,doc:doc,id:id})
+      })
+    })
+   
   })
-})
-
-//enterprise Q
-router.get('/enterprise',isLoggedIn, function(req,res){
-  var m = moment()
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var id  = req.user._id
- 
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].enterprise
-    pollCount = docs[0].enterpriseCount
-    duration = docs[0].enterpriseDuration
-      
   
-  let payment = paynow.createPayment("Subscription");
-
+  router.get('/studentPayments/:id',isLoggedIn,function(req,res){
+    var id = req.params.id
+    console.log(id,'idd')
+    var pro = req.user
+    User.findById(id,function(err,doc){
+      let uid = doc.uid
   
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Enterprise Quartely Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
- 
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.package = "Enterprise Quartely Package"
-        poll.date = date;
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount,duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
-
-
-
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
+      User.find({role:"parent",studentId:uid},function(err,locs){
+        res.render('acc2/parents',{listX:locs,pro:pro,doc:doc,id:id})
+      })
+    })
+   
   })
-  })
-})
-
-//enterprise A
-router.get('/enterpriseA',isLoggedIn, function(req,res){
-  var m = moment()
-  var companyId = req.user.companyId;
-  var schoolName = req.user.schoolName;
-  var date = moment().toString();
-  var id  = req.user._id
-
-  const { Paynow } = require("paynow");
-  // Create instance of Paynow class
-  let paynow = new Paynow(14808, "e351cf17-54bc-4549-81f2-b66feed63768");
-  var amount , pollCount, duration
-  Subscriptions.find({},function(err,docs){
-    amount = docs[0].enterprise
-    pollCount = docs[0].enterpriseCount
-    duration = docs[0].enterpriseAduration
-     
-  
-  let payment = paynow.createPayment("Subscription");
 
   
-// Add items to the payment list passing in the name of the item and it's price
-payment.add("Enterprise Annual Package", amount);
-// Send off the payment to Paynow
-paynow.send(payment).then( (response) => {
-
-    if(response.success) {
-        // Get the link to redirect the user to, then use it as you see fit
-        let link = response.redirectUrl;
-
-        let pollUrl = response.pollUrl;
-
-        var poll = new Poll2();
- 
-        poll.pollUrl = pollUrl;
-        poll.companyId = companyId;
-        poll.schoolName = schoolName;
-        poll.package = "Enterprise Annual Package"
-        poll.date = date;
-        poll.amount = amount
-        poll.count = pollCount
-        poll.duration = duration
-        poll.save()
-           .then(poll =>{
-           
-            User.findByIdAndUpdate(id,{$set:{pollUrl2:pollUrl,paynow:amount,pollCount:pollCount, duration:duration}},function(err,docs){
-               
-               
-                 
-               
-            })
-        
-
-
-
-              res.redirect(link)
-           })
-    }
-    else{
-res.redirect('/clerk/subscriptions')
-    }
-  })
-  })
-})
   
-
-
-
-router.get('/subsPoll',isLoggedIn, (req, res) => {
-  var pro = req.user 
-  var companyId = req.user.companyId 
-  var set = moment()
-  var m2 = moment(req.user.expStr)
-  
-  var msg ="Package Expired"
-  var days=m2.diff(set,"days");
-  console.log(days)
-  var les = days<=0;
-  console.log(les)
-  var mor = days>0;
-  Poll2.find({companyId:companyId}, (err, doc) => {
-      if (!err) {
-      
-          res.render("clerk/subPoll", {
-             
-              list: doc, pro:pro, msg:msg, days:days, les:les, mor:mor
-            
-              
-          });
-        
-      }
-  });
-  });
 
   
   //role admin
@@ -3110,2227 +3143,6 @@ router.get('/feesUpdateX',isLoggedIn,function(req,res){
 ////invoice
 
 
-router.get('/addCables',isLoggedIn, function(req,res){
-
-  var pro = req.user
- 
-  var errorMsg = req.flash('danger')[0];
-  var successMsg = req.flash('success')[0];
- res.render('abc/addCables',{pro:pro,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
-  //res.render('abc/addCables')
-})
-
-/*
-router.post('/addCables',isLoggedIn,function(req,res){
-  //var i =0
-  //console.log(req.body,'num')
-var num = req.body.num
-num++
-console.log(num,'num')
-  for(var i = 0;i<num;i++){
-    console.log(req.body,'body')
-    console.log(req.body[`null-${i}`],'kranko')
-
-    ar = req.body[`null-${i}`]
-    //ar.filter(Boolean)
-    console.log(ar,'arr')
-    ar = ar.filter(v=>v!='')
-    console.log(ar.length,'ar')
-    if(ar.length > 2){
-
-   
-    let name = ar[0]
-    let category = ar[1]
-    let price = ar[2]
-
-    
-   
-     Product.findOne({'name':name})
-     .then(bk =>{
-         if(bk){ 
-       // req.session.errors = errors
-         //req.success.user = false;
-     
-        i++
-        
-         
-   }
-   
-                 else  {   
-
-
-    
-    var book = new Product();
-    book.name = name
-    book.category = category
-    book.barcodeNumber = 'null'
-    book.photo ='null'
-    book.vatPrice = 0
-    book.quantity = 0
-    book.description = 'null'
-   
-    book.rate = 0
-    book.zwl = 0
-    book.price = price
-   
-    book.save()
-              .then(title =>{
-console.log(title,'title')
-
-              })
-            }
-          })
-  }
-
-}    
-  req.flash('success', 'Cable(s) added Successfully!');
- 
-  res.redirect('/clerk/addCables') 
-
-
-ar = req.body[`null-${i}`]
-
-console.log(ar.length)
-
-})
-*/
-
-
-router.post('/addCables',isLoggedIn,function(req,res){
-  //var i =0
-  console.log(req.body,'num')
-  ar = req.body['name[]']
-  ar1 = req.body['category[]']
-  ar2=req.body['price[]']
-  console.log(typeof ar,'length')
-
- // ar = ar.filter(v=>v!='')
-if(typeof ar != "string"){
-  for(var i = 0; i<ar.length;i++){
-   
-    ar.filter(v=>v!='')
-   
-    //ar.filter(Boolean)
-    console.log(ar,'arr')
-
-    
-
-    console.log(ar[i])
-    let name = ar[i]
-   
-
-    
-   
-     Product.findOne({'name':name})
-     .then(bk =>{
-         if(bk){ 
-       // req.session.errors = errors
-         //req.success.user = false;
-     
-        i++
-        
-         
-   }
-   
-                 else  {   
-
-
-    
-    var book = new Product();
-    book.name = name
-    book.category = ar1
-    book.barcodeNumber = 'null'
-    book.photo ='null'
-    book.vatPrice = 0
-    book.quantity = 0
-    book.description = 'null'
-   
-    book.rate = 0
-    book.zwl = 0
-    book.price = ar2
-    book.size = i
-   
-    book.save()
-              .then(title =>{
-console.log(title,'title')
-
-
-
-let pId = title._id
-console.log(pId,"idd")
-
-let size = title.size
-
-console.log(size,'size')
-let category = ar1[size]
-let price = ar2[size]
-console.log(price,'price')
-      Product.findByIdAndUpdate(pId,{$set:{category:category,price:price}},function(err,ocs){
-      
-      })
-
-              })
-                 }
-          })
-  
-
-}  
-}  else{
-  console.log('ma horror')
-
-
-  req.check('name','Enter Name of Product').notEmpty();
-  req.check('category','Enter Category').notEmpty();
-  req.check('price', 'Enter Price').notEmpty();
-
-  
-var errors = req.validationErrors();
- 
-if (errors) {
- 
- req.session.errors = errors;
- req.session.success = false;
-
- req.flash('danger', req.session.errors[0].msg);
-      
-       
- res.redirect('/clerk/addCables');
-
-}
-   else{
-   
-  var book = new Product();
-  book.name = name
-  book.category = ar1
-  book.barcodeNumber = 'null'
-  book.photo ='null'
-  book.vatPrice = 0
-  book.quantity = 0
-  book.description = 'null'
- 
-  book.rate = 0
-  book.zwl = 0
-  book.price = ar2
-  book.size = i
- 
-  book.save()
-            .then(title =>{
-
-
-            })
-          }
-}
-  /*req.flash('success', 'Cable(s) added Successfully!');
- 
-  res.redirect('/clerk/addCables') */
-
-
-/*ar = req.body[`null-${i}`]
-
-console.log(ar.length)*/
-
-})
-
-
-/*
-
-router.post('/addCables',isLoggedIn,function(req,res){
-  //var i =0
-  //console.log(req.body,'num')
-var num = req.body.num
-num++
-console.log(num,'num')
-  for(var i = 0;i<num;i++){
-    console.log(req.body,'body')
-    console.log(req.body[`null-${i}`],'kranko')
-
-    ar = req.body[`null-${i}`]
-    //ar.filter(Boolean)
-    console.log(ar,'arr')
-    ar = ar.filter(v=>v!='')
-    console.log(ar.length,'ar')
-    if(ar.length > 2){
-
-   
-    let name = ar[0]
-    let category = ar[1]
-    let price = ar[2]
-
-    
-   
-     Product.findOne({'name':name})
-     .then(bk =>{
-         if(bk){ 
-       // req.session.errors = errors
-         //req.success.user = false;
-     
-        i++
-        
-         
-   }
-   
-                 else  {   
-
-
-    
-    var book = new Product();
-    book.name = name
-    book.category = category
-    book.barcodeNumber = 'null'
-    book.photo ='null'
-    book.vatPrice = 0
-    book.quantity = 0
-    book.description = 'null'
-   
-    book.rate = 0
-    book.zwl = 0
-    book.price = price
-   
-    book.save()
-              .then(title =>{
-console.log(title,'title')
-
-              })
-            }
-          })
-  }
-
-}    
-  req.flash('success', 'Cable(s) added Successfully!');
- 
-  res.redirect('/clerk/addCables') 
-
-
-/*ar = req.body[`null-${i}`]
-
-console.log(ar.length)
-
-})
-*/
-
-
-
-
- //importing teachers details from excel
-  
- router.get('/importProducts',isLoggedIn, function(req,res){
-  var pro = req.user
-
- 
-  var errorMsg = req.flash('danger')[0];
-  var successMsg = req.flash('success')[0];
-
-
-   title = "Import Products"
-
-  
-
-  
- res.render('imports/products',{pro:pro,title:title,successMsg: successMsg,errorMsg:errorMsg, noMessages: !successMsg,noMessages2:!errorMsg}) 
-
-   })
-
-
-
-  
- router.post('/importProducts',isLoggedIn, uploadX.single('file'),function(req,res){
-   var term = req.user.term;
-   var m = moment()
-   var year = m.format('YYYY')
-   var id =   req.user._id
- 
-   var pro = req.user
-
-
- 
-   
- /*  if(!req.file){
-       req.session.message = {
-         type:'errors',
-         message:'Select File!'
-       }     
-         res.render('imports/students', {message:req.session.message,pro:pro}) */
-         if (!req.file || req.file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-           req.session.message = {
-               type:'errors',
-               message:'Upload Excel File'
-             }     
-               res.render('imports/products', {message:req.session.message,pro:pro
-                    
-                }) 
- 
- 
- 
-       }
-         
-       else{
-
-       
-           const file = req.file.filename;
-   
-           
-                var wb =  xlsx.readFile(`./public/uploads/` + file)
-        
-                var sheets = wb.Sheets;
-                var sheetNames = wb.SheetNames;
-    
-                var sheetName = wb.SheetNames[0];
-    var sheet = wb.Sheets[sheetName ];
-    
-       for (var i = 0; i < wb.SheetNames.length; ++i) {
-        var sheet = wb.Sheets[wb.SheetNames[i]];
-    
-        console.log(wb.SheetNames.length)
-        var data =xlsx.utils.sheet_to_json(sheet)
-            
-        var newData = data.map(async function (record){
-           let name = record.name;
-           let category = record.category;
-           let price = record.price
-           let vatPrice = record.vatPrice;
-    
-
-
-
-
-
-          req.body.name = record.name  
-req.body.category = record.category
-req.body.price = record.price 
-req.body.vatPrice = record.vatPrice 
-
-          
-
-       req.check('name','Enter Product Name').notEmpty();
-req.check('category','Enter Category').notEmpty();
-0
-req.check('price','Enter Price').notEmpty()
-req.check('vatPrice','Enter VAT price ').notEmpty();
-;
-   
-
-var errors = req.validationErrors();
- 
-if (errors) {
- 
- req.session.errors = errors;
- req.session.success = false;
- console.log( req.session.errors[0].msg)
- req.flash('danger', req.session.errors[0].msg);
-      
-       
- res.redirect('/clerk/importProducts');
-
-}
-
-else
-
-
-           {
-             Product.findOne({'category':category,'name':name})
-             .then(user =>{
-                 if(user){ 
-               // req.session.errors = errors
-                 //req.success.user = false;
-           
-           
-           
-                 req.flash('danger', 'Product already in the system');
-
-                 res.redirect('/clerk/importProducts') 
- 
-                 //res.redirect('/records/import')
-               
-           }
-           else
-
-
-
-
-
-           var book = new Product();
-           book.name = name
-           book.category = category
-           book.barcodeNumber = 'null'
-           book.photo = "null";
-           book.vatPrice = vatPrice
-           book.quantity = 0
-           book.description = 'null'
-          
-           book.rate = 0
-           book.zwl = 0
-           book.price = price
-          
-           book.save()
-             .then(user =>{
-              
-             
-                 
-             /*  req.session.message = {
-                 type:'success',
-                 message:'Account Registered'
-               }  
-               res.render('imports/teacherX',{message:req.session.message});*/
-             })
-
-           })
-         }
-                  
-                   // .catch(err => console.log(err))
-                 
-               
-                   
-                 
-                 
-        
-                 
-                 
-                 
-                   
-                   
-       
-                  
-       
-                  
-            
-               })
-               
-               req.flash('success', 'File Successfully!');
- 
-               res.redirect('/clerk/importProducts') 
-     
-       }
-     }
- 
- })
-
-
-
-//productList
-
-
-router.get('/productList',isLoggedIn,(req, res) => {
-  var pro = req.user
-  
-  
-   Product.find((err, docs) => {
-       if (!err) {
-           res.render("abc/list22", {
-               listX: docs, pro:pro    
-           });
-       }
-       else {
-           console.log('Error in retrieving Student list :' + err);
-       }
-   });
- });
-
-                         
-router.get('/client', isLoggedIn,function(req,res){
-  var pro = req.user
-  res.render('abc/client',{pro:pro})
-})
-
-
-
-router.post('/client',isLoggedIn, function(req,res){
-  var pro = req.user
-  var clientName = req.body.clientName
-
-  var clientEmail = req.body.clientEmail
-  var clientAddress = req.body.clientAddress
-  var city = req.body.city
-  var country = req.body.country
-  var mobile = req.body.mobile
-        req.check('clientName','Enter Client Name').notEmpty();
-            
-               req.check('clientEmail','Enter Email').notEmpty();
-               req.check('clientAddress','Address').notEmpty();
-               req.check('city', 'Enter City').notEmpty();
-               req.check('country', 'Enter Country').notEmpty();
-               req.check('mobile', 'Enter Phone Number').notEmpty();
-
-               var errors = req.validationErrors();
-  
- if (errors) {
-            
-                     req.session.errors = errors;
-                     req.session.success = false;
-                     res.render('abc/client',{ errors:req.session.errors,pro:pro})
-              
-                 }
-
-                 else
-                 {
-                  Client.findOne({'clientName':clientName})
-                  .then(bk =>{
-                      if(bk){ 
-                    // req.session.errors = errors
-                      //req.success.user = false;
-                  
-                     req.session.message = {
-                       type:'errors',
-                       message:'code/book already in the system'
-                     }     
-                     
-                        res.render('abc/client', {
-                            message:req.session.message, pro:pro   }) 
-                     
-                      
-                }
-                
-                              else  {   
-             
-
-        
-              
- 
-        
-                var book = new Client();
-                  book.clientName = clientName
-                  book.clientEmail = clientEmail
-                  book.clientAddress = clientAddress
-                  book.city = city
-                 
-                  book.country = country
-                  book.mobile = mobile
-            
-                      
-                       
-                        book.save()
-                          .then(title =>{
-                          
-                            req.session.message = {
-                              type:'success',
-                              message:'Client added'
-                            }  
-                            res.render('abc/client',{message:req.session.message,pro:pro});
-                          
-                        
-                        })
-                         
-                        
-                      }
-                        })
-                      }
-                        
-                         });
-
-  
-
-                         router.get('/clientList',isLoggedIn,(req, res) => {
-                          var pro = req.user
-                          
-                          
-                           Client.find((err, docs) => {
-                               if (!err) {
-                                   res.render("abc/clientList", {
-                                       listX: docs, pro:pro    
-                                   });
-                               }
-                               else {
-                                   console.log('Error in retrieving Student list :' + err);
-                               }
-                           });
-                         });
-
-
-                                             
-router.get('/company', isLoggedIn,function(req,res){
-  var pro = req.user
-  res.render('abc/company',{pro:pro})
-})
-
-
-
-router.post('/company',isLoggedIn, function(req,res){
-  var pro = req.user
-  var clientName = req.body.companyName
-
-  var clientEmail = req.body.companyEmail
-  var clientAddress = req.body.companyAddress
-  var city = req.body.companyCity
-  var country = req.body.companyCountry
-  var id = req.user._id
-  //var mobile = req.body.mobile
-        req.check('companyName','Enter Company Name').notEmpty();
-            
-               req.check('companyEmail','Enter Email').notEmpty();
-               req.check('companyAddress','Address').notEmpty();
-               req.check('companyCity', 'Enter City').notEmpty();
-               req.check('companyCountry', 'Enter Country').notEmpty();
-              
-
-               var errors = req.validationErrors();
-  
- if (errors) {
-            
-                     req.session.errors = errors;
-                     req.session.success = false;
-                     res.render('abc/company',{ errors:req.session.errors,pro:pro})
-              
-                 }
-
-                 else{
-
-          User.findByIdAndUpdate(id,{$set:{companyName:clientName,companyEmail:clientEmail,companyAddress:clientAddress,companyCity:city,companyCountry:country}},function(err,docs){
-
-          })
-
-
-               res.redirect('/clerk/company')
-                 }
-
-                
-                       
-                        
-                         });
-                         router.get('/viewBooks',isLoggedIn, (req, res) => {
-                          var pro = req.user
-                          Book.find({},(err, docs) => {
-                              if (!err) {
-                                  res.render("abc/list3", {
-                                     list:docs,pro:pro
-                                    
-                                  });
-                              }
-                          });
-                          });
-
-
-
-//Autocomplete for student details when recording school fees
-router.get('/autocompleteX/',isLoggedIn, function(req, res, next) {
-  var code
-
-    var regex= new RegExp(req.query["term"],'i');
-   
-    var bookFilter =Book.find({},{'code':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
-  
-    
-    bookFilter.exec(function(err,data){
-   
- 
-  console.log('data',data)
-  
-  var result=[];
-  
-  if(!err){
-     if(data && data.length && data.length>0){
-       data.forEach(book=>{
- 
-        
-     
-  
-          
-         let obj={
-           id:book._id,
-           label: book.code
-
-       
-     
-       
-         
-          
-  
-           
-         };
-        
-         result.push(obj);
-      
-     
-       });
-  
-     }
-   
-     res.jsonp(result);
-
-    }
-  
-  })
- 
-  });
-
-//role admin
-//this route autopopulates info of the title selected from the autompleteX route
-  router.post('/autoX',isLoggedIn,function(req,res){
-      var code = req.body.code
-
-  
-      
-     
-      Book.find({code:code},function(err,docs){
-     if(docs == undefined){
-       res.redirect('/')
-     }else
-    
-        res.send(docs[0])
-      })
-    
-    
-    })
-
-
-router.get('/invoiceCode',isLoggedIn,function(req,res){
-  var id = req.user._id
-  var m = moment()
-  var month = m.format('MMMM')
-  var year = m.format('YYYY')
-  var mformat = m.format('L')
-var prefix = req.user.prefix
-var num = req.user.num
-
-var code = prefix+num
-
-var codex = new InvoiceCode();
-
-codex.code = code
-codex.mformat = mformat
-
-     
-             
-codex.save()
-.then(title =>{
-  num++
-User.findByIdAndUpdate(id,{$set:{invoCode:code,num:num}},function(err,docs){
-
-})
-
-res.redirect('/clerk/invoice')
-
-})
-
-
-})
-
-
-
-
-
-router.get('/invoice', isLoggedIn,function(req,res){
-  var pro = req.user
-  var companyAddress = req.user.companyAddress
-  var companyCity = req.user.companyCity
-  var companyMobile = req.user.companyMobile
-  var companyCountry = req.user.companyCountry
-  var companyEmail = req.user.companyEmail
-  var companyName = req.user.companyName
-  var successMsg = req.flash('success')[0];
-  res.render('abc/create',{successMsg: successMsg, noMessages: !successMsg,pro:pro,companyAddress:companyAddress,
-  companyCity:companyCity,companyCountry:companyCountry,companyEmail:companyEmail,companyName:companyName,companyMobile:companyMobile})
-})
-
-/* router.post('/invoice',function(req,res){
-console.log(req.body['name[]'],req.body['quantity[]'],req.body['price[]'])
-
-})*/
-
-
-
-
-
-router.post('/invoice',isLoggedIn,function(req,res){
-
- 
-
-  
-  var id = req.user._id
-  var code = req.user.invoCode
-  var m2 = moment()
-  var year = m2.format('YYYY')
-  var month = m2.format('MMMM')
-  var date = req.body.invoice_date
-  var dueDate = req.body.invoice_due_date
-  var itemId = req.body.itemId
-  var companyName = req.body.businessName
-  var companyEmail = req.body.companyEmail
-  var companyCity = req.body.companyCity
-  var companyAddress = req.body.companyAddress
-  var companyMobile = req.body.companyMobile
-  var companyClerk = "Munashe"
-  let c = -1
-  //var notes = req.query.notes
-  var clientName= req.body.clientName
-  var clientEmail = req.body.clientEmail
-  var clientAddress = req.body.clientAddress
-  var clientMobile = req.body.mobile
-  var clientCity = req.body.clientCity
-  var invoiceDescription = 'cables'
-  ar = req.body['name[]']
-  ar1 = req.body['quantity[]']
-  ar2=req.body['price[]']
-console.log(ar,ar1,ar2,'000000')
-req.check('clientName','Enter Client Name').notEmpty();            
-req.check('clientEmail','Enter Client Email').notEmpty();
-req.check('invoice_due_date','Enter Due Date').notEmpty();
-req.check('invoice_date', 'Enter Date').notEmpty();
-
-
-
-
-
-
-
-var errors = req.validationErrors();
-   
-if (errors) {
-
-  req.session.errors = errors;
-  req.session.success = false;
-  req.flash('danger', req.session.errors[0].msg);
-         
-          
-  res.redirect('/clerk/invoice');
-}
-
-
-else{
-/*for(let a in ar){
-  if(ar[a]=== ''){
-    delete ar[a]
-  }
-}*/
-
-ar = ar.filter(v=>v!='')
-
-console.log(ar,'iwee')
-for(var i = 0; i<ar.length;i++){
-  console.log(ar[i])
-  let item = ar[i]
-  
-
-
-var book = new InvoiceSub();
-  book.item = item
-  book.itemId = 'cccc'
-  book.qty = 0
-  book.price = 0
-  book.total = 0
-  book.companyName = companyName
-  book.companyEmail = companyEmail
-  book.companyCity = companyCity
-  book.companyAddress = companyAddress
-  book.companyMobile = companyMobile
-  book.date = date
-  book.clientName = clientName
-  book.clientEmail = clientEmail
-  book.clientAddress = clientAddress
-  book.clientCity = clientCity
-  book.clientMobile = clientMobile
-  book.invoiceDescription = invoiceDescription
-  book.status = 'not saved'
-  book.code = code
-  book.type = "Invoice"
-  book.month = month
-  book.year = year
-  book.size = i
-  book.subtotal = 0
- 
-
-
-      
-       
-        book.save()
-          .then(title =>{
-let client = title.clientName
-console.log(client,'client')
-let pId = title._id
-console.log(pId,"idd")
-
-let size = title.size
-
-console.log(size,'size')
-let qty = ar1[size]
-let price = ar2[size]
-let total = qty * price
-      InvoiceSub.findByIdAndUpdate(pId,{$set:{qty:qty,price:price,total:total}},function(err,ocs){
-      
-      })
-      
-            
-        
-              
-
-
-           
-          })
-        }
-
-res.redirect('/clerk/invoiceProcess')
-      }
-})
-
-/*router.get('/invoiceQ',isLoggedIn,function(req,res){
- var id = req.user._id
-  var m2 = moment()
-  var year = m2.format('YYYY')
-  var month = m2.format('MMMM')
-  var status = "not saved"
-  var code = req.user.invoCode
-  var item = req.query.item
-  var qty = req.query.qty
-  var price = req.query.price
-
-  var total = price * qty
-  var itemId=req.query.itemId
-  var date = req.query.date
-  var dueDate = req.query.dueDate
-  var itemId = req.query.itemId
-  var companyName = req.query.companyName
-  var companyEmail = req.query.companyEmail
-  var companyClerk = req.query.companyClerk
-  //var notes = req.query.notes
-  var clientName= req.query.clientName
-  var clientEmail = req.query.clientEmail
-  var invoiceDescription = req.query.invoiceDescription
-  console.log(companyName,companyEmail,companyClerk,clientName,clientEmail,date,dueDate,'3333')
-  
-  var book = new InvoiceSub();
-  book.item = item
-  book.itemId = itemId
-  book.qty = qty
-  book.price = price
-  book.total = total
-  book.companyName = companyName
-  book.companyEmail = companyEmail
-  book.companyClerk = companyClerk
-  book.date = date
-  book.clientName = clientName
-  book.clientEmail = clientEmail
-  book.invoiceDescription = invoiceDescription
-  book.status = status
-  book.code = code
-  book.month = month
-  book.year = year
- 
-
-
-      
-       
-        book.save()
-          .then(title =>{
-let client = title.clientName
-console.log(client,'client')
-            User.findByIdAndUpdate(id,{$set:{clientName:client}},function(err,docs){
-              res.send(docs)
-            })
-           
-          })
-
-})
-*/
-
-
-///////
-/*
-router.post('/invoiceQ',isLoggedIn,function(req,res){
-  var id = req.user._id
-   var m2 = moment()
-   var year = m2.format('YYYY')
-   var month = m2.format('MMMM')
-   var status = "not saved"
-   var code = req.user.invoCode
-   var item = req.body.item
-   var qty = req.body.qty
-   var price = req.body.price
- 
-   var total = price * qty
-   var itemId=req.body.itemId
-   var date = req.body.date
-   var dueDate = req.body.dueDate
-   var itemId = req.body.itemId
-   var companyName = req.body.companyName
-   var companyEmail = req.body.companyEmail
-   var companyClerk = req.body.companyClerk
-   //var notes = req.query.notes
-   var clientName= req.body.clientName
-   var clientEmail = req.body.clientEmail
-   var invoiceDescription = req.body.invoiceDescription
-   console.log(companyName,companyEmail,companyClerk,clientName,clientEmail,date,dueDate,'3333')
-   
-   var book = new InvoiceSub();
-   book.item = item
-   book.itemId = itemId
-   book.qty = qty
-   book.price = price
-   book.total = total
-   book.companyName = companyName
-   book.companyEmail = companyEmail
-   book.companyClerk = companyClerk
-   book.date = date
-   book.clientName = clientName
-   book.clientEmail = clientEmail
-   book.invoiceDescription = invoiceDescription
-   book.status = status
-   book.code = code
-   book.month = month
-   book.year = year
-  
- 
- 
-       
-        
-         book.save()
-           .then(title =>{
- let client = title.clientName
- console.log(client,'client')
-             User.findByIdAndUpdate(id,{$set:{clientName:client}},function(err,docs){
-               res.send(docs)
-             })
-            
-           })
- 
- })
- */
-
-router.get('/invoiceProcess',isLoggedIn,function(req,res){
-
-var code =req.user.invoCode
-console.log(code,'code')
-
-InvoiceSub.find({code:code},function(err,docs){
-for(var i = 0;i<docs.length;i++){
-let id = docs[i]._id
-InvoiceSub.findByIdAndUpdate(id,{$set:{status:"saved"}},function(err,locs){
-
-})
-
-
-}
-res.redirect('/clerk/invoiceSubTotal')
-})
-
-
-})
-
-router.get('/invoiceSubTotal',isLoggedIn,function(req,res){
- var number1 = 0
- var arrSub = []
-  var code =req.user.invoCode
-  InvoiceSub.find({code:code},function(err,hods){
-
-    for(var q = 0;q<hods.length; q++){
-        
-      arrSub.push(hods[q].total)
-        }
-        //adding all incomes from all lots of the same batch number & growerNumber & storing them in variable called total
-         number1=0;
-        for(var z in arrSub) { number1 += arrSub[z]; }
-        for(var i = 0;i<hods.length;i++){
-
-      let id = hods[i]._id
-console.log(id,'333')
-        InvoiceSub.findByIdAndUpdate(id,{$set:{subtotal:number1}},function(err,locs){
-
-        })
-      }
-
-        res.redirect('/clerk/arrInvoice')
-
-      })
-
-
-
-
-
-})
-
-
-
-router.get('/arrInvoice',isLoggedIn,function(req,res){
-var code = req.user.invoCode
-
-InvoiceCode.find({code:code},function(err,docs){
-for(var i=0;i<docs.length;i++){
-let code= docs[i].code
- arr[code]=[]
-}
-})
-
-res.redirect('/clerk/invoiceGeneration')
-
-})
-
-
-
-
-router.get('/invoiceGeneration',isLoggedIn,function(req,res){
-
-var code = req.user.invoCode
-
-
-//console.log(docs[i].uid,'ccc')
-
-//let uid = "SZ125"
-
-
-//TestX.find({year:year,uid:uid},function(err,vocs) {
-InvoiceSub.find({code:code}).lean().sort({code:1}).then(vocs=>{
-
-
-for(var x = 0;x<vocs.length;x++){
-
-
-if( arr[code].length > 0 && arr[code].find(value => value.code == code) ){
-
-arr[code].push(vocs[x])
-
-    }
-    
-     
-    
-    
-    else{
-      arr[code].push(vocs[x])
-          
-      } 
-
-
- 
-
-     
-
-}  
-    })
-    
-    res.redirect('/clerk/invoiceGeneration2')
-  
-
-/*})*/
-
-})
-
-
-
-
-
-
-router.get('/invoiceGeneration2',isLoggedIn,function(req,res){
-
-var m = moment()
-var mformat = m.format('L')
-var month = m.format('MMMM')
-var year = m.format('YYYY')
-var code = req.user.invoCode
-var clientName = req.user.clientName
-/*console.log(arr,'iiii')*/
-
-
-//console.log(docs,'docs')
-
-const compile = async function (templateName, arr){
-const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
-
-const html = await fs.readFile(filePath, 'utf8')
-
-return hbs.compile(html)(arr)
-
-};
-
-
-
-
-(async function(){
-
-try{
-//const browser = await puppeteer.launch();
-const browser = await puppeteer.launch({
-headless: true,
-args: [
-"--disable-setuid-sandbox",
-"--no-sandbox",
-"--single-process",
-"--no-zygote",
-],
-executablePath:
-process.env.NODE_ENV === "production"
-  ? process.env.PUPPETEER_EXECUTABLE_PATH
-  : puppeteer.executablePath(),
-});
-
-const page = await browser.newPage()
-
-
-
-//const content = await compile('report3',arr[uid])
-const content = await compile('invoice',arr[code])
-
-//const content = await compile('index',arr[code])
-
-await page.setContent(content, { waitUntil: 'networkidle2'});
-//await page.setContent(content)
-//create a pdf document
-
-         
-await page.emulateMediaType('screen')
-let height = await page.evaluate(() => document.documentElement.offsetHeight);
-await page.evaluate(() => matchMedia('screen').matches);
-await page.setContent(content, { waitUntil: 'networkidle0'});
-//console.log(await page.pdf(),'7777')
-
-await page.pdf({
-//path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
-path:(`./invoiceReports/${year}/${clientName}_${code}`+'.pdf'),
-/*format:"A4",
-width:'30cm',
-height:'21cm',*/
-height: height + 'px',
-  printBackground:true
-
-})
-
-
-
-var repo = new InvoiceFiles();
-
-repo.clientName = clientName
-repo.month = month;
-repo.code = code;
-repo.filename = clientName+'.pdf';
-repo.year = year;
-repo.date = mformat
-repo.type = "Invoice"
-repo.save().then(poll =>{
-console.log("Done creating pdf",clientName)
-})
-
-
-/*await browser.close()
-
-process.exit()*/
-req.flash('success', 'Report Generation Successful');
-
-res.redirect('/clerk/generatedInvoice');
-
-
-}catch(e) {
-
-console.log(e)
-
-
-}
-
-
-}) ()
-
-
-
-
-//res.redirect('/hostel/discList')
-
-
-
-
-
-
-
-})
-
-
-
-router.get('/generatedInvoice',isLoggedIn,function(req,res){
-  var code = req.user.invoCode
-
-
-  InvoiceSub.find({code:code},function(err,docs){
-    res.render('abc/invoiceFile',{listX:docs,doc:docs[0]})
-  })
-})
-
-
-router.get('/emailInvoice/:id',isLoggedIn,function(req,res){
-  var code = req.params.id
-
-  InvoiceSub.find({code:code},function(err,docs){
- 
-if(docs){
-     let email = docs[0].clientEmail
-     let companyName = docs[0].companyName
-     
- 
- 
- 
- 
- 
-             
-   const transporter = nodemailer.createTransport({
-     service: 'gmail',
-     port:465,
-     secure:true,
-     logger:true,
-     debug:true,
-     secureConnection:false,
-     auth: {
-         user: "kratosmusasa@gmail.com",
-         pass: "znbmadplpvsxshkg",
-     },
-     tls:{
-       rejectUnAuthorized:true
-     }
-     //host:'smtp.gmail.com'
-   });
-   let mailOptions ={
-     from: '"Admin" <kratosmusasa@gmail.com>', // sender address
-                 to: email, // list of receivers
-                 subject: "Invoice",
-     //text:"Node js testing",
-     attachments: [
-       {
-         filename:'document.pdf',
-         path:`./invoiceReports/${year}/${month}/${companyName}.pdf`
-       }
-     ]
-   };
-   transporter.sendMail(mailOptions, function (error,info){
-     if(error){
-       console.log(error)
-       req.flash('danger', 'Reports Not Emailed!');
-  
-res.redirect('/clerk/quote')
-     }else{
-       console.log('Email sent successfully')
-       req.flash('success', 'Reports Emailed Successfully!');
-  
-res.redirect('/clerk/quote')
-     }
-   })
- 
- }
- })
- 
- })
-
-/////////////Quotations
-
-
-
-router.get('/quoteCode',isLoggedIn,function(req,res){
-  var id = req.user._id
-  var m = moment()
-  var month = m.format('MMMM')
-  var year = m.format('YYYY')
-  var mformat = m.format('L')
-var prefix = req.user.prefix
-var num = req.user.num
-
-var code = prefix+num
-
-var codex = new QuoteCode();
-
-codex.code = code
-codex.mformat = mformat
-
-     
-             
-codex.save()
-.then(title =>{
-  num++
-User.findByIdAndUpdate(id,{$set:{quoteCode:code,num:num}},function(err,docs){
-
-})
-
-res.redirect('/clerk/quote')
-
-})
-
-
-})
-
-
-
-
-
-router.get('/quote', isLoggedIn,function(req,res){
-  var pro = req.user
-  var companyAddress = req.user.companyAddress
-  var companyCity = req.user.companyCity
-  var companyMobile = req.user.companyMobile
-  var companyCountry = req.user.companyCountry
-  var companyEmail = req.user.companyEmail
-  var companyName = req.user.companyName
-  var successMsg = req.flash('success')[0];
-  res.render('abc/quote',{successMsg: successMsg, noMessages: !successMsg,pro:pro,companyAddress:companyAddress,
-  companyCity:companyCity,companyCountry:companyCountry,companyEmail:companyEmail,companyName:companyName,companyMobile:companyMobile})
-})
-
-/* router.post('/invoice',function(req,res){
-console.log(req.body['name[]'],req.body['quantity[]'],req.body['price[]'])
-
-})*/
-
-
-
-
-
-router.post('/quote',isLoggedIn,function(req,res){
-
- 
-
-  
-  var id = req.user._id
-  var code = req.user.quoteCode
-  var m2 = moment()
-  var year = m2.format('YYYY')
-  var month = m2.format('MMMM')
-  var date = req.body.invoice_date
-  var dueDate = req.body.invoice_due_date
-  var itemId = req.body.itemId
-  var companyName = req.body.businessName
-  var companyEmail = req.body.companyEmail
-  var companyCity = req.body.companyCity
-  var companyAddress = req.body.companyAddress
-  var companyMobile = req.body.companyMobile
-  var companyClerk = "Munashe"
-  let c = -1
-  //var notes = req.query.notes
-  var clientName= req.body.clientName
-  var clientEmail = req.body.clientEmail
-  var clientAddress = req.body.clientAddress
-  var clientMobile = req.body.mobile
-  var clientCity = req.body.clientCity
-  var invoiceDescription = 'cables'
-  ar = req.body['name[]']
-  ar1 = req.body['quantity[]']
-  ar2=req.body['price[]']
-console.log(ar,ar1,ar2,'000000')
-req.check('clientName','Enter Client Name').notEmpty();            
-req.check('clientEmail','Enter Client Email').notEmpty();
-req.check('invoice_due_date','Enter Due Date').notEmpty();
-req.check('invoice_date', 'Enter Date').notEmpty();
-
-
-
-
-
-
-
-var errors = req.validationErrors();
-   
-if (errors) {
-
-  req.session.errors = errors;
-  req.session.success = false;
-  req.flash('danger', req.session.errors[0].msg);
-         
-          
-  res.redirect('/clerk/quote');
-}
-
-
-else{
-
-
-for(var i = 0; i<ar.length-2;i++){
-  console.log(ar[i])
-  let item = ar[i]
-  
-
-
-var book = new InvoiceSub();
-  book.item = item
-  book.itemId = 'cccc'
-  book.qty = 0
-  book.price = 0
-  book.total = 0
-  book.companyName = companyName
-  book.companyEmail = companyEmail
-  book.companyCity = companyCity
-  book.companyAddress = companyAddress
-  book.companyMobile = companyMobile
-  book.date = date
-  book.clientName = clientName
-  book.clientEmail = clientEmail
-  book.clientAddress = clientAddress
-  book.clientCity = clientCity
-  book.clientMobile = clientMobile
-  book.invoiceDescription = invoiceDescription
-  book.status = 'not saved'
-  book.code = code
-  book.month = month
-  book.year = year
-  book.type = "Quote"
-  book.size = i
- 
-
-
-      
-       
-        book.save()
-          .then(title =>{
-let client = title.clientName
-console.log(client,'client')
-let pId = title._id
-console.log(pId,"idd")
-
-let size = title.size
-
-console.log(size,'size')
-let qty = ar1[size]
-let price = ar2[size]
-let total = qty * price
-      InvoiceSub.findByIdAndUpdate(pId,{$set:{qty:qty,price:price,total:total}},function(err,ocs){
-      
-      })
-      
-            
-        
-              
-
-
-           
-          })
-        }
-
-res.redirect('/clerk/quoteProcess')
-      }
-})
-
-router.get('/quoteProcess',isLoggedIn,function(req,res){
-
-var code =req.user.quoteCode
-console.log(code,'code')
-
-InvoiceSub.find({code:code,status:"not saved"},function(err,docs){
-for(var i = 0;i<docs.length;i++){
-let id = docs[i]._id
-InvoiceSub.findByIdAndUpdate(id,{$set:{status:"saved"}},function(err,locs){
-
-})
-
-
-}
-res.redirect('/clerk/quoteSubTotal')
-})
-
-
-})
-
-router.get('/quoteSubTotal',isLoggedIn,function(req,res){
- var number1 = 0
- var arrSub = []
-  var code =req.user.quoteCode
-  InvoiceSub.find({code:code,status:"saved"},function(err,hods){
-
-    for(var q = 0;q<hods.length; q++){
-        
-      arrSub.push(hods[q].total)
-        }
-        //adding all incomes from all lots of the same batch number & growerNumber & storing them in variable called total
-         number1=0;
-        for(var z in arrSub) { number1 += arrSub[z]; }
-        for(var i = 0;i<hods.length;i++){
-
-      let id = hods[i]._id
-console.log(id,'333')
-        InvoiceSub.findByIdAndUpdate(id,{$set:{subtotal:number1}},function(err,locs){
-
-        })
-      }
-
-        res.redirect('/clerk/arrQuote')
-
-      })
-
-
-
-
-
-})
-
-
-
-router.get('/arrQuote',isLoggedIn,function(req,res){
-var code = req.user.quoteCode
-
-QuoteCode.find({code:code},function(err,docs){
-for(var i=0;i<docs.length;i++){
-let code= docs[i].code
- arr2[code]=[]
-}
-})
-
-res.redirect('/clerk/quoteGeneration')
-
-})
-
-
-
-
-router.get('/quoteGeneration',isLoggedIn,function(req,res){
-
-var code = req.user.quoteCode
-
-
-//console.log(docs[i].uid,'ccc')
-
-//let uid = "SZ125"
-
-
-//TestX.find({year:year,uid:uid},function(err,vocs) {
-InvoiceSub.find({code:code}).lean().sort({code:1}).then(vocs=>{
-
-
-for(var x = 0;x<vocs.length;x++){
-
-
-if( arr2[code].length > 0 && arr2[code].find(value => value.code == code) ){
-
-arr2[code].push(vocs[x])
-
-    }
-    
-     
-    
-    
-    else{
-      arr2[code].push(vocs[x])
-          
-      } 
-
-
- 
-
-     
-
-}  
-    })
-    
-    res.redirect('/clerk/quoteGeneration2')
-  
-
-/*})*/
-
-})
-
-
-
-
-
-
-router.get('/quoteGeneration2',isLoggedIn,function(req,res){
-
-var m = moment()
-var mformat = m.format('L')
-var month = m.format('MMMM')
-var year = m.format('YYYY')
-var code = req.user.quoteCode
-var clientName = req.user.clientName
-/*console.log(arr,'iiii')*/
-
-
-//console.log(docs,'docs')
-
-const compile = async function (templateName, arr2){
-const filePath = path.join(process.cwd(),'templates',`${templateName}.hbs`)
-
-const html = await fs.readFile(filePath, 'utf8')
-
-return hbs.compile(html)(arr2)
-
-};
-
-
-
-
-(async function(){
-
-try{
-//const browser = await puppeteer.launch();
-const browser = await puppeteer.launch({
-headless: true,
-args: [
-"--disable-setuid-sandbox",
-"--no-sandbox",
-"--single-process",
-"--no-zygote",
-],
-executablePath:
-process.env.NODE_ENV === "production"
-  ? process.env.PUPPETEER_EXECUTABLE_PATH
-  : puppeteer.executablePath(),
-});
-
-const page = await browser.newPage()
-
-
-
-//const content = await compile('report3',arr[uid])
-const content = await compile('quote',arr2[code])
-
-//const content = await compile('index',arr[code])
-
-await page.setContent(content, { waitUntil: 'networkidle2'});
-//await page.setContent(content)
-//create a pdf document
-await page.emulateMediaType('screen')
-let height = await page.evaluate(() => document.documentElement.offsetHeight);
-await page.evaluate(() => matchMedia('screen').matches);
-await page.setContent(content, { waitUntil: 'networkidle0'});
-//console.log(await page.pdf(),'7777')
-
-await page.pdf({
-//path:('../gitzoid2/reports/'+year+'/'+month+'/'+uid+'.pdf'),
-path:(`./quoteReports/${year}/${clientName}_${code}`+'.pdf'),
-/*format:"A4",
-width:'30cm',
-height:'21cm',*/
-height: height + 'px',
-printBackground:true
-
-})
-
-
-
-var repo = new InvoiceFiles();
-
-repo.clientName = clientName
-repo.month = month;
-repo.code = code;
-repo.type = 'Quote';
-repo.filename = clientName+'.pdf';
-repo.year = year;
-repo.date = mformat
-repo.save().then(poll =>{
-console.log("Done creating pdf",clientName)
-})
-
-
-/*await browser.close()
-
-process.exit()*/
-req.flash('success', 'Report Generation Successful');
-
-res.redirect('/clerk/generatedQuote');
-
-
-}catch(e) {
-
-console.log(e)
-
-
-}
-
-
-}) ()
-
-
-
-
-//res.redirect('/hostel/discList')
-
-})
-
-
-
-
-
-router.get('/generatedQuote',isLoggedIn,function(req,res){
-  var code = req.user.quoteCode
-
-
-  InvoiceSub.find({code:code},function(err,docs){
-    res.render('abc/quoteFile',{listX:docs,doc:docs[0]})
-  })
-})
-
-
-router.get('/emailQuote/:id',isLoggedIn,function(req,res){
-  var code = req.params.id
-
-  InvoiceSub.find({code:code},function(err,docs){
- 
-if(docs){
-     let email = docs[0].clientEmail
-     let companyName = docs[0].companyName
-     
- 
- 
- 
- 
- 
-             
-   const transporter = nodemailer.createTransport({
-     service: 'gmail',
-     port:465,
-     secure:true,
-     logger:true,
-     debug:true,
-     secureConnection:false,
-     auth: {
-         user: "kratosmusasa@gmail.com",
-         pass: "znbmadplpvsxshkg",
-     },
-     tls:{
-       rejectUnAuthorized:true
-     }
-     //host:'smtp.gmail.com'
-   });
-   let mailOptions ={
-     from: '"Admin" <kratosmusasa@gmail.com>', // sender address
-                 to: email, // list of receivers
-                 subject: "Quote",
-     //text:"Node js testing",
-     attachments: [
-       {
-         filename:'document.pdf',
-         path:`./quoteReports/${year}/${month}/${companyName}.pdf`
-       }
-     ]
-   };
-   transporter.sendMail(mailOptions, function (error,info){
-     if(error){
-       console.log(error)
-       req.flash('danger', 'Quote Not Emailed!');
-  
-res.redirect('/clerk/quote')
-     }else{
-       console.log('Email sent successfully')
-       req.flash('success', 'Reports Emailed Successfully!');
-  
-res.redirect('/clerk/quote')
-     }
-   })
- 
- }
- })
- 
- })
-
-
-
-router.get('/autocompleteXN/', function(req, res, next) {
-  var code
-
-    var regex= new RegExp(req.query["term"],'i');
-   
-    var bookFilter =Product.find({},{'name':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
-  
-    
-    bookFilter.exec(function(err,data){
-   
- 
-  console.log('data',data)
-  
-  var result=[];
-  
-  if(!err){
-     if(data && data.length && data.length>0){
-       data.forEach(book=>{
- 
-        
-     
-  
-          
-         let obj={
-           id:book._id,
-           label: book.name
-
-       
-     
-       
-         
-          
-  
-           
-         };
-        
-         result.push(obj);
-      
-     
-       });
-  
-     }
-   
-     res.jsonp(result);
-
-    }
-  
-  })
- 
-  });
-
-//role admin
-//this route autopopulates info of the title selected from the autompleteX route
-  router.post('/autoXN',function(req,res){
-      var code = req.body.code
-
-  
-      
-     
-      Product.find({name:code},function(err,docs){
-     if(docs == undefined){
-       res.redirect('/')
-     }else
-    
-        res.send(docs[0])
-      })
-    
-    
-    })
-
-    
-
-
-
-    
-
-router.get('/autocompleteClient/', function(req, res, next) {
-  var code
-
-    var regex= new RegExp(req.query["term"],'i');
-   
-    var bookFilter =Client.find({},{'clientName':1}).sort({"updated_at":-1}).sort({"created_at":-1}).limit(20);
-  
-    
-    bookFilter.exec(function(err,data){
-   
- 
-  console.log('data',data)
-  
-  var result=[];
-  
-  if(!err){
-     if(data && data.length && data.length>0){
-       data.forEach(book=>{
- 
-        
-     
-  
-          
-         let obj={
-           id:book._id,
-           label: book.clientName
-
-       
-     
-       
-         
-          
-  
-           
-         };
-        
-         result.push(obj);
-      
-     
-       });
-  
-     }
-   
-     res.jsonp(result);
-
-    }
-  
-  })
- 
-  });
-
-//role admin
-//this route autopopulates info of the title selected from the autompleteX route
-  router.post('/autoClient',function(req,res){
-      var code = req.body.code
-
-  
-      
-     
-      Client.find({clientName:code},function(err,docs){
-     if(docs == undefined){
-       res.redirect('/')
-     }else
-    
-        res.send(docs[0])
-      })
-    
-    
-    })
-
-    ///////////folders invoic
-
-
-    router.get('/folderReg',isLoggedIn,function(req,res){
-      var pro = req.user
-      var id = req.user._id
-     
-    
-              res.render('abcInvoiceFolder/folders2',{pro:pro,id:id,})
-     
-    })
-    
-
-
-
-    ///monthly
-
-router.get('/folderMonthlyInvoiceReg/',isLoggedIn,function(req,res){
-  var pro = req.user
-  var id = req.params.id
-  var uid = req.user._id
-  var arr = []
-
- /* User.findByIdAndUpdate(uid,{$set:{hostelFolder:'annual'}},function(err,locs){
-
-  })*/
-
-
-  Year.find({}).sort({year:1}).then(docs=>{
-     
-          res.render('abcInvoiceFolder/fileMonthly',{listX:docs,pro:pro})
-
-        
-  })
-})
-
-
-
-
-router.get('/invoiceSelectMonthFolderReg/:id',isLoggedIn,function(req,res){
-  var pro = req.user
-  var id = req.params.id
-  var uid = req.user._id
-  var arr = []
-  User.findByIdAndUpdate(uid,{$set:{hostelYear:id}},function(err,locs){
-
-  })
-
-  Month.find({}).sort({num:1}).then(docs=>{
-     
-          res.render('abcInvoiceFolder/month',{pro:pro,listX:docs,id:id})
-
-  })
-  
-})
-
-router.get('/viewMonthlyInvoiceFile/:id',isLoggedIn,function(req,res){
-  var id = req.params.id
-  var pro = req.user
-  var hostel = req.user.hostel
-  var floor = req.user.hostelFloor
-  var year = req.user.hostelYear
-
-  
-
-   InvoiceFiles.find({year:year,month:id},function(err,docs){
-     if(docs){
-
-   
-
-
-
-res.render('abcInvoiceFolder/filesMonth',{listX:docs,pro:pro,id:id,year:year})
-}
-})
-    
-
-
-})
-
-
-
-
-//download invoice file
-
-router.get('/downloadInvoice/:id',isLoggedIn,function(req,res){
-  var m = moment()
-  var month = req.user.hostelMonth
-  var year = req.user.hostelYear
-  var mformat = m.format('L')
-  InvoiceFiles.findById(req.params.id,function(err,doc){
-    var name = doc.filename;
-    //res.download( './public/uploads/'+name, name)
-  
-    res.download( './invoiceReports/'+year+'/'+name, name)
-  })  
-  
-  })
-  
-
-///Quotations
-
-  ///monthly
-
-  router.get('/folderMonthlyQuoteReg/',isLoggedIn,function(req,res){
-    var pro = req.user
-    var id = req.params.id
-    var uid = req.user._id
-    var arr = []
-  
-   /* User.findByIdAndUpdate(uid,{$set:{hostelFolder:'annual'}},function(err,locs){
-  
-    })*/
-  
-  
-    Year.find({}).sort({year:1}).then(docs=>{
-       
-            res.render('abcQuoteFolder/fileMonthly',{listX:docs,pro:pro})
-  
-          
-    })
-  })
-  
-  
-  
-  
-  router.get('/quoteSelectMonthFolderReg/:id',isLoggedIn,function(req,res){
-    var pro = req.user
-    var id = req.params.id
-    var uid = req.user._id
-    var arr = []
-    User.findByIdAndUpdate(uid,{$set:{hostelYear:id}},function(err,locs){
-  
-    })
-  
-    Month.find({}).sort({num:1}).then(docs=>{
-       
-            res.render('abcQuoteFolder/month',{pro:pro,listX:docs,id:id})
-  
-    })
-    
-  })
-  
-  router.get('/viewMonthlyQuoteFile/:id',isLoggedIn,function(req,res){
-    var id = req.params.id
-    var pro = req.user
-    var hostel = req.user.hostel
-    var floor = req.user.hostelFloor
-    var year = req.user.hostelYear
-  
-    
-  
-     InvoiceFiles.find({year:year,month:id},function(err,docs){
-       if(docs){
-  
-     
-  
-  
-  
-  res.render('abcQuoteFolder/filesMonth',{listX:docs,pro:pro,id:id,year:year})
-  }
-  })
-      
-  
-  
-  })
-  
-  
-  
-  
-  //download invoice file
-  
-  router.get('/downloadQuote/:id',isLoggedIn,function(req,res){
-    var m = moment()
-    var month = req.user.hostelMonth
-    var year = req.user.hostelYear
-    var mformat = m.format('L')
-    InvoiceFiles.findById(req.params.id,function(err,doc){
-      var name = doc.filename;
-      //res.download( './public/uploads/'+name, name)
-    
-      res.download( './invoiceReports/'+year+'/'+name, name)
-    })  
-    
-    })
-    
-  
 
 
 
